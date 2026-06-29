@@ -1,5 +1,5 @@
 /* Swarasadhana — service worker (offline-capable PWA) */
-const VERSION = 'swarasadhana-v1';
+const VERSION = 'swarasadhana-v2';
 const CORE_CACHE = VERSION + '-core';
 const RUNTIME_CACHE = VERSION + '-runtime';
 

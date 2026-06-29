@@ -256,6 +256,11 @@ class AudioEngine {
     // exercise vocal player
     this.ex = { running: false, bus: null, curVB: null, raf: null, times: [], _lastIdx: -2 };
     this._exDest = null;
+    this._unlocked = false;
+    // iOS / mobile Safari: Web Audio is silenced until it is unlocked inside a
+    // real user gesture, and a standalone (home-screen) PWA often resumes with
+    // the context suspended. Install global one-touch unlock + resume handlers.
+    this.installUnlockHandlers();
   }
 
   ensure() {
@@ -267,6 +272,70 @@ class AudioEngine {
     }
     if (this.ac.state === "suspended") this.ac.resume();
     return this.ac;
+  }
+
+  // ---- iOS audio unlock ------------------------------------------------
+  // Builds a short silent WAV once; a looping <audio> element playing it holds
+  // the iOS media audio session open, which lets Web Audio play through the
+  // speaker even when the ring/silent switch is on.
+  _silentClipUrl() {
+    if (this._silentUrl) return this._silentUrl;
+    const sr = 8000, n = 1600; // ~0.2s of mono silence
+    const buf = new ArrayBuffer(44 + n * 2);
+    const v = new DataView(buf);
+    const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    ws(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); ws(8, "WAVE");
+    ws(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+    v.setUint16(22, 1, true); v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    ws(36, "data"); v.setUint32(40, n * 2, true); // samples already zero = silence
+    this._silentUrl = URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+    return this._silentUrl;
+  }
+
+  // Call inside a user gesture: create + resume the context, kick a silent
+  // Web Audio buffer, and start the looping silent <audio> session opener.
+  unlock() {
+    try {
+      this.ensure();
+      if (this.ac && this.ac.state === "suspended") this.ac.resume();
+      // a 1-frame silent buffer is the classic Web Audio unlock
+      const b = this.ac.createBuffer(1, 1, 22050);
+      const s = this.ac.createBufferSource();
+      s.buffer = b; s.connect(this.ac.destination);
+      s.start(0);
+    } catch (e) {}
+    // silent-switch bypass via a looping muted-free <audio> element
+    try {
+      if (!this._silentAudio && typeof Audio !== "undefined") {
+        const a = new Audio(this._silentClipUrl());
+        a.loop = true; a.preload = "auto"; a.volume = 1;
+        a.setAttribute("playsinline", ""); a.setAttribute("webkit-playsinline", "");
+        this._silentAudio = a;
+      }
+      if (this._silentAudio && this._silentAudio.paused) {
+        const p = this._silentAudio.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    } catch (e) {}
+    this._unlocked = true;
+  }
+
+  installUnlockHandlers() {
+    if (this._unlockInstalled || typeof document === "undefined") return;
+    this._unlockInstalled = true;
+    const handler = () => { this.unlock(); };
+    const evs = ["touchstart", "touchend", "pointerdown", "mousedown", "click", "keydown"];
+    evs.forEach(ev => document.addEventListener(ev, handler, { capture: true, passive: true }));
+    // A standalone PWA frequently returns from background with the context
+    // suspended — resume it (and re-arm the silent session) on refocus.
+    const resume = () => {
+      if (this.ac && this.ac.state === "suspended") { try { this.ac.resume(); } catch (e) {} }
+      if (this._silentAudio && this._silentAudio.paused) { try { this._silentAudio.play().catch(() => {}); } catch (e) {} }
+    };
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) resume(); });
+    window.addEventListener("focus", resume);
+    window.addEventListener("pageshow", resume);
   }
 
   setTonic(hz) { this.tonicHz = hz; }
