@@ -1,0 +1,2413 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>സ്വരസാധന · Carnatic Practice</title>
+<meta name="description" content="Swarasadhana — a Carnatic music riyaz companion: sarali varisai exercises, tanpura drone, metronome and a song builder.">
+<meta name="theme-color" content="#5c1a1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="സ്വരസാധന">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./assets/images/favicon.png">
+<link rel="apple-touch-icon" href="./assets/images/apple-touch-icon.png">
+<link rel="stylesheet" href="./assets/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="./assets/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./assets/audio-engine.js"></script>
+</helmet>
+<div style="--cream:#f4ecdd; --warm:#fffaf3; --maroon:#5c1a1a; --maroon2:#7a2424; --gold:#b58a2e; --gold2:#d8b863; --ink:#3a2418; --muted:#8c7659; --line:#e7d8ba; --good:#3f7a4a; --warn:#b06a1a; font-family:'Noto Serif Malayalam',serif; color:var(--ink); background:var(--cream); min-height:100vh; background-image:radial-gradient(circle at 50% -10%, rgba(181,138,46,0.10), transparent 55%);">
+
+  <!-- ============ HEADER ============ -->
+  <header style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:16px 28px; background:linear-gradient(180deg,#5c1a1a,#4a1414); color:#f4ecdd; border-bottom:3px solid var(--gold);">
+    <div class="header-brand" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+      <a href="https://www.reliefcorner.org/" target="_blank" rel="noopener" title="Relief Corner" style="display:flex; text-decoration:none; flex:none;">
+        <div style="width:48px;height:48px;border-radius:50%;border:2px solid var(--gold2);background:radial-gradient(circle at 50% 32%, #6e2121, #3c1010);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+          <img src="./assets/images/logo-white.png" alt="Swarasadhana logo" style="width:36px;height:36px;object-fit:contain;display:block;">
+        </div>
+      </a>
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:3px; color:var(--gold2); text-transform:uppercase;">Carnatic Practice</div>
+        <div style="font-size:26px; font-weight:600; line-height:1.05;">സ്വരസാധന</div>
+      </div>
+      <div style="display:flex; gap:7px; flex-wrap:wrap; margin-left:6px;">
+        <span style="font-size:12px; white-space:nowrap; background:rgba(216,184,99,0.14); border:1px solid var(--gold); color:var(--gold2); padding:4px 11px; border-radius:20px;">രാഗം · {{ headerRaga }}</span>
+        <span style="font-size:12px; white-space:nowrap; background:rgba(216,184,99,0.14); border:1px solid var(--gold); color:var(--gold2); padding:4px 11px; border-radius:20px;">താളം · {{ headerThala }}</span>
+        <span style="font-size:12px; white-space:nowrap; background:rgba(216,184,99,0.14); border:1px solid var(--gold); color:var(--gold2); padding:4px 11px; border-radius:20px;">{{ headerBpm }} BPM</span>
+      </div>
+    </div>
+    <div class="header-controls" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-left:auto;">
+      <label style="display:flex; align-items:center; gap:8px; font-size:15px;">
+        <span style="color:var(--gold2);">ശ്രുതി (Sa)</span>
+        <select onChange="{{ changeTonic }}" value="{{ tonicHz }}" style="font-family:inherit; font-size:15px; padding:7px 10px; border-radius:8px; border:1px solid var(--gold); background:#fffaf3; color:var(--ink);">
+          <option value="130.81">C</option>
+          <option value="138.59">C♯ / D♭</option>
+          <option value="146.83">D</option>
+          <option value="155.56">D♯ / E♭</option>
+          <option value="164.81">E</option>
+          <option value="174.61">F</option>
+          <option value="185.00">F♯ / G♭</option>
+          <option value="196.00">G</option>
+          <option value="207.65">G♯ / A♭</option>
+          <option value="220.00">A</option>
+          <option value="233.08">A♯ / B♭</option>
+          <option value="246.94">B</option>
+        </select>
+      </label>
+      <button onClick="{{ toggleTan }}" title="തംപുര ശ്രുതി" style="display:flex; align-items:center; gap:9px; font-family:inherit; font-size:14px; padding:7px 12px 7px 14px; border-radius:30px; border:1px solid var(--gold2); background:{{ tanSwitchBg }}; color:{{ tanSwitchColor }}; cursor:pointer;">
+        <span>തംപുര</span>
+        <span style="position:relative; width:38px; height:20px; border-radius:20px; background:{{ tanTrackBg }}; flex:none; transition:background 0.2s;">
+          <span style="position:absolute; top:2px; left:{{ tanKnobLeft }}; width:16px; height:16px; border-radius:50%; background:#fffaf3; transition:left 0.2s;"></span>
+        </span>
+        <span style="font-size:12px; opacity:0.85;">{{ tanSwitchState }}</span>
+      </button>
+      <button onClick="{{ stopAll }}" style="font-family:inherit; font-size:14px; padding:8px 14px; border-radius:8px; border:1px solid var(--gold2); background:transparent; color:var(--gold2); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(216,184,99,0.15);">⏹ എല്ലാം നിർത്തുക</button>
+    </div>
+  </header>
+
+  <!-- ============ NAV ============ -->
+  <nav style="display:flex; gap:4px; padding:0 16px; background:#fff8ec; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20; flex-wrap:wrap; justify-content:center;">
+    <button onClick="{{ navHome }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      ഹോം
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+    <button onClick="{{ navExercises }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      അഭ്യാസങ്ങൾ
+      <sc-if value="{{ isExercises }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+    <button onClick="{{ navSettings }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      ക്രമീകരണം
+      <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+    <sc-if value="{{ showRagas }}" hint-placeholder-val="{{ true }}">
+    <button onClick="{{ navRagas }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      രാഗങ്ങൾ
+      <sc-if value="{{ isRagas }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+    </sc-if>
+    <button onClick="{{ navSong }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      പാട്ട് &amp; ശ്രുതി
+      <sc-if value="{{ isSong }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+    <sc-if value="{{ showSongbook }}" hint-placeholder-val="{{ true }}">
+    <button onClick="{{ navSongbook }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      എന്റെ പാട്ടുകൾ
+      <sc-if value="{{ isSongbook }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+    </sc-if>
+    <button onClick="{{ navRecord }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      റെക്കോർഡ് &amp; വിലയിരുത്തൽ
+      <sc-if value="{{ isRecord }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+    <button onClick="{{ navHelp }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      സഹായം
+      <sc-if value="{{ isHelp }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+  </nav>
+
+  <main style="max-width:1080px; margin:0 auto; padding:32px 22px 80px;">
+
+    <!-- ==================== HOME ==================== -->
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <div style="text-align:center; padding:30px 10px 40px;">
+        <div style="width:108px;height:108px;border-radius:50%;margin:0 auto 22px;border:3px solid var(--gold2);background:radial-gradient(circle at 50% 32%, #6e2121, #3c1010);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 26px rgba(92,26,26,0.28);">
+          <img src="./assets/images/logo-white.png" alt="Swarasadhana logo" style="width:78px;height:78px;object-fit:contain;display:block;">
+        </div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:15px; letter-spacing:4px; color:var(--gold); text-transform:uppercase;">Riyaz Companion</div>
+        <h1 style="font-size:clamp(32px,6vw,52px); font-weight:600; margin:8px 0 14px; color:var(--maroon); line-height:1.1;">കർണാടക സംഗീത സാധന</h1>
+        <p style="font-size:18px; color:var(--muted); max-width:620px; margin:0 auto; line-height:1.6;">ശ്രുതി, താളം, രാഗം — ഓരോന്നും കൃത്യമായി പരിശീലിക്കാം. നിങ്ങളുടെ പാട്ട് റെക്കോർഡ് ചെയ്ത് കൃത്യത അളക്കാം, മെച്ചപ്പെടാനുള്ള മാർഗങ്ങൾ അറിയാം.</p>
+        <div style="margin-top:18px; display:inline-flex; align-items:center; gap:8px; font-size:15px; color:var(--ink); background:#fffaf3; border:1px solid var(--line); padding:8px 16px; border-radius:30px;">
+          <span style="width:9px;height:9px;border-radius:50%;background:var(--good);"></span>
+          ഇപ്പോഴത്തെ ശ്രുതി — <strong style="color:var(--maroon);">{{ tonicName }}</strong>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px;">
+        <button onClick="{{ navExercises }}" style="text-align:left; cursor:pointer; font-family:inherit; color:inherit; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);" style-hover="border-color:var(--gold); transform:translateY(-2px);">
+          <div style="font-size:30px;">🎼</div>
+          <div style="font-size:21px; font-weight:600; color:var(--maroon); margin:10px 0 6px;">അഭ്യാസങ്ങൾ</div>
+          <div style="font-size:15px; color:var(--muted); line-height:1.55;">സരളി, ജണ്ട, വക്ര ജണ്ട, ദാട്ടു, അലങ്കാരം, ഗീതം, വർണം — ഏത് മേളകർത്താ രാഗത്തിലും ശബ്ദസഹിതം പാടി പഠിക്കാം.</div>
+        </button>
+        <sc-if value="{{ showRagas }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ navRagas }}" style="text-align:left; cursor:pointer; font-family:inherit; color:inherit; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);" style-hover="border-color:var(--gold); transform:translateY(-2px);">
+          <div style="font-size:30px;">📜</div>
+          <div style="font-size:21px; font-weight:600; color:var(--maroon); margin:10px 0 6px;">മേളകർത്താ രാഗങ്ങൾ</div>
+          <div style="font-size:15px; color:var(--muted); line-height:1.55;">72 മേളകർത്താ രാഗങ്ങളുടെ ആരോഹണ–അവരോഹണം. ▶ അമർത്തി തിരഞ്ഞെടുത്ത ശ്രുതിയിൽ കേൾക്കാം.</div>
+        </button>
+        </sc-if>
+        <button onClick="{{ navSettings }}" style="text-align:left; cursor:pointer; font-family:inherit; color:inherit; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);" style-hover="border-color:var(--gold); transform:translateY(-2px);">
+          <div style="font-size:30px;">🥁</div>
+          <div style="font-size:21px; font-weight:600; color:var(--maroon); margin:10px 0 6px;">ക്രമീകരണം &amp; താളവാദ്യങ്ങൾ</div>
+          <div style="font-size:15px; color:var(--muted); line-height:1.55;">വോള്യം, രാഗം, കാലപ്രമാണം, മെട്രോണോം, തംപുര, മൃദംഗ താള ജനറേറ്റർ — സാധനയ്ക്കുള്ള പശ്ചാത്തലം.</div>
+        </button>
+        <button onClick="{{ navSong }}" style="text-align:left; cursor:pointer; font-family:inherit; color:inherit; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);" style-hover="border-color:var(--gold); transform:translateY(-2px);">
+          <div style="font-size:30px;">🎵</div>
+          <div style="font-size:21px; font-weight:600; color:var(--maroon); margin:10px 0 6px;">പാട്ട് &amp; ശ്രുതി</div>
+          <div style="font-size:15px; color:var(--muted); line-height:1.55;">MP3 അപ്‌ലോഡ് ചെയ്ത് ശ്രുതിയും വേഗതയും വെവ്വേറെ ക്രമീകരിക്കാം, സേവ് ചെയ്യാം.</div>
+        </button>
+        <sc-if value="{{ showSongbook }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ navSongbook }}" style="text-align:left; cursor:pointer; font-family:inherit; color:inherit; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);" style-hover="border-color:var(--gold); transform:translateY(-2px);">
+          <div style="font-size:30px;">✍️</div>
+          <div style="font-size:21px; font-weight:600; color:var(--maroon); margin:10px 0 6px;">എന്റെ പാട്ടുകൾ</div>
+          <div style="font-size:15px; color:var(--muted); line-height:1.55;">സ രി ഗ മ സ്വരങ്ങൾ കൊണ്ട് സ്വന്തം സ്വരനോട്ടേഷൻ എഴുതി സേവ് ചെയ്യാം, ഹാർമോണിയത്തിൽ തിരികെ കേൾക്കാം.</div>
+        </button>
+        </sc-if>
+        <button onClick="{{ navRecord }}" style="text-align:left; cursor:pointer; font-family:inherit; color:inherit; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);" style-hover="border-color:var(--gold); transform:translateY(-2px);">
+          <div style="font-size:30px;">🎙️</div>
+          <div style="font-size:21px; font-weight:600; color:var(--maroon); margin:10px 0 6px;">റെക്കോർഡ് &amp; വിലയിരുത്തൽ</div>
+          <div style="font-size:15px; color:var(--muted); line-height:1.55;">പാടി റെക്കോർഡ് ചെയ്യൂ. ശ്രുതി, താളം, രാഗം — മൂന്നിലും കൃത്യത സ്കോർ ചെയ്യാം.</div>
+        </button>
+      </div>
+
+      <div style="margin-top:28px; background:#fffaf3; border:1px solid var(--line); border-radius:14px; padding:24px 26px;">
+        <div style="font-size:18px; font-weight:600; color:var(--maroon); margin-bottom:14px;">എങ്ങനെ ഉപയോഗിക്കാം</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:18px;">
+          <div style="display:flex; gap:12px;"><div style="font-family:'Cormorant Garamond',serif; font-size:28px; color:var(--gold); font-weight:700;">1</div><div style="font-size:15px; color:var(--ink); line-height:1.5;">മുകളിൽ നിങ്ങളുടെ <b>ശ്രുതി</b> തിരഞ്ഞെടുക്കുക.</div></div>
+          <div style="display:flex; gap:12px;"><div style="font-family:'Cormorant Garamond',serif; font-size:28px; color:var(--gold); font-weight:700;">2</div><div style="font-size:15px; color:var(--ink); line-height:1.5;"><b>തംപുര / മെട്രോണോം</b> ഓണാക്കി പശ്ചാത്തലം ഒരുക്കുക.</div></div>
+          <div style="display:flex; gap:12px;"><div style="font-family:'Cormorant Garamond',serif; font-size:28px; color:var(--gold); font-weight:700;">3</div><div style="font-size:15px; color:var(--ink); line-height:1.5;"><b>റെക്കോർഡ്</b> ചെയ്ത് കൃത്യത പരിശോധിക്കുക.</div></div>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ==================== SONG ==================== -->
+    <sc-if value="{{ isSong }}" hint-placeholder-val="{{ false }}">
+    <section>
+      <h2 style="font-size:30px; font-weight:600; color:var(--maroon); margin:0 0 6px;">പാട്ട് &amp; ശ്രുതി ക്രമീകരണം</h2>
+      <p style="color:var(--muted); font-size:16px; margin:0 0 24px;">MP3 ഫയൽ അപ്‌ലോഡ് ചെയ്ത് വേഗതയും (laya) ശ്രുതിയും (pitch) വെവ്വേറെ മാറ്റാം. പഠിക്കാൻ പാട്ട് പതുക്കെയാക്കാം.</p>
+
+      <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
+        <label style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+          <span style="background:var(--maroon); color:#f4ecdd; padding:11px 18px; border-radius:9px; cursor:pointer; font-size:15px;">📁 MP3 തിരഞ്ഞെടുക്കുക</span>
+          <input type="file" accept="audio/*" onChange="{{ onFile }}" style="display:none;">
+          <span style="font-size:15px; color:var(--ink);">{{ songNameDisplay }}</span>
+        </label>
+
+        <sc-if value="{{ songLoaded }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:22px;">
+          <!-- transport -->
+          <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+            <button onClick="{{ toggleSongPlay }}" style="font-family:inherit; font-size:16px; padding:12px 24px; border-radius:9px; border:none; background:var(--maroon); color:#f4ecdd; cursor:pointer; min-width:130px;">{{ songPlayLabel }}</button>
+            <button onClick="{{ resetSongBtn }}" style="font-family:inherit; font-size:15px; padding:11px 18px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer;">↺ തുടക്കം</button>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:18px; color:var(--ink); letter-spacing:1px;">{{ posStr }} / {{ durStr }}</div>
+          </div>
+          <div onClick="{{ seekSong }}" style="margin-top:14px; height:12px; background:#ece0c6; border-radius:8px; cursor:pointer; overflow:hidden;">
+            <div style="height:100%; width:{{ songProgPct }}%; background:linear-gradient(90deg,var(--gold),var(--maroon2)); border-radius:8px;"></div>
+          </div>
+
+          <!-- sliders -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:26px; margin-top:26px;">
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:15px; margin-bottom:8px;"><span style="font-weight:600;">വേഗത (Laya)</span><span style="color:var(--maroon); font-weight:600;">{{ tempoPct }}%</span></div>
+              <input type="range" min="50" max="150" step="1" value="{{ tempoSlider }}" onChange="{{ setTempo }}" style="width:100%;">
+              <div style="position:relative; height:24px; margin-top:6px; font-size:10px; color:var(--muted);">
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.000000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-5</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.100000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-4</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.200000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-3</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.300000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-2</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.400000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-1</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.500000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; font-weight:600; color:var(--maroon);"><span style="width:1px; height:6px; background:var(--gold);"></span><span style="margin-top:2px;">0</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.600000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+1</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.700000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+2</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.800000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+3</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.900000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+4</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*1.000000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+5</span></span>
+              </div>
+              <div style="font-size:13px; color:var(--muted); margin-top:6px;">പതുക്കെ പഠിക്കാൻ ഇടത്തേക്ക് നീക്കുക. ശ്രുതി മാറില്ല.</div>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:15px; margin-bottom:8px;"><span style="font-weight:600;">ശ്രുതി (Pitch)</span><span style="color:var(--maroon); font-weight:600;">{{ pitchLabel }}</span></div>
+              <input type="range" min="-6" max="6" step="1" value="{{ pitch }}" onChange="{{ setPitch }}" style="width:100%;">
+              <div style="position:relative; height:24px; margin-top:6px; font-size:10px; color:var(--muted);">
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.000000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-6</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.083333); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-5</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.166667); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-4</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.250000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-3</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.333333); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-2</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.416667); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">-1</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.500000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; font-weight:600; color:var(--maroon);"><span style="width:1px; height:6px; background:var(--gold);"></span><span style="margin-top:2px;">0</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.583333); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+1</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.666667); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+2</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.750000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+3</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.833333); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+4</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*0.916667); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+5</span></span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px)*1.000000); transform:translateX(-50%); top:0; display:flex; flex-direction:column; align-items:center; "><span style="width:1px; height:6px; background:var(--line);"></span><span style="margin-top:2px;">+6</span></span>
+              </div>
+              <div style="font-size:13px; color:var(--muted); margin-top:6px;">സ്വരസ്ഥാനം മാറ്റാം (semitones). വേഗത മാറില്ല.</div>
+            </div>
+          </div>
+
+          <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+            <button onClick="{{ saveSong }}" style="font-family:inherit; font-size:15px; padding:11px 20px; border-radius:9px; border:none; background:var(--gold); color:#3a2418; cursor:pointer; font-weight:600;">💾 ഈ ക്രമീകരണം സേവ് ചെയ്യുക</button>
+            <span style="font-size:13px; color:var(--muted);">വേഗത · ശ്രുതി · ശ്രുതിസ്ഥാനം ഒരുമിച്ച് സൂക്ഷിക്കും.</span>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ noSong }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:22px; padding:30px; text-align:center; border:2px dashed var(--line); border-radius:12px; color:var(--muted); font-size:15px;">
+          ഒരു MP3 ഫയൽ തിരഞ്ഞെടുത്താൽ ഇവിടെ പ്ലെയറും ക്രമീകരണങ്ങളും വരും.
+        </div>
+        </sc-if>
+      </div>
+
+      <!-- saved presets -->
+      <sc-if value="{{ hasSaved }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:26px;">
+        <div style="font-size:18px; font-weight:600; color:var(--maroon); margin-bottom:12px;">സേവ് ചെയ്ത ക്രമീകരണങ്ങൾ</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <sc-for list="{{ savedList }}" as="item" hint-placeholder-count="2">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--warm); border:1px solid var(--line); border-radius:10px; padding:14px 18px;">
+              <div>
+                <div style="font-weight:600; font-size:15px;">{{ item.name }}</div>
+                <div style="font-size:13px; color:var(--muted);">വേഗത {{ item.tempoPct }}% · ശ്രുതി {{ item.pitchStr }} · Sa {{ item.tonicName }}</div>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button onClick="{{ item.apply }}" style="font-family:inherit; font-size:14px; padding:8px 14px; border-radius:8px; border:1px solid var(--gold); background:#fff; color:var(--maroon); cursor:pointer;">പ്രയോഗിക്കുക</button>
+                <button onClick="{{ item.download }}" title="WAV ഡൗൺലോഡ്" style="font-family:inherit; font-size:14px; padding:8px 14px; border-radius:8px; border:1px solid var(--gold); background:#fff; color:var(--maroon); cursor:pointer; white-space:nowrap;">⬇ ഡൗൺലോഡ്</button>
+                <button onClick="{{ item.remove }}" style="font-family:inherit; font-size:14px; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--muted); cursor:pointer;">✕</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+    </section>
+    </sc-if>
+
+    <!-- ==================== RECORD & EVALUATE ==================== -->
+    <sc-if value="{{ isRecord }}" hint-placeholder-val="{{ false }}">
+    <section>
+      <h2 style="font-size:30px; font-weight:600; color:var(--maroon); margin:0 0 6px;">റെക്കോർഡ് &amp; വിലയിരുത്തൽ</h2>
+      <p style="color:var(--muted); font-size:16px; margin:0 0 22px;">ഏത് രാഗത്തിലാണ് പാടുന്നതെന്ന് തിരഞ്ഞെടുക്കുക (അല്ലെങ്കിൽ ആപ്പ് കണ്ടെത്തട്ടെ), എന്നിട്ട് റെക്കോർഡ് ചെയ്യുക.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:20px; align-items:start;">
+
+        <!-- LEFT: recorder + live tuner -->
+        <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
+          <label style="display:block; font-size:14px; color:var(--muted); margin-bottom:6px;">ലക്ഷ്യ രാഗം (Target raga)</label>
+          <select onChange="{{ setEvalRaga }}" value="{{ evalRaga }}" style="font-family:inherit; font-size:15px; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); width:100%; margin-bottom:20px;">
+            <option value="auto">⟲ ആപ്പ് കണ്ടെത്തട്ടെ (Auto-detect)</option>
+            <sc-for list="{{ melaOptions }}" as="m" hint-placeholder-count="12">
+              <option value="{{ m.id }}">{{ m.label }}</option>
+            </sc-for>
+          </select>
+
+          <!-- live tuner -->
+          <div style="background:#3a1212; border-radius:12px; padding:22px; text-align:center; color:#f4ecdd;">
+            <div style="font-size:13px; letter-spacing:2px; color:var(--gold2); text-transform:uppercase;">Live Tuner</div>
+            <div style="height:78px; display:flex; align-items:center; justify-content:center; margin:6px 0;">
+              <sc-if value="{{ liveActive }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; align-items:baseline; gap:6px;">
+                  <span style="position:relative; display:inline-block; font-size:58px; line-height:1; font-weight:600; color:#fff;">
+                    <sc-if value="{{ liveSwara.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.18em; left:50%; transform:translateX(-50%); font-size:0.32em;">●</span></sc-if>
+                    {{ liveSwara.base }}<span style="font-size:0.5em; vertical-align:sub;">{{ liveSwara.sub }}</span>
+                    <sc-if value="{{ liveSwara.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.12em; left:50%; transform:translateX(-50%); font-size:0.32em;">●</span></sc-if>
+                  </span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ liveIdle }}" hint-placeholder-val="{{ true }}">
+                <span style="font-size:30px; color:rgba(244,236,221,0.35);">…</span>
+              </sc-if>
+            </div>
+            <!-- cents meter -->
+            <div style="position:relative; height:10px; background:rgba(244,236,221,0.15); border-radius:6px; margin:8px 4px 0;">
+              <div style="position:absolute; left:50%; top:-4px; bottom:-4px; width:2px; background:var(--gold2); transform:translateX(-50%);"></div>
+              <sc-if value="{{ liveActive }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; top:-3px; width:16px; height:16px; border-radius:50%; background:#fff; border:2px solid var(--gold); left:{{ liveCentsPct }}%; transform:translateX(-50%); transition:left 0.08s linear;"></div>
+              </sc-if>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:rgba(244,236,221,0.5); margin:8px 6px 0;"><span>♭ താഴെ</span><span>{{ liveCentsLabel }}</span><span>മുകളിൽ ♯</span></div>
+          </div>
+
+          <!-- mic error / iframe notice -->
+          <sc-if value="{{ hasMicError }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:18px; background:#fdeaea; border:1px solid #e7b7b7; border-radius:11px; padding:16px 18px;">
+              <div style="display:flex; gap:10px; align-items:flex-start;">
+                <span style="font-size:18px; flex:none;">🎙️</span>
+                <div style="font-size:14px; line-height:1.55; color:#7a2424;">{{ micErrorMsg }}</div>
+              </div>
+              <sc-if value="{{ micBlocked }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ openStandalone }}" style="font-family:inherit; font-size:15px; margin-top:14px; width:100%; padding:12px; border-radius:9px; border:none; background:var(--maroon); color:#f4ecdd; cursor:pointer;">↗ പുതിയ ടാബിൽ തുറന്ന് റെക്കോർഡ് ചെയ്യുക</button>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showFrameHint }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:18px; background:#fdf4e3; border:1px solid #ecd9b0; border-radius:11px; padding:14px 16px; font-size:13px; line-height:1.55; color:#8a6a1a;">
+              ℹ️ റെക്കോർഡിംഗ് മൈക്ക് ഉപയോഗിക്കുന്നു. ഈ പ്രിവ്യൂവിൽ മൈക്ക് പ്രവർത്തിച്ചില്ലെങ്കിൽ,
+              <button onClick="{{ openStandalone }}" style="font-family:inherit; font-size:13px; padding:2px 4px; border:none; background:none; color:var(--maroon); text-decoration:underline; cursor:pointer;">പുതിയ ടാബിൽ തുറക്കുക</button>.
+            </div>
+          </sc-if>
+
+          <!-- record controls -->
+          <div style="margin-top:22px; text-align:center;">
+            <sc-if value="{{ recIdle }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ startRec }}" style="font-family:inherit; font-size:17px; padding:15px 30px; border-radius:50px; border:none; background:var(--maroon); color:#f4ecdd; cursor:pointer; display:inline-flex; align-items:center; gap:10px;"><span style="width:12px;height:12px;border-radius:50%;background:#e85b5b;"></span>റെക്കോർഡ് ആരംഭിക്കുക</button>
+            </sc-if>
+            <sc-if value="{{ recActive }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-family:'Cormorant Garamond',serif; font-size:32px; color:var(--maroon); margin-bottom:12px;">{{ recTimerStr }}</div>
+                <button onClick="{{ stopRec }}" style="font-family:inherit; font-size:17px; padding:15px 30px; border-radius:50px; border:none; background:#3a1212; color:#f4ecdd; cursor:pointer; display:inline-flex; align-items:center; gap:10px;"><span style="width:12px;height:12px;background:#e85b5b;border-radius:2px;"></span>നിർത്തി വിലയിരുത്തുക</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ recDone }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ startRec }}" style="font-family:inherit; font-size:15px; padding:12px 24px; border-radius:50px; border:1px solid var(--maroon); background:#fff; color:var(--maroon); cursor:pointer;">🔄 വീണ്ടും റെക്കോർഡ് ചെയ്യുക</button>
+            </sc-if>
+            <sc-if value="{{ recordUrl }}" hint-placeholder-val="{{ false }}">
+              {{ recordAudio }}
+            </sc-if>
+            <sc-if value="{{ recCanSave }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ saveRecording }}" style="font-family:inherit; font-size:15px; margin-top:14px; padding:11px 22px; border-radius:50px; border:1px solid var(--gold); background:#fffaf3; color:var(--maroon); cursor:pointer; display:inline-flex; align-items:center; gap:8px;">💾 റെക്കോർഡിംഗ് സേവ് ചെയ്യുക</button>
+            </sc-if>
+          </div>
+          <p style="font-size:12px; color:var(--muted); text-align:center; margin:16px 0 0; line-height:1.5;">മൈക്ക് അനുമതി ആവശ്യമാണ്. തംപുരയോടൊപ്പം പാടുമ്പോൾ ഹെഡ്‌ഫോൺ ഉപയോഗിക്കുക.</p>
+
+          <!-- saved recordings -->
+          <sc-if value="{{ hasRecordings }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:22px; border-top:1px solid var(--line); padding-top:18px;">
+              <div style="font-size:15px; font-weight:600; color:var(--maroon); margin-bottom:12px;">സേവ് ചെയ്ത റെക്കോർഡിംഗുകൾ</div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <sc-for list="{{ recordings }}" as="rec" hint-placeholder-count="2">
+                  <div style="background:#fff; border:1px solid var(--line); border-radius:11px; padding:12px 14px;">
+                    <div style="font-size:15px; font-weight:600; color:var(--ink);">{{ rec.name }}</div>
+                    <sc-if value="{{ rec.meta }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size:13px; color:var(--muted); margin-top:2px;">{{ rec.meta }}</div>
+                    </sc-if>
+                    <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+                      <button onClick="{{ rec.play }}" style="font-family:inherit; font-size:14px; padding:8px 16px; border-radius:8px; border:none; cursor:pointer; background:{{ rec.playBg }}; color:#f4ecdd; white-space:nowrap;">{{ rec.playLabel }}</button>
+                      <button onClick="{{ rec.download }}" style="font-family:inherit; font-size:14px; padding:8px 14px; border-radius:8px; border:1px solid var(--gold); background:#fff; color:var(--maroon); cursor:pointer; white-space:nowrap;">⬇ ഡൗൺലോഡ്</button>
+                      <button onClick="{{ rec.remove }}" style="font-family:inherit; font-size:14px; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--muted); cursor:pointer;">✕</button>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- RIGHT: results -->
+        <div>
+          <sc-if value="{{ noAnalysis }}" hint-placeholder-val="{{ true }}">
+            <div style="background:var(--warm); border:1px dashed var(--line); border-radius:14px; padding:40px 24px; text-align:center; color:var(--muted); font-size:15px; line-height:1.6;">
+              റെക്കോർഡ് ചെയ്തുകഴിഞ്ഞാൽ ഇവിടെ — ശ്രുതി, രാഗം, താളം എന്നിവയുടെ കൃത്യതയും<br>മെച്ചപ്പെടാനുള്ള നിർദേശങ്ങളും കാണാം.
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ hasAnalysis }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:18px;">
+            <!-- overall -->
+            <div style="background:linear-gradient(135deg,#5c1a1a,#3a1212); color:#f4ecdd; border-radius:14px; padding:24px; text-align:center;">
+              <div style="font-size:13px; letter-spacing:2px; color:var(--gold2); text-transform:uppercase;">മൊത്തം കൃത്യത</div>
+              <div style="font-family:'Cormorant Garamond',serif; font-size:64px; font-weight:700; line-height:1; margin:6px 0;">{{ an.overall }}<span style="font-size:26px;">%</span></div>
+              <div style="font-size:17px; color:var(--gold2);">{{ an.overallText }}</div>
+            </div>
+
+            <!-- three scores -->
+            <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:22px;">
+              <div style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; font-size:15px; margin-bottom:6px;"><span style="font-weight:600;">ശ്രുതി (Pitch)</span><span style="color:var(--maroon); font-weight:600;">{{ an.pitchAcc }}%</span></div>
+                <div style="height:9px; background:#ece0c6; border-radius:6px; overflow:hidden;"><div style="height:100%; width:{{ an.pitchAcc }}%; background:var(--maroon); border-radius:6px;"></div></div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">ശരാശരി വ്യതിയാനം {{ an.meanCents }} cents</div>
+              </div>
+              <div style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; font-size:15px; margin-bottom:6px;"><span style="font-weight:600;">രാഗം (Raga)</span><span style="color:var(--maroon); font-weight:600;">{{ an.ragaAcc }}%</span></div>
+                <div style="height:9px; background:#ece0c6; border-radius:6px; overflow:hidden;"><div style="height:100%; width:{{ an.ragaAcc }}%; background:var(--gold); border-radius:6px;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:15px; margin-bottom:6px;"><span style="font-weight:600;">താളം (Rhythm)</span><span style="color:var(--maroon); font-weight:600;">{{ an.rhythmAcc }}%</span></div>
+                <div style="height:9px; background:#ece0c6; border-radius:6px; overflow:hidden;"><div style="height:100%; width:{{ an.rhythmAcc }}%; background:var(--maroon2); border-radius:6px;"></div></div>
+              </div>
+            </div>
+
+            <!-- raga identification -->
+            <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:22px;">
+              <div style="font-size:13px; letter-spacing:1px; color:var(--gold); text-transform:uppercase; margin-bottom:4px;">കണ്ടെത്തിയ രാഗം</div>
+              <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
+                <div style="font-size:26px; font-weight:600; color:var(--maroon);">{{ an.detectedName }}</div>
+                <div style="font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--muted);">{{ an.detectedLatin }} · വിശ്വാസ്യത {{ an.detectedConf }}%</div>
+              </div>
+              <sc-if value="{{ an.targetName }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:16px; border-top:1px dashed var(--line); padding-top:16px;">
+                <div style="font-size:14px; color:var(--ink); margin-bottom:8px;"><b>{{ an.targetName }}</b> — ആരോഹണം:</div>
+                <div style="display:flex; flex-wrap:wrap; gap:4px; font-size:24px; margin-bottom:10px;">
+                  <sc-for list="{{ an.aroTokens }}" as="tok" hint-placeholder-count="8">
+                    <span style="position:relative; display:inline-block; padding:0 4px; min-width:26px; text-align:center;">
+                      <sc-if value="{{ tok.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.22em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                      {{ tok.base }}<span style="font-size:0.55em; vertical-align:sub;">{{ tok.sub }}</span>
+                      <sc-if value="{{ tok.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.16em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                    </span>
+                  </sc-for>
+                </div>
+                <div style="font-size:14px; color:var(--ink); margin-bottom:8px;">അവരോഹണം:</div>
+                <div style="display:flex; flex-wrap:wrap; gap:4px; font-size:24px;">
+                  <sc-for list="{{ an.avaTokens }}" as="tok" hint-placeholder-count="8">
+                    <span style="position:relative; display:inline-block; padding:0 4px; min-width:26px; text-align:center;">
+                      <sc-if value="{{ tok.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.22em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                      {{ tok.base }}<span style="font-size:0.55em; vertical-align:sub;">{{ tok.sub }}</span>
+                      <sc-if value="{{ tok.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.16em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                    </span>
+                  </sc-for>
+                </div>
+                <div style="font-size:14px; color:var(--muted); margin-top:12px; line-height:1.55;">{{ an.targetNote }}</div>
+              </div>
+              </sc-if>
+            </div>
+
+            <!-- swaras used -->
+            <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:22px;">
+              <div style="font-size:15px; font-weight:600; color:var(--maroon); margin-bottom:14px;">പാടിയ സ്വരങ്ങൾ</div>
+              <div style="display:flex; flex-direction:column; gap:9px;">
+                <sc-for list="{{ an.usedTokens }}" as="tok" hint-placeholder-count="6">
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="position:relative; display:inline-block; width:34px; text-align:center; font-size:22px; flex:none; color:{{ tok.color }};">
+                      <sc-if value="{{ tok.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.22em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                      {{ tok.base }}<span style="font-size:0.55em; vertical-align:sub;">{{ tok.sub }}</span>
+                    </span>
+                    <div style="flex:1; height:14px; background:#ece0c6; border-radius:7px; overflow:hidden;"><div style="height:100%; width:{{ tok.pct }}%; background:{{ tok.color }}; border-radius:7px;"></div></div>
+                    <span style="font-size:13px; color:var(--muted); width:38px; text-align:right;">{{ tok.pct }}%</span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ an.hasForeign }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:14px; padding:12px 14px; background:#fdf1e3; border:1px solid #f0d8b8; border-radius:9px; font-size:14px; color:var(--warn);">⚠ രാഗത്തിന് പുറത്തുള്ള സ്വരങ്ങൾ (മുകളിൽ ഓറഞ്ച് നിറത്തിൽ) ഒഴിവാക്കാൻ ശ്രദ്ധിക്കുക.</div>
+              </sc-if>
+            </div>
+
+            <!-- guidance -->
+            <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:22px;">
+              <div style="font-size:15px; font-weight:600; color:var(--maroon); margin-bottom:14px;">മെച്ചപ്പെടാൻ — ഗുരുവിന്റെ നിർദേശങ്ങൾ</div>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <sc-for list="{{ an.tips }}" as="tip" hint-placeholder-count="3">
+                  <div style="display:flex; gap:12px; align-items:flex-start;">
+                    <span style="flex:none; font-size:12px; font-weight:600; color:#f4ecdd; background:var(--gold); padding:4px 10px; border-radius:20px; min-width:54px; text-align:center;">{{ tip.k }}</span>
+                    <span style="font-size:15px; line-height:1.55; color:var(--ink);">{{ tip.t }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ==================== SETTINGS ==================== -->
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+    <section>
+      <h2 style="font-size:30px; font-weight:600; color:var(--maroon); margin:0 0 6px;">ക്രമീകരണം</h2>
+      <p style="color:var(--muted); font-size:16px; margin:0 0 24px;">പൊതുവായ ക്രമീകരണങ്ങളും താളവാദ്യങ്ങളും ഇവിടെ. എല്ലാം നിങ്ങളുടെ ശ്രുതിയിൽ ({{ tonicName }}) ട്യൂൺ ചെയ്തിരിക്കുന്നു.</p>
+
+      <!-- global settings -->
+      <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05); margin-bottom:20px;">
+        <div style="font-size:18px; font-weight:600; color:var(--maroon); margin-bottom:18px;">പൊതു ക്രമീകരണം</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px 24px;">
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:600; margin-bottom:8px;"><span>മാസ്റ്റർ വോള്യം</span><span style="color:var(--maroon);">{{ masterVolPct }}%</span></div>
+            <input type="range" min="0" max="100" value="{{ masterVolPct }}" onChange="{{ setMasterVol }}" style="width:100%;">
+            <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+              <span style="position:absolute; left:10px; transform:translateX(-50%);">0</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.1); transform:translateX(-50%);">10</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.2); transform:translateX(-50%);">20</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.3); transform:translateX(-50%);">30</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.4); transform:translateX(-50%);">40</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.5); transform:translateX(-50%);">50</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.6); transform:translateX(-50%);">60</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.7); transform:translateX(-50%);">70</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.8); transform:translateX(-50%);">80</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.9); transform:translateX(-50%);">90</span>
+              <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">100</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:14px; font-weight:600; margin-bottom:8px;">സ്ഥിര രാഗം (Default raga)</div>
+            <select onChange="{{ setExRaga }}" value="{{ exRaga }}" style="font-family:inherit; font-size:15px; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); width:100%;">
+              <sc-for list="{{ exRagaList }}" as="r" hint-placeholder-count="7">
+                <option value="{{ r.id }}">{{ r.name }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:600; margin-bottom:8px;"><span>സ്ഥിര കാലപ്രമാണം (Tempo)</span><span style="color:var(--maroon);">{{ exBpm }} BPM</span></div>
+            <input type="range" min="0" max="160" value="{{ exBpm }}" onChange="{{ setExBpm }}" data-scale="tempo" style="width:100%;">
+            <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+              <span style="position:absolute; left:10px; transform:translateX(-50%);">0</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.125); transform:translateX(-50%);">20</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.25); transform:translateX(-50%);">40</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.375); transform:translateX(-50%);">60</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.5); transform:translateX(-50%);">80</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.625); transform:translateX(-50%);">100</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.75); transform:translateX(-50%);">120</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.875); transform:translateX(-50%);">140</span>
+              <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">160</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:18px; font-weight:600; color:var(--maroon); margin-bottom:14px;">താളവാദ്യങ്ങൾ</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px;">
+
+        <!-- Tanpura -->
+        <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-size:21px; font-weight:600; color:var(--maroon);">തംപുര</div>
+            <div style="font-size:13px; color:var(--muted);">സ — പ — സ̇</div>
+          </div>
+          <p style="font-size:14px; color:var(--muted); margin:8px 0 18px; line-height:1.5;">തുടർച്ചയായ ശ്രുതി ആധാരം. പാടുമ്പോൾ എപ്പോഴും ഓണാക്കിയിടുക.</p>
+          <button onClick="{{ toggleTan }}" style="font-family:inherit; font-size:16px; width:100%; padding:14px; border-radius:10px; border:none; cursor:pointer; background:{{ tanBtnBg }}; color:#f4ecdd;">{{ tanLabel }}</button>
+          <div onClick="{{ toggleTanTogether }}" style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; padding:11px 14px; border-radius:10px; border:1px solid var(--line); background:var(--warm); cursor:pointer;">
+            <div>
+              <div style="font-size:14px; font-weight:600; color:var(--maroon);">{{ tanModeTitle }}</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:2px;">{{ tanModeDesc }}</div>
+            </div>
+            <span style="flex:0 0 auto; width:44px; height:26px; border-radius:13px; background:{{ tanTogetherTrack }}; position:relative; transition:background .15s;">
+              <span style="position:absolute; top:3px; left:{{ tanTogetherKnob }}; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3); transition:left .15s;"></span>
+            </span>
+          </div>
+          <div style="margin-top:16px;">
+            <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px;"><span>സ്വരങ്ങൾ തമ്മിലുള്ള ഇടവേള</span><span style="color:var(--maroon); font-weight:600;">{{ tanGapLabel }}</span></div>
+            <input type="range" min="0.5" max="3" step="0.1" value="{{ tanGap }}" onChange="{{ setTanGap }}" style="width:100%;">
+            <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+              <span style="position:absolute; left:10px; transform:translateX(-50%);">0.5</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.2); transform:translateX(-50%);">1.0</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.4); transform:translateX(-50%);">1.5</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.6); transform:translateX(-50%);">2.0</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.8); transform:translateX(-50%);">2.5</span>
+              <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">3.0</span>
+            </div>
+          </div>
+          <div style="margin-top:18px;">
+            <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px;"><span>വോള്യം</span><span style="color:var(--maroon);">{{ tanVolPct }}%</span></div>
+            <input type="range" min="0" max="100" value="{{ tanVolPct }}" onChange="{{ setTanVol }}" style="width:100%;">
+            <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+              <span style="position:absolute; left:10px; transform:translateX(-50%);">0</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.1); transform:translateX(-50%);">10</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.2); transform:translateX(-50%);">20</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.3); transform:translateX(-50%);">30</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.4); transform:translateX(-50%);">40</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.5); transform:translateX(-50%);">50</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.6); transform:translateX(-50%);">60</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.7); transform:translateX(-50%);">70</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.8); transform:translateX(-50%);">80</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.9); transform:translateX(-50%);">90</span>
+              <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">100</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metronome -->
+        <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
+          <div style="font-size:21px; font-weight:600; color:var(--maroon);">മെട്രോണോം</div>
+          <p style="font-size:14px; color:var(--muted); margin:8px 0 18px; line-height:1.5;">കാലപ്രമാണം (tempo) സ്ഥിരമാക്കാൻ. ആദ്യ അക്ഷരത്തിന് ഊന്നൽ.</p>
+          <div style="text-align:center; margin-bottom:8px;"><span style="font-family:'Cormorant Garamond',serif; font-size:52px; font-weight:700; color:var(--maroon);">{{ bpm }}</span><span style="font-size:15px; color:var(--muted);"> BPM</span></div>
+          <input type="range" min="0" max="160" value="{{ bpm }}" onChange="{{ setBpm }}" data-scale="tempo" style="width:100%;">
+          <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+            <span style="position:absolute; left:10px; transform:translateX(-50%);">0</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.125); transform:translateX(-50%);">20</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.25); transform:translateX(-50%);">40</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.375); transform:translateX(-50%);">60</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.5); transform:translateX(-50%);">80</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.625); transform:translateX(-50%);">100</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.75); transform:translateX(-50%);">120</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.875); transform:translateX(-50%);">140</span>
+            <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">160</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:14px; margin:18px 0 8px;"><span>ഒരു ആവർത്തനത്തിലെ അക്ഷരങ്ങൾ</span><span style="color:var(--maroon); font-weight:600;">{{ beats }}</span></div>
+          <input type="range" min="0" max="4" step="1" value="{{ beatsIdx }}" onChange="{{ setBeats }}" data-scale="beats4" style="width:100%;">
+          <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+            <span style="position:absolute; left:10px; transform:translateX(-50%);">1</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.25); transform:translateX(-50%);">2</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.5); transform:translateX(-50%);">4</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.75); transform:translateX(-50%);">8</span>
+            <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">16</span>
+          </div>
+          <button onClick="{{ toggleMet }}" style="font-family:inherit; font-size:16px; width:100%; padding:14px; border-radius:10px; border:none; cursor:pointer; margin-top:20px; background:{{ metBtnBg }}; color:#f4ecdd;">{{ metLabel }}</button>
+        </div>
+
+        <!-- Mridangam -->
+        <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
+          <div style="font-size:21px; font-weight:600; color:var(--maroon);">താള വാദ്യം</div>
+          <p style="font-size:14px; color:var(--muted); margin:8px 0 18px; line-height:1.5;">താള ജനറേറ്റർ — തിരഞ്ഞെടുത്ത താളത്തിന്റെ ചക്രം വായിക്കും.</p>
+          <label style="display:block; font-size:14px; margin-bottom:6px;">താളം</label>
+          <select onChange="{{ setMriThala }}" value="{{ mriThala }}" style="font-family:inherit; font-size:15px; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); width:100%;">
+            <option value="adi">ആദി താളം (8)</option>
+            <option value="rupaka">രൂപക താളം (6)</option>
+            <option value="misrachapu">മിശ്ര ചാപു (7)</option>
+            <option value="khandachapu">ഖണ്ഡ ചാപു (5)</option>
+            <option value="tisra">തിശ്ര ഏകം (3)</option>
+            <option value="eka">ചതുശ്ര ഏകം (4)</option>
+            <option value="triputa">തിശ്ര ത്രിപുട (7)</option>
+            <option value="jhampa">മിശ്ര ഝമ്പ (10)</option>
+            <option value="matya">ചതുശ്ര മഠ്യ (10)</option>
+            <option value="ata">ഖണ്ഡ അട (14)</option>
+            <option value="dhruva">ചതുശ്ര ധ്രുവ (14)</option>
+          </select>
+          <div style="font-size:13px; color:var(--muted); margin:8px 0 4px;">ഘടന: {{ mriThalaCount }} അക്ഷരം</div>
+          <label style="display:block; font-size:14px; margin:14px 0 6px;">വാദ്യം</label>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <sc-for list="{{ mriInstruments }}" as="ins" hint-placeholder-count="4">
+              <button onClick="{{ ins.select }}" style="flex:1; min-width:64px; font-family:inherit; font-size:13px; padding:8px 4px; border-radius:8px; cursor:pointer; border:1px solid {{ ins.border }}; background:{{ ins.bg }}; color:{{ ins.color }};">{{ ins.label }}</button>
+            </sc-for>
+          </div>
+          <div onClick="{{ toggleMriAnd }}" style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0 0; padding:11px 14px; border-radius:10px; border:1px solid var(--line); background:var(--warm); cursor:pointer;">
+            <div>
+              <div style="font-size:14px; font-weight:600; color:var(--maroon);">"അന്ധ" ശബ്ദം (off-beat)</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:2px;">ഓൺ ചെയ്താൽ താളത്തിന്റെ ഇടവേള ശബ്ദവും കേൾക്കാം</div>
+            </div>
+            <span style="flex:0 0 auto; width:44px; height:26px; border-radius:13px; background:{{ mriAndTrack }}; position:relative; transition:background .15s;">
+              <span style="position:absolute; top:3px; left:{{ mriAndKnob }}; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3); transition:left .15s;"></span>
+            </span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:14px; margin:16px 0 8px;"><span>വേഗത</span><span style="color:var(--maroon); font-weight:600;">{{ mriBpm }} BPM</span></div>
+          <input type="range" min="0" max="160" value="{{ mriBpm }}" onChange="{{ setMriBpm }}" data-scale="tempo" style="width:100%;">
+          <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+            <span style="position:absolute; left:10px; transform:translateX(-50%);">0</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.125); transform:translateX(-50%);">20</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.25); transform:translateX(-50%);">40</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.375); transform:translateX(-50%);">60</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.5); transform:translateX(-50%);">80</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.625); transform:translateX(-50%);">100</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.75); transform:translateX(-50%);">120</span>
+            <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.875); transform:translateX(-50%);">140</span>
+            <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">160</span>
+          </div>
+          <button onClick="{{ toggleMri }}" style="font-family:inherit; font-size:16px; width:100%; padding:14px; border-radius:10px; border:none; cursor:pointer; margin-top:20px; background:{{ mriBtnBg }}; color:#f4ecdd;">{{ mriLabel }}</button>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ==================== HELP ==================== -->
+    <sc-if value="{{ isHelp }}" hint-placeholder-val="{{ false }}">
+    <section>
+      <h2 style="font-size:30px; font-weight:600; color:var(--maroon); margin:0 0 6px;">സഹായം</h2>
+      <p style="color:var(--muted); font-size:16px; margin:0 0 24px;">ഓരോ വിഭാഗവും എങ്ങനെ ഉപയോഗിക്കാമെന്നും ഈ ആപ്പ് ഫോണിലോ കമ്പ്യൂട്ടറിലോ എങ്ങനെ ഇൻസ്റ്റാൾ ചെയ്യാമെന്നും താഴെ.</p>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <sc-for list="{{ helpItems }}" as="h" hint-placeholder-count="6">
+          <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:0 3px 14px rgba(92,26,26,0.04);">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+              <span style="font-size:24px;">{{ h.icon }}</span>
+              <div style="font-size:19px; font-weight:600; color:var(--maroon);">{{ h.title }}</div>
+            </div>
+            <div style="font-size:15px; line-height:1.65; color:var(--ink);">{{ h.body }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- install as app -->
+      <div style="font-size:20px; font-weight:600; color:var(--maroon); margin:30px 0 14px;">ആപ്പായി ഇൻസ്റ്റാൾ ചെയ്യാം</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;">
+        <div style="background:#3a1212; color:#f4ecdd; border-radius:14px; padding:22px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:22px;">📱</span><div style="font-size:18px; font-weight:600; color:var(--gold2);">ഫോണിൽ (iPhone / Android)</div></div>
+          <ol style="margin:0; padding-left:20px; font-size:14px; line-height:1.7;">
+            <li><b>Android (Chrome):</b> വലത് മുകളിലെ ⋮ മെനു → "Add to Home screen" / "ഇൻസ്റ്റാൾ ആപ്പ്" തിരഞ്ഞെടുക്കുക.</li>
+            <li><b>iPhone (Safari):</b> താഴെയുള്ള ഷെയർ ⬆️ ബട്ടൺ → "Add to Home Screen" തിരഞ്ഞെടുക്കുക.</li>
+            <li>ഹോം സ്ക്രീനിൽ വരുന്ന ഐക്കണിൽ ടാപ്പ് ചെയ്താൽ ആപ്പ് പോലെ തുറക്കും.</li>
+          </ol>
+        </div>
+        <div style="background:#3a1212; color:#f4ecdd; border-radius:14px; padding:22px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:22px;">💻</span><div style="font-size:18px; font-weight:600; color:var(--gold2);">Windows / Mac ഡെസ്ക്ടോപ്പിൽ</div></div>
+          <ol style="margin:0; padding-left:20px; font-size:14px; line-height:1.7;">
+            <li>Chrome / Edge ബ്രൗസറിൽ ഈ പേജ് തുറക്കുക.</li>
+            <li>വിലാസബാറിന്റെ വലത്തെ ഇൻസ്റ്റാൾ ഐക്കൺ (⊕ / 🖥️) ക്ലിക്ക് ചെയ്യുക, അല്ലെങ്കിൽ ⋮ മെനു → "Install".</li>
+            <li>ഡെസ്ക്ടോപ്പിൽ ഒരു സ്വന്തം വിൻഡോയായി ആപ്പ് തുറക്കും.</li>
+          </ol>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-top:14px; line-height:1.6;">💡 ഇൻറർനെറ്റ് ഇല്ലാതെയും ഉപയോഗിക്കാൻ, ഡൗൺലോഡ് ചെയ്ത സ്റ്റാൻഡ്എലോൺ ഫയൽ (Swarasadhana-standalone.html) ഇരട്ട-ക്ലിക്ക് ചെയ്ത് തുറക്കാം. മൈക്ക് റെക്കോർഡിംഗ് അങ്ങനെ തുറന്നാൽ പ്രവർത്തിക്കും.</div>
+    </section>
+    </sc-if>
+
+    <!-- ==================== EXERCISES ==================== -->
+    <sc-if value="{{ isExercises }}" hint-placeholder-val="{{ false }}">
+    <section>
+      <sc-if value="{{ exFull }}" hint-placeholder-val="{{ true }}">
+      <h2 style="font-size:30px; font-weight:600; color:var(--maroon); margin:0 0 6px;">അഭ്യാസങ്ങൾ</h2>
+      <p style="color:var(--muted); font-size:16px; margin:0 0 22px;">ഓരോ അഭ്യാസവും ആപ്പ് ശബ്ദസഹിതം ആകാരത്തിൽ ("ആ") പാടിക്കാണിക്കും — സ്വരങ്ങൾ തെളിഞ്ഞുവരുന്നത് നോക്കി കൂടെ പാടുക. എല്ലാം {{ tonicName }} ശ്രുതിയിൽ.</p>
+
+      <!-- category chips -->
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;">
+        <sc-for list="{{ exCats }}" as="c" hint-placeholder-count="5">
+          <button onClick="{{ c.select }}" style="font-family:inherit; font-size:15px; padding:9px 18px; border-radius:30px; cursor:pointer; border:1px solid {{ c.border }}; background:{{ c.bg }}; color:{{ c.color }};">{{ c.label }}</button>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- add / reset toolbar -->
+      <sc-if value="{{ exShowAddBar }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px;">
+          <button onClick="{{ exNew }}" style="font-family:inherit; font-size:15px; padding:10px 18px; border-radius:9px; cursor:pointer; border:none; background:var(--gold); color:#3a2418; font-weight:600;">＋ പുതിയ അഭ്യാസം</button>
+        </div>
+      </sc-if>
+
+      <!-- exercise composer (add / edit) -->
+      <sc-if value="{{ ceOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--warm); border:1px solid var(--gold); border-radius:14px; padding:22px; box-shadow:0 3px 14px rgba(92,26,26,0.05); margin-bottom:18px;">
+          <div style="font-size:19px; font-weight:600; color:var(--maroon); margin-bottom:4px;">{{ ceTitle }}</div>
+          <p style="font-size:13px; color:var(--muted); margin:0 0 16px; line-height:1.55;">സ്വരങ്ങൾ മായാമാളവഗൗള ക്രമത്തിൽ ചേർക്കുക. പ്ലേ ചെയ്യുമ്പോൾ താഴെ തിരഞ്ഞെടുത്ത രാഗത്തിലേക്ക് അഭ്യാസം താനേ മാറും.</p>
+          <input type="text" value="{{ ceName }}" onInput="{{ ceSetName }}" placeholder="അഭ്യാസത്തിന്റെ പേര് (ഉദാ: സരളി വരിശ 1)" style="font-family:inherit; font-size:16px; width:100%; padding:11px 13px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); margin-bottom:14px;">
+
+          <div style="font-size:13px; color:var(--muted); margin-bottom:7px;">സ്ഥായി തിരഞ്ഞെടുക്കുക</div>
+          <div style="display:flex; gap:7px; margin-bottom:14px;">
+            <sc-for list="{{ ceOctaves }}" as="o" hint-placeholder-count="5">
+              <button onClick="{{ o.select }}" style="flex:1; font-family:inherit; font-size:14px; padding:9px 0; border-radius:8px; cursor:pointer; border:1px solid {{ o.border }}; background:{{ o.bg }}; color:{{ o.color }};">{{ o.label }}</button>
+            </sc-for>
+          </div>
+
+          <div style="font-size:13px; color:var(--muted); margin-bottom:7px;">ഒരു വരിയിലെ അക്ഷരങ്ങൾ (ഗ്രൂപ്)</div>
+          <div style="display:flex; gap:7px; margin-bottom:14px;">
+            <sc-for list="{{ ceGroups }}" as="g" hint-placeholder-count="3">
+              <button onClick="{{ g.select }}" style="flex:1; font-family:inherit; font-size:14px; padding:9px 0; border-radius:8px; cursor:pointer; border:1px solid {{ g.border }}; background:{{ g.bg }}; color:{{ g.color }};">{{ g.label }}</button>
+            </sc-for>
+          </div>
+
+          <div style="font-size:13px; color:var(--muted); margin-bottom:7px;">സ്വരം ചേർക്കാൻ ടാപ്പ് ചെയ്യുക</div>
+          <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:7px;">
+            <sc-for list="{{ cePalette }}" as="p" hint-placeholder-count="7">
+              <button onClick="{{ p.add }}" style="position:relative; font-family:inherit; font-size:22px; padding:12px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--maroon);" style-hover="border-color:var(--gold); background:#fbf5e8;">
+                <sc-if value="{{ p.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:6px; left:50%; transform:translateX(-50%); font-size:7px;">●</span></sc-if>
+                {{ p.base }}<span style="font-size:0.55em; vertical-align:sub;">{{ p.sub }}</span>
+                <sc-if value="{{ p.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:6px; left:50%; transform:translateX(-50%); font-size:7px;">●</span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+
+          <div style="display:flex; gap:7px; margin-top:10px;">
+            <button onClick="{{ ceAddHold }}" style="flex:1; font-family:inherit; font-size:15px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);" style-hover="background:#fbf5e8;">– നീട്ടൽ</button>
+            <button onClick="{{ ceBackspace }}" style="flex:1; font-family:inherit; font-size:15px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);" style-hover="background:#fbf5e8;">⌫ മായ്ക്കുക</button>
+            <button onClick="{{ ceClear }}" style="flex:1; font-family:inherit; font-size:15px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--warn);" style-hover="background:#fdf1e3;">✕ എല്ലാം</button>
+          </div>
+
+          <!-- thala marks (visual only, no audio stop) -->
+          <div style="display:flex; gap:7px; margin-top:7px;">
+            <button onClick="{{ ceAddBar }}" title="താള ചിഹ്നം (ശബ്ദമില്ല)" style="flex:1; font-family:inherit; font-size:18px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--gold); font-weight:700;" style-hover="background:#fbf5e8;">| താള</button>
+            <button onClick="{{ ceAddDoubleBar }}" title="ഇരട്ട താള ചിഹ്നം (ശബ്ദമില്ല)" style="flex:1; font-family:inherit; font-size:18px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--gold); font-weight:700;" style-hover="background:#fbf5e8;">‖ വരി</button>
+          </div>
+
+          <div style="margin-top:16px; background:#fff; border:1px solid var(--line); border-radius:11px; padding:14px; min-height:60px;">
+            <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">രചന ({{ ceCount }} സ്വരം)</div>
+            <sc-if value="{{ ceEmpty }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:14px; color:var(--muted); font-style:italic;">സ്വരങ്ങൾ ഇവിടെ തെളിയും…</div>
+            </sc-if>
+            <sc-if value="{{ ceHasNotes }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; flex-wrap:wrap; gap:5px 3px; font-size:24px; line-height:1.7;">
+                <sc-for list="{{ ceTokens }}" as="t" hint-placeholder-count="8">
+                  <span style="position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:26px; padding:0 4px; color:var(--ink); margin-right:{{ t.gap }};">
+                    <sc-if value="{{ t.mark }}" hint-placeholder-val="{{ false }}"><span style="color:var(--gold); font-weight:700;">{{ t.markStr }}</span></sc-if>
+                    <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted);">–</span></sc-if>
+                    <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                      <span style="position:relative;">
+                        <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                        {{ t.base }}<span style="font-size:0.6em; vertical-align:sub; color:var(--maroon); font-weight:600;">{{ t.sub }}</span>
+                        <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                      </span>
+                    </sc-if>
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="display:flex; gap:9px; margin-top:16px;">
+            <button onClick="{{ ceCancel }}" style="flex:none; font-family:inherit; font-size:15px; padding:12px 16px; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--muted);">✕ റദ്ദാക്കുക</button>
+            <button onClick="{{ cePreview }}" style="flex:1; font-family:inherit; font-size:15px; padding:12px 0; border-radius:9px; cursor:pointer; border:1px solid var(--maroon); background:#fff; color:var(--maroon);">{{ cePreviewLabel }}</button>
+            <button onClick="{{ ceSave }}" style="flex:1; font-family:inherit; font-size:15px; padding:12px 0; border-radius:9px; border:none; cursor:pointer; background:var(--gold); color:#3a2418; font-weight:600;">{{ ceSaveLabel }}</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- INFO category (jathiswaram / swarajathi) -->
+      <sc-if value="{{ exShowInfo }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <sc-for list="{{ exInfoList }}" as="it" hint-placeholder-count="2">
+            <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:22px;">
+              <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:8px;">
+                <div style="font-size:22px; font-weight:600; color:var(--maroon);">{{ it.name }}</div>
+                <div style="font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--muted);">{{ it.latin }}</div>
+              </div>
+              <div style="font-size:15px; line-height:1.6; color:var(--ink);">{{ it.text }}</div>
+            </div>
+          </sc-for>
+          <div style="font-size:13px; color:var(--muted); padding:4px 2px;">ഇവ പൂർണ രചനകളാണ് — സ്വരരൂപ പ്ലേബാക്ക് മുകളിലെ വരിശ/അലങ്കാര വിഭാഗങ്ങളിൽ ലഭ്യമാണ്.</div>
+        </div>
+      </sc-if>
+
+      <!-- PLAYABLE categories -->
+      <sc-if value="{{ exShowPlayer }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ exFull }}" hint-placeholder-val="{{ true }}">
+      <div style="font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.55;">{{ exIntro }}</div>
+      </sc-if>
+
+      <!-- CONTROLS (top) -->
+      <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:0 3px 14px rgba(92,26,26,0.05); margin-bottom:18px;">
+        <sc-if value="{{ exFull }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px 20px;">
+          <div>
+            <div style="font-size:13px; font-weight:600; margin-bottom:7px; color:var(--muted);">അഭ്യാസം</div>
+            <select onChange="{{ setExId }}" value="{{ exId }}" style="font-family:inherit; font-size:15px; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); width:100%;">
+              <sc-for list="{{ exList }}" as="e" hint-placeholder-count="6">
+                <option value="{{ e.id }}">{{ e.num }}. {{ e.name }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:13px; font-weight:600; margin-bottom:7px; color:var(--muted);">രാഗം</div>
+            <select onChange="{{ setExRaga }}" value="{{ exRaga }}" style="font-family:inherit; font-size:15px; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); width:100%;">
+              <sc-for list="{{ exRagaList }}" as="r" hint-placeholder-count="7">
+                <option value="{{ r.id }}">{{ r.name }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:13px; font-weight:600; margin-bottom:7px; color:var(--muted);">ശബ്ദം / വാദ്യം</div>
+            <select onChange="{{ setExInstSel }}" value="{{ exInst }}" style="font-family:inherit; font-size:14px; padding:9px 10px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink); width:100%;">
+              <sc-for list="{{ exInstruments }}" as="ins" hint-placeholder-count="6">
+                <option value="{{ ins.key }}">{{ ins.optLabel }}</option>
+              </sc-for>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px 20px; margin-top:16px;">
+          <div>
+            <div style="font-size:13px; font-weight:600; margin-bottom:7px; color:var(--muted);">വേഗത (ഒരു അക്ഷരത്തിന് സ്വരങ്ങൾ)</div>
+            <div style="display:flex; gap:7px;">
+              <sc-for list="{{ exSpeeds }}" as="s" hint-placeholder-count="4">
+                <button onClick="{{ s.select }}" style="flex:1; font-family:inherit; font-size:15px; padding:9px 0; border-radius:8px; cursor:pointer; border:1px solid {{ s.border }}; background:{{ s.bg }}; color:{{ s.color }};">{{ s.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:7px; color:var(--muted);"><span>കാലപ്രമാണം</span><span style="color:var(--maroon);">{{ exBpm }} BPM</span></div>
+            <input type="range" min="0" max="160" value="{{ exBpm }}" onChange="{{ setExBpm }}" data-scale="tempo" style="width:100%; margin-top:6px;">
+            <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+              <span style="position:absolute; left:10px; transform:translateX(-50%);">0</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.125); transform:translateX(-50%);">20</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.25); transform:translateX(-50%);">40</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.375); transform:translateX(-50%);">60</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.5); transform:translateX(-50%);">80</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.625); transform:translateX(-50%);">100</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.75); transform:translateX(-50%);">120</span>
+              <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.875); transform:translateX(-50%);">140</span>
+              <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">160</span>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <div class="ex-controls" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:18px;">
+          <button onClick="{{ toggleExFocus }}" title="മുകൾഭാഗം മറയ്ക്കുക / കാണിക്കുക" style="font-family:inherit; font-size:14px; white-space:nowrap; padding:10px 14px; border-radius:9px; cursor:pointer; border:1px solid {{ exFocusBorder }}; background:{{ exFocusBg }}; color:{{ exFocusColor }};">{{ exFocusLabel }}</button>
+          <button onClick="{{ toggleExClick }}" style="font-family:inherit; font-size:14px; white-space:nowrap; padding:10px 14px; border-radius:9px; cursor:pointer; border:1px solid {{ exClickBorder }}; background:{{ exClickBg }}; color:{{ exClickColor }};">🥁 താളം {{ exClickState }}</button>
+          <button onClick="{{ toggleExDrone }}" style="font-family:inherit; font-size:14px; white-space:nowrap; padding:10px 14px; border-radius:9px; cursor:pointer; border:1px solid {{ exDroneBorder }}; background:{{ exDroneBg }}; color:{{ exDroneColor }};">🎵 തംപുര {{ exDroneState }}</button>
+          <button onClick="{{ toggleExLoop }}" style="font-family:inherit; font-size:14px; white-space:nowrap; padding:10px 14px; border-radius:9px; cursor:pointer; border:1px solid {{ exLoopBorder }}; background:{{ exLoopBg }}; color:{{ exLoopColor }};">🔁 ആവർത്തനം {{ exLoopState }}</button>
+          <button onClick="{{ toggleExShowAll }}" style="font-family:inherit; font-size:14px; white-space:nowrap; padding:10px 14px; border-radius:9px; cursor:pointer; border:1px solid {{ exShowAllBorder }}; background:{{ exShowAllBg }}; color:{{ exShowAllColor }};">{{ exShowAllLabel }}</button>
+          <button onClick="{{ toggleExPlay }}" style="flex:0 1 auto; margin-left:auto; white-space:nowrap; font-family:inherit; font-size:15px; font-weight:600; padding:10px 28px; border-radius:9px; border:none; cursor:pointer; background:{{ exPlayBg }}; color:#f4ecdd; display:inline-flex; align-items:center; justify-content:center; gap:8px;">{{ exPlayLabel }}</button>
+        </div>
+      </div>
+
+      <!-- NOTATION (full width, with line numbers) -->
+      <sc-if value="{{ exShowSingle }}" hint-placeholder-val="{{ true }}">
+      <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
+          <div style="font-size:20px; font-weight:600; color:var(--maroon);">{{ exSelName }}</div>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div style="font-size:13px; color:var(--muted);">{{ exRagaName }} · {{ exThalaName }} · {{ exBpm }} BPM</div>
+            <sc-if value="{{ exEditBtns }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:7px;">
+                <button onClick="{{ exEditSel }}" style="font-family:inherit; font-size:13px; padding:6px 12px; border-radius:8px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);">✎ എഡിറ്റ്</button>
+                <button onClick="{{ exDeleteSel }}" style="font-family:inherit; font-size:13px; padding:6px 12px; border-radius:8px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--warn);">🗑 ഒഴിവാക്കുക</button>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+        <div style="font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.55;">{{ exSelDesc }}</div>
+        <div style="display:flex; flex-direction:column; gap:6px; container-type:inline-size;">
+          <sc-for list="{{ exLines }}" as="ln" hint-placeholder-count="2">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <sc-if value="{{ ln.showNum }}" hint-placeholder-val="{{ false }}">
+                <span style="flex:none; width:26px; text-align:right; font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--gold); font-weight:700;">{{ ln.num }}</span>
+              </sc-if>
+              <div style="flex:1; min-width:0; background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 10px;">
+                <div style="display:grid; grid-template-columns:auto repeat(8,minmax(0,1fr)) auto repeat(8,minmax(0,1fr)) auto; align-items:center; column-gap:0.18em; font-size:clamp(14px, 2.2cqi, 28px); line-height:1.5;">
+                  <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
+                  <sc-for list="{{ ln.left }}" as="t" hint-placeholder-count="8">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:0 0.1em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;">
+                      <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
+                      <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                        <span style="position:relative;">
+                          <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                          {{ t.base }}<span style="font-size:0.62em; vertical-align:sub; font-weight:600; color:{{ t.subColor }};">{{ t.sub }}</span>
+                          <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                        </span>
+                      </sc-if>
+                    </span>
+                  </sc-for>
+                  <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">|</span>
+                  <sc-for list="{{ ln.right }}" as="t" hint-placeholder-count="8">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:0 0.1em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;">
+                      <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
+                      <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                        <span style="position:relative;">
+                          <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                          {{ t.base }}<span style="font-size:0.62em; vertical-align:sub; font-weight:600; color:{{ t.subColor }};">{{ t.sub }}</span>
+                          <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                        </span>
+                      </sc-if>
+                    </span>
+                  </sc-for>
+                  <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ALL-IN-ONE view: every line of every varisai; varisai number shown in margin only on first line -->
+      <sc-if value="{{ exShowAll }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; box-shadow:0 3px 14px rgba(92,26,26,0.05); container-type:inline-size;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <sc-for list="{{ exAllLines }}" as="ln" hint-placeholder-count="8">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="flex:none; width:20px; text-align:left; font-family:'Cormorant Garamond',serif; font-size:20px; color:var(--maroon); font-weight:700;">{{ ln.vnum }}</span>
+              <div style="flex:1; min-width:0; background:{{ ln.rowBg }}; border:1px solid {{ ln.rowBorder }}; border-radius:10px; padding:8px 10px;">
+                <div style="display:grid; grid-template-columns:auto repeat(8,minmax(0,1fr)) auto repeat(8,minmax(0,1fr)) auto; align-items:center; column-gap:0.18em; font-size:clamp(13px, 2.1cqi, 26px); line-height:1.5;">
+                  <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
+                  <sc-for list="{{ ln.left }}" as="t" hint-placeholder-count="8">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:0 0.1em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;">
+                      <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
+                      <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                        <span style="position:relative;">
+                          <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                          {{ t.base }}<span style="font-size:0.62em; vertical-align:sub; font-weight:600; color:{{ t.subColor }};">{{ t.sub }}</span>
+                          <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                        </span>
+                      </sc-if>
+                    </span>
+                  </sc-for>
+                  <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">|</span>
+                  <sc-for list="{{ ln.right }}" as="t" hint-placeholder-count="8">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:0 0.1em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;">
+                      <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
+                      <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                        <span style="position:relative;">
+                          <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                          {{ t.base }}<span style="font-size:0.62em; vertical-align:sub; font-weight:600; color:{{ t.subColor }};">{{ t.sub }}</span>
+                          <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                        </span>
+                      </sc-if>
+                    </span>
+                  </sc-for>
+                  <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+    </section>
+    </sc-if>
+
+    <!-- ==================== SONG BOOK ==================== -->
+    <sc-if value="{{ isSongbook }}" hint-placeholder-val="{{ false }}">
+    <section>
+      <h2 style="font-size:30px; font-weight:600; color:var(--maroon); margin:0 0 6px;">എന്റെ പാട്ടുകൾ <span style="font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--muted); font-weight:500;">· My Songs</span></h2>
+      <p style="color:var(--muted); font-size:16px; margin:0 0 22px;">സ്വരങ്ങൾ ടൈപ്പ് ചെയ്ത് സ്വന്തം പാട്ട് / വരിശ എഴുതാം. മേൽസ്ഥായിക്ക് മുകളിലും കീഴ്സ്ഥായിക്ക് താഴെയും കുത്ത് വരും. സേവ് ചെയ്ത ശേഷം പാടിക്കേൾക്കാം.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px; align-items:start;">
+
+        <!-- composer -->
+        <sc-if value="{{ sbEditorOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+            <div style="font-size:17px; font-weight:600; color:var(--maroon);">{{ sbEditorTitle }}</div>
+            <button onClick="{{ sbCloseEditor }}" style="font-family:inherit; font-size:14px; padding:7px 13px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--muted); cursor:pointer;">✕ അടയ്ക്കുക</button>
+          </div>
+          <input type="text" value="{{ sbTitle }}" onInput="{{ setSbTitle }}" placeholder="പാട്ടിന്റെ പേര് (ഉദാ: സരളി വരിശ 1)" style="font-family:inherit; font-size:16px; width:100%; padding:11px 13px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); margin-bottom:14px;">
+
+          <!-- octave selector -->
+          <div style="font-size:13px; color:var(--muted); margin-bottom:7px;">സ്ഥായി തിരഞ്ഞെടുക്കുക</div>
+          <div style="display:flex; gap:7px; margin-bottom:14px;">
+            <sc-for list="{{ sbOctaves }}" as="o" hint-placeholder-count="3">
+              <button onClick="{{ o.select }}" style="flex:1; font-family:inherit; font-size:14px; padding:9px 0; border-radius:8px; cursor:pointer; border:1px solid {{ o.border }}; background:{{ o.bg }}; color:{{ o.color }};">{{ o.label }}</button>
+            </sc-for>
+          </div>
+
+          <!-- swara palette -->
+          <div style="font-size:13px; color:var(--muted); margin-bottom:7px;">സ്വരം ചേർക്കാൻ ടാപ്പ് ചെയ്യുക</div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:7px;">
+            <sc-for list="{{ sbPalette }}" as="p" hint-placeholder-count="12">
+              <button onClick="{{ p.add }}" style="position:relative; font-family:inherit; font-size:22px; padding:12px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--maroon);" style-hover="border-color:var(--gold); background:#fbf5e8;">
+                <sc-if value="{{ p.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:6px; left:50%; transform:translateX(-50%); font-size:7px;">●</span></sc-if>
+                {{ p.base }}<span style="font-size:0.55em; vertical-align:sub;">{{ p.sub }}</span>
+                <sc-if value="{{ p.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:6px; left:50%; transform:translateX(-50%); font-size:7px;">●</span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+
+          <!-- special tokens -->
+          <div style="display:flex; gap:7px; margin-top:10px;">
+            <button onClick="{{ sbAddHold }}" style="flex:1; font-family:inherit; font-size:15px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);" style-hover="background:#fbf5e8;">– നീട്ടൽ</button>
+            <button onClick="{{ sbAddGap }}" style="flex:1; font-family:inherit; font-size:15px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);" style-hover="background:#fbf5e8;">␣ വിടവ്</button>
+            <button onClick="{{ sbBackspace }}" style="flex:1; font-family:inherit; font-size:15px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);" style-hover="background:#fbf5e8;">⌫ മായ്ക്കുക</button>
+            <button onClick="{{ sbClear }}" style="flex:1; font-family:inherit; font-size:15px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--warn);" style-hover="background:#fdf1e3;">✕ എല്ലാം</button>
+          </div>
+
+          <!-- thala marks (visual only, no audio stop) -->
+          <div style="display:flex; gap:7px; margin-top:7px;">
+            <button onClick="{{ sbAddBar }}" title="താള ചിഹ്നം (ശബ്ദമില്ല)" style="flex:1; font-family:inherit; font-size:18px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--gold); font-weight:700;" style-hover="background:#fbf5e8;">| താള</button>
+            <button onClick="{{ sbAddDoubleBar }}" title="ഇരട്ട താള ചിഹ്നം (ശബ്ദമില്ല)" style="flex:1; font-family:inherit; font-size:18px; padding:10px 0; border-radius:9px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--gold); font-weight:700;" style-hover="background:#fbf5e8;">‖ വരി</button>
+          </div>
+
+          <!-- live preview of composition -->
+          <div style="margin-top:16px; background:#fff; border:1px solid var(--line); border-radius:11px; padding:14px; min-height:64px;">
+            <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">രചന ({{ sbCount }} സ്വരം)</div>
+            <sc-if value="{{ sbEmpty }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:14px; color:var(--muted); font-style:italic;">സ്വരങ്ങൾ ഇവിടെ തെളിയും…</div>
+            </sc-if>
+            <sc-if value="{{ sbHasNotes }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; flex-wrap:wrap; gap:5px 3px; font-size:24px; line-height:1.7;">
+                <sc-for list="{{ sbTokens }}" as="t" hint-placeholder-count="8">
+                  <span style="position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:26px; padding:0 4px; color:var(--ink); margin-right:{{ t.gap }};">
+                    <sc-if value="{{ t.mark }}" hint-placeholder-val="{{ false }}"><span style="color:var(--gold); font-weight:700;">{{ t.markStr }}</span></sc-if>
+                    <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted);">–</span></sc-if>
+                    <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                      <span style="position:relative;">
+                        <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                        {{ t.base }}<span style="font-size:0.6em; vertical-align:sub; color:var(--maroon); font-weight:600;">{{ t.sub }}</span>
+                        <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                      </span>
+                    </sc-if>
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="display:flex; gap:9px; margin-top:16px;">
+            <button onClick="{{ sbPreview }}" style="flex:1; font-family:inherit; font-size:15px; padding:12px 0; border-radius:9px; cursor:pointer; border:1px solid var(--maroon); background:#fff; color:var(--maroon);">{{ sbPreviewLabel }}</button>
+            <button onClick="{{ sbSave }}" style="flex:1; font-family:inherit; font-size:15px; padding:12px 0; border-radius:9px; border:none; cursor:pointer; background:var(--gold); color:#3a2418; font-weight:600;">💾 സേവ് ചെയ്യുക</button>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- saved songs -->
+        <div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+            <div style="font-size:18px; font-weight:600; color:var(--maroon);">എന്റെ പാട്ടുകൾ</div>
+            <button onClick="{{ sbNewSong }}" style="font-family:inherit; font-size:14px; padding:9px 16px; border-radius:9px; border:none; cursor:pointer; background:var(--maroon); color:#f4ecdd; font-weight:600;">＋ പുതിയ പാട്ട്</button>
+          </div>
+          <sc-if value="{{ sbNoSongs }}" hint-placeholder-val="{{ true }}">
+            <div style="background:var(--warm); border:1px dashed var(--line); border-radius:14px; padding:34px 20px; text-align:center; color:var(--muted); font-size:15px; line-height:1.6;">ഇതുവരെ പാട്ടുകൾ ഒന്നുമില്ല.<br>മുകളിലെ <b style="color:var(--maroon);">＋ പുതിയ പാട്ട്</b> അമർത്തി ഒരെണ്ണം എഴുതൂ.</div>
+          </sc-if>
+          <sc-if value="{{ sbHasSongs }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <sc-for list="{{ sbSongs }}" as="s" hint-placeholder-count="3">
+                <div style="background:var(--warm); border:1px solid {{ s.border }}; border-radius:13px; padding:16px 18px; box-shadow:0 3px 14px rgba(92,26,26,0.04);">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+                    <div style="font-size:17px; font-weight:600; color:var(--maroon);">{{ s.title }}</div>
+                    <div style="font-size:12px; color:var(--muted);">{{ s.count }} സ്വരം</div>
+                  </div>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px 2px; font-size:21px; line-height:1.7; margin-bottom:12px;">
+                    <sc-for list="{{ s.tokens }}" as="t" hint-placeholder-count="8">
+                      <span style="position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:23px; padding:0 3px; color:{{ t.cellColor }}; margin-right:{{ t.gap }};">
+                        <sc-if value="{{ t.mark }}" hint-placeholder-val="{{ false }}"><span style="color:var(--gold); font-weight:700;">{{ t.markStr }}</span></sc-if>
+                        <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted);">–</span></sc-if>
+                        <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                          <span style="position:relative;">
+                            <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                            {{ t.base }}<span style="font-size:0.58em; vertical-align:sub; color:var(--maroon2); font-weight:600;">{{ t.sub }}</span>
+                            <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                          </span>
+                        </sc-if>
+                      </span>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <button onClick="{{ s.play }}" style="font-family:inherit; font-size:14px; padding:9px 18px; border-radius:8px; border:none; cursor:pointer; background:{{ s.playBg }}; color:#f4ecdd;">{{ s.playLabel }}</button>
+                    <button onClick="{{ s.edit }}" style="font-family:inherit; font-size:14px; padding:9px 14px; border-radius:8px; border:1px solid var(--gold); background:#fff; color:var(--maroon); cursor:pointer;">എഡിറ്റ്</button>
+                    <button onClick="{{ s.remove }}" style="font-family:inherit; font-size:14px; padding:9px 12px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--muted); cursor:pointer; margin-left:auto;">✕</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-size:13px; color:var(--muted);">വാദ്യം:</span>
+            <select onChange="{{ setSbInst }}" value="{{ sbInst }}" style="font-family:inherit; font-size:14px; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink);">
+              <option value="harmonium">ഹാർമോണിയം 🎹</option>
+              <option value="violin">വയലിൻ 🎻</option>
+              <option value="veena">വീണ 🪕</option>
+              <option value="flute">ഓടക്കുഴൽ 🎵</option>
+              <option value="piano">പിയാനോ 🎹</option>
+            </select>
+            <span style="font-size:13px; color:var(--muted); margin-left:6px;">വേഗത {{ sbBpm }}</span>
+            <input type="range" min="40" max="160" value="{{ sbBpm }}" onChange="{{ setSbBpm }}" style="flex:1; min-width:90px;">
+          </div>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ==================== RAGAS ==================== -->
+    <sc-if value="{{ isRagas }}" hint-placeholder-val="{{ false }}">
+    <section>
+      <h2 style="font-size:30px; font-weight:600; color:var(--maroon); margin:0 0 6px;">മേളകർത്താ രാഗങ്ങൾ <span style="font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--muted); font-weight:500;">· Melakartha Ragangal</span></h2>
+      <p style="color:var(--muted); font-size:16px; margin:0 0 24px;">72 മേളകർത്താ രാഗങ്ങൾ. ▶ അമർത്തി തിരഞ്ഞെടുത്ത ശ്രുതിയിലും സ്വരത്തിലും ആരോഹണ-അവരോഹണം കേൾക്കാം. നൊട്ടേഷൻ: ● സ്വരത്തിന് മുകളിൽ = മേൽസ്ഥായി, താഴെ = കീഴ്സ്ഥായി.</p>
+
+      <!-- swara chart -->
+      <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; margin-bottom:20px;">
+        <div style="font-size:18px; font-weight:600; color:var(--maroon); margin-bottom:16px;">പന്ത്രണ്ട് സ്വരസ്ഥാനങ്ങൾ</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px;">
+          <sc-for list="{{ swaraChart }}" as="s" hint-placeholder-count="12">
+            <div style="background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px; text-align:center;">
+              <div style="font-size:28px; color:var(--maroon); font-weight:600;">{{ s.base }}<span style="font-size:0.55em; vertical-align:sub;">{{ s.sub }}</span></div>
+              <div style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--gold); letter-spacing:1px;">{{ s.latin }}</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:3px; line-height:1.4;">{{ s.full }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- filter + playback voice -->
+      <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:18px;">
+        <input type="text" value="{{ ragaFilter }}" onInput="{{ setRagaFilter }}" placeholder="🔍 രാഗം തിരയുക — പേര് അല്ലെങ്കിൽ മേള നമ്പർ" style="flex:1; min-width:240px; font-family:inherit; font-size:15px; padding:12px 16px; border-radius:10px; border:1px solid var(--line); background:#fff; color:var(--ink);">
+        <label style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--muted);">സ്വരം
+          <select onChange="{{ setRagaVoice }}" value="{{ ragaVoice }}" style="font-family:inherit; font-size:15px; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink);">
+            <option value="harmonium">ഹാർമോണിയം 🎹</option>
+            <option value="violin">വയലിൻ 🎻</option>
+            <option value="veena">വീണ 🪕</option>
+            <option value="flute">ഓടക്കുഴൽ 🎵</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- raga table -->
+      <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:0 3px 14px rgba(92,26,26,0.04);">
+        <div style="overflow-x:auto;">
+        <div style="min-width:660px;">
+        <div style="display:grid; grid-template-columns:60px minmax(140px,1.1fr) minmax(170px,1.6fr) minmax(170px,1.6fr) 76px; gap:0; align-items:center; background:var(--maroon); color:#f4ecdd; font-size:13px; letter-spacing:0.5px; padding:0;">
+          <div style="padding:14px 12px; font-weight:600;">നം.</div>
+          <div style="padding:14px 12px; font-weight:600;">രാഗം</div>
+          <div style="padding:14px 12px; font-weight:600;">ആരോഹണം ↗</div>
+          <div style="padding:14px 12px; font-weight:600;">അവരോഹണം ↘</div>
+          <div style="padding:14px 6px; font-weight:600; text-align:center; font-size:12px;">കേൾ ▶</div>
+        </div>
+        <sc-for list="{{ ragaList }}" as="r" hint-placeholder-count="12">
+          <div style="display:grid; grid-template-columns:60px minmax(140px,1.1fr) minmax(170px,1.6fr) minmax(170px,1.6fr) 76px; gap:0; align-items:center; border-top:1px solid var(--line); background:{{ r.rowBg }};">
+            <div style="padding:12px; font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; color:var(--gold2);">{{ r.mela }}</div>
+            <div style="padding:12px;">
+              <div style="font-size:17px; font-weight:600; color:var(--maroon); line-height:1.2;">{{ r.name }}</div>
+              <sc-if value="{{ r.showLatin }}" hint-placeholder-val="{{ false }}"><div style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--muted);">{{ r.latin }}</div></sc-if>
+            </div>
+            <div style="padding:12px;">
+              <div style="display:flex; flex-wrap:wrap; gap:2px; font-size:20px; color:var(--ink); margin-left:-3px;">
+                <sc-for list="{{ r.aroTokens }}" as="tok" hint-placeholder-count="8">
+                  <span style="position:relative; display:inline-block; padding:0 3px; min-width:22px; text-align:center;">
+                    <sc-if value="{{ tok.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.22em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                    {{ tok.base }}<span style="font-size:0.55em; vertical-align:sub;">{{ tok.sub }}</span>
+                    <sc-if value="{{ tok.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.16em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                  </span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding:12px;">
+              <div style="display:flex; flex-wrap:wrap; gap:2px; font-size:20px; color:var(--ink); margin-left:-3px;">
+                <sc-for list="{{ r.avaTokens }}" as="tok" hint-placeholder-count="8">
+                  <span style="position:relative; display:inline-block; padding:0 3px; min-width:22px; text-align:center;">
+                    <sc-if value="{{ tok.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.22em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                    {{ tok.base }}<span style="font-size:0.55em; vertical-align:sub;">{{ tok.sub }}</span>
+                    <sc-if value="{{ tok.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.16em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                  </span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding:12px; text-align:center;">
+              <button onClick="{{ r.play }}" style="font-family:inherit; font-size:16px; width:42px; height:42px; border-radius:50%; border:none; cursor:pointer; background:{{ r.playBg }}; color:#f4ecdd;">{{ r.playLabel }}</button>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ ragaNone }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:28px; text-align:center; color:var(--muted); font-size:15px; border-top:1px solid var(--line);">ഫലങ്ങളൊന്നുമില്ല</div>
+        </sc-if>
+        </div>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+  </main>
+
+  <footer style="text-align:center; padding:24px; color:var(--muted); font-size:13px; border-top:1px solid var(--line);">
+    <div>സ്വരസാധന — കർണാടക സംഗീത പരിശീലനം · എല്ലാ ശബ്ദങ്ങളും തത്സമയം ജനറേറ്റ് ചെയ്യുന്നു</div>
+    <div style="margin-top:8px;">Copyright © <a href="https://www.reliefcorner.org/" target="_blank" rel="noopener" style="color:var(--maroon); text-decoration:underline;">Reliefcorner.org</a>. All rights reserved to Relief Corner Inc.</div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:820},&quot;showLatin&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;defaultSruthi&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;C&quot;,&quot;C♯&quot;,&quot;D&quot;,&quot;D♯&quot;,&quot;E&quot;,&quot;F&quot;,&quot;F♯&quot;,&quot;G&quot;,&quot;G♯&quot;,&quot;A&quot;,&quot;A♯&quot;,&quot;B&quot;],&quot;default&quot;:&quot;C&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultThala&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;adi&quot;,&quot;rupaka&quot;,&quot;misrachapu&quot;,&quot;khandachapu&quot;,&quot;tisra&quot;],&quot;default&quot;:&quot;adi&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.SRUTHI = [["C",130.81],["C♯",138.59],["D",146.83],["D♯",155.56],["E",164.81],["F",174.61],["F♯",185.00],["G",196.00],["G♯",207.65],["A",220.00],["A♯",233.08],["B",246.94]];
+    let saved = [];
+    try { saved = JSON.parse(localStorage.getItem("sws_saved") || "[]"); } catch (e) {}
+    let sbSongs = [];
+    try { sbSongs = JSON.parse(localStorage.getItem("sws_songbook") || "[]"); } catch (e) {}
+    let userEx = {};
+    try { userEx = JSON.parse(localStorage.getItem("sws_user_exercises") || "{}"); } catch (e) {}
+    let exOverrides = {};
+    try { exOverrides = JSON.parse(localStorage.getItem("sws_ex_overrides") || "{}"); } catch (e) {}
+    let exDeleted = [];
+    try { exDeleted = JSON.parse(localStorage.getItem("sws_ex_deleted") || "[]"); } catch (e) {}
+    let recordings = [];
+    try { recordings = JSON.parse(localStorage.getItem("sws_recordings") || "[]"); } catch (e) {}
+    // student's saved preferences (shruti, tempo, exercise selection, focus mode…)
+    let prefs = {};
+    try { prefs = JSON.parse(localStorage.getItem("sws_prefs") || "{}"); } catch (e) {}
+    this._prefsLoaded = prefs;
+    this.state = {
+      tab: "home",
+      tonicHz: prefs.tonicHz ?? 146.83,
+      // metronome
+      bpm: prefs.bpm ?? 40, beats: prefs.beats ?? 8, metRunning: false,
+      // tanpura
+      tanRunning: false, tanVolPct: prefs.tanVolPct ?? 20, tanTogether: prefs.tanTogether ?? false, tanGap: prefs.tanGap ?? 1.3,
+      // mridangam
+      mriRunning: false, mriBpm: prefs.mriBpm ?? 40, mriThala: prefs.mriThala ?? "adi", mriInst: prefs.mriInst ?? "mridangam", mriAndSound: prefs.mriAndSound ?? false,
+      masterVolPct: prefs.masterVolPct ?? 30,
+      // song book
+      sbTitle: "", sbNotes: [], sbOctave: 0, sbInst: "harmonium", sbBpm: 70,
+      sbSongs, sbPlayingId: null, sbEditId: null, sbEditorOpen: false,
+      // song
+      songLoaded: false, songName: "", songPlaying: false,
+      tempo: 1, pitch: 0, songPos: 0, songDur: 0,
+      saved,
+      // record
+      recState: "idle", recElapsed: 0,
+      liveActive: false, liveFreq: 0, liveCents: 0, liveSwara: null,
+      analysis: null, recordUrl: null, evalRaga: "auto",
+      recordings, recCanSave: false, recPlayingId: null,
+      micError: null, inIframe: false,
+      ragaFilter: "", ragaPlaying: null, ragaVoice: "harmonium",
+      // exercises
+      exCat: prefs.exCat ?? "saptaswara", exId: prefs.exId ?? "sapasa", exCurrent: -1, exPlaying: false,
+      exShowAll: prefs.exShowAll ?? false, exAllIdx: -1, focusEx: prefs.focusEx ?? true,
+      exNpb: prefs.exNpb ?? 1, exBpm: prefs.exBpm ?? 40, exClick: prefs.exClick ?? true, exLoop: prefs.exLoop ?? false,
+      exRaga: prefs.exRaga ?? "mayamalavagowla", exInst: prefs.exInst ?? "violin",
+      // editable exercises (authored in Mayamalavagowla degrees; transpose by selected raga on play)
+      userEx, exOverrides, exDeleted,
+      ceOpen: false, ceName: "", ceNotes: [], ceOctave: 0, ceGroup: 8, ceEditId: null, ceBuiltin: false, cePlaying: false,
+    };
+    this._lastPitchUpd = 0;
+  }
+
+  async componentDidMount() {
+    // audio-engine.js loads as a classic script in <helmet> and publishes
+    // window.SwsAudio — this works in both the live preview and the bundled
+    // standalone file (a runtime ES-module import does not survive bundling).
+    let mod = window.SwsAudio;
+    if (!mod) {
+      for (let i = 0; i < 40 && !window.SwsAudio; i++) await new Promise(r => setTimeout(r, 50));
+      mod = window.SwsAudio;
+      if (!mod) { try { mod = await import("./audio-engine.js"); } catch (e) {} }
+    }
+    if (!mod) return;
+    this.lib = mod;
+    // Reuse one shared engine across remounts/hot-reloads so a single switch
+    // always controls whatever is actually playing (no orphaned drones).
+    if (window.__swsEngine) { try { window.__swsEngine.stopAll(); } catch (e) {} }
+    this.engine = window.__swsEngine || (window.__swsEngine = new mod.AudioEngine());
+    // apply prop defaults
+    const ds = this.props.defaultSruthi;
+    if (ds) { const m = this.SRUTHI.find(x => x[0] === ds); if (m) this.setState({ tonicHz: m[1] }); }
+    const dt = this.props.defaultThala;
+    if (dt) this.setState({ mriThala: dt });
+    this.engine.setTonic(this.state.tonicHz);
+    this.engine.met.bpm = this.state.bpm;
+    this.engine.met.beats = this.state.beats;
+    this.engine.mri.bpm = this.state.mriBpm;
+    this.engine.mri.thala = this.state.mriThala;
+    this.engine.tan.gain = this.state.tanVolPct / 100;
+    this.engine.tan.gap = this.state.tanGap;
+    this.engine.tan.together = this.state.tanTogether;
+    this.engine.mri.inst = this.state.mriInst;
+    this.engine.mri.andSound = this.state.mriAndSound;
+    this.engine.setMasterVolume(this.state.masterVolPct / 100);
+    this.forceUpdate();
+    this.setState({ inIframe: window.top !== window.self });
+    this._posTimer = setInterval(() => {
+      if (this.engine && this.engine.song.playing)
+        this.setState({ songPos: this.engine.songPosition() });
+    }, 200);
+  }
+  componentWillUnmount() {
+    clearInterval(this._posTimer);
+    clearInterval(this._recTimer);
+    if (this.engine) this.engine.stopAll();
+  }
+  componentDidUpdate() {
+    // Persist the student's settings whenever they change, so the app resumes
+    // where they left off. We compare against our own last-saved snapshot
+    // (the runtime doesn't hand us a reliable prevState).
+    try {
+      const KEYS = ["tonicHz", "masterVolPct", "bpm", "beats",
+        "tanVolPct", "tanTogether", "tanGap",
+        "mriBpm", "mriThala", "mriInst", "mriAndSound",
+        "exCat", "exId", "exRaga", "exInst", "exBpm", "exNpb", "exClick", "exLoop", "exShowAll", "focusEx"];
+      const out = {};
+      KEYS.forEach(k => { out[k] = this.state[k]; });
+      const json = JSON.stringify(out);
+      if (json !== this._lastPrefsJson) {
+        this._lastPrefsJson = json;
+        localStorage.setItem("sws_prefs", json);
+      }
+    } catch (e) {}
+  }
+
+  // ---------- helpers ----------
+  token(pos, octave) {
+    const s = this.lib.SWARAS[((pos % 12) + 12) % 12];
+    return { base: s.base, sub: s.sub, up: octave > 0, down: octave < 0, latin: s.latin };
+  }
+  offsetsToTokens(arr) {
+    return arr.map((off, i) => {
+      const oct = Math.floor(off / 12);
+      const pos = ((off % 12) + 12) % 12;
+      const t = this.token(pos, oct); t.key = i; return t;
+    });
+  }
+  fmt(sec) {
+    if (!sec || sec < 0) sec = 0;
+    const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+  grade(s) {
+    if (s >= 85) return "അതിമികച്ചത് 🌟"; if (s >= 70) return "നല്ലത് 👏";
+    if (s >= 55) return "തൃപ്തികരം"; return "കൂടുതൽ പരിശീലനം വേണം";
+  }
+
+  // ---------- navigation ----------
+  setTab(t) { return () => this.setState({ tab: t }); }
+
+  // ---------- tonic ----------
+  changeTonic = (e) => {
+    const hz = +e.target.value;
+    if (this.engine) {
+      this.engine.setTonic(hz);
+      // restart the drone so currently-ringing strings retune to the new Sa
+      if (this.state.tanRunning) { this.engine.stopTanpura(); this.engine.startTanpura(); }
+    }
+    this.setState({ tonicHz: hz }, () => {
+      // re-play any running exercise so it sounds at the new shruthi
+      if (this.state.exPlaying) {
+        if (this.state.exShowAll) { this.stopExercisePlay(); this.startPlayAll(); }
+        else { this.stopExercisePlay(); this.startExercise(); }
+      }
+    });
+  };
+  stopAllAudio = () => {
+    if (this.engine) this.engine.stopAll();
+    this.setState({ metRunning: false, tanRunning: false, mriRunning: false, exPlaying: false, exCurrent: -1, sbPlayingId: null });
+  };
+  setMasterVol = (e) => { const v = +e.target.value; if (this.engine) this.engine.setMasterVolume(v / 100); this.setState({ masterVolPct: v }); };
+
+  // ---------- metronome ----------
+  toggleMet = () => {
+    if (!this.engine) return;
+    if (this.state.metRunning) { this.engine.stopMetronome(); this.setState({ metRunning: false }); }
+    else { this.engine.met.bpm = this.state.bpm; this.engine.met.beats = this.state.beats; this.engine.startMetronome(); this.setState({ metRunning: true }); }
+  };
+  setBpm = (e) => { const v = +e.target.value; if (this.engine) this.engine.met.bpm = v; this.setState({ bpm: v }); };
+  setBeats = (e) => { const opts = [1,2,4,8,16]; const v = opts[+e.target.value] || 8; if (this.engine) this.engine.met.beats = v; this.setState({ beats: v }); };
+
+  // ---------- tanpura ----------
+  toggleTan = () => {
+    if (!this.engine) return;
+    if (this.state.tanRunning) { this.engine.stopTanpura(); this.setState({ tanRunning: false }); }
+    else { this.engine.startTanpura(); this.setState({ tanRunning: true }); }
+  };
+  setTanVol = (e) => { const v = +e.target.value; if (this.engine) this.engine.tan.gain = v / 100; this.setState({ tanVolPct: v }); };
+  toggleTanTogether = () => {
+    const v = !this.state.tanTogether;
+    if (this.engine) {
+      this.engine.tan.together = v;
+      // restart so the new mode (chord vs sequence) takes effect immediately
+      if (this.state.tanRunning) { this.engine.stopTanpura(); this.engine.startTanpura(); }
+    }
+    this.setState({ tanTogether: v });
+  };
+  setTanGap = (e) => {
+    const v = +e.target.value;
+    if (this.engine) this.engine.tan.gap = v;
+    this.setState({ tanGap: v });
+  };
+
+  // ---------- mridangam ----------
+  toggleMri = () => {
+    if (!this.engine) return;
+    if (this.state.mriRunning) { this.engine.stopMridangam(); this.setState({ mriRunning: false }); }
+    else { this.engine.mri.bpm = this.state.mriBpm; this.engine.mri.thala = this.state.mriThala; this.engine.startMridangam(); this.setState({ mriRunning: true }); }
+  };
+  setMriBpm = (e) => { const v = +e.target.value; if (this.engine) this.engine.mri.bpm = v; this.setState({ mriBpm: v }); };
+  setMriInst(v) {
+    if (this.engine) this.engine.mri.inst = v;
+    this.setState({ mriInst: v });
+  }
+  toggleMriAnd = () => {
+    const v = !this.state.mriAndSound;
+    if (this.engine) this.engine.mri.andSound = v;
+    this.setState({ mriAndSound: v });
+  };
+  setMriThala = (e) => {
+    const v = e.target.value;
+    if (this.engine) {
+      this.engine.mri.thala = v;
+      if (this.state.mriRunning) { this.engine.stopMridangam(); this.engine.startMridangam(); }
+    }
+    this.setState({ mriThala: v });
+  };
+
+  // ---------- song ----------
+  // IndexedDB store for saved song audio (keyed by saved-item id)
+  _openDB() {
+    if (this._dbPromise) return this._dbPromise;
+    this._dbPromise = new Promise((resolve, reject) => {
+      let req;
+      try { req = indexedDB.open("sws_songs", 1); } catch (e) { reject(e); return; }
+      req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains("audio")) req.result.createObjectStore("audio"); };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return this._dbPromise;
+  }
+  async _idbPut(id, blob) {
+    try { const db = await this._openDB(); await new Promise((res, rej) => { const tx = db.transaction("audio", "readwrite"); tx.objectStore("audio").put(blob, id); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); } catch (e) {}
+  }
+  async _idbGet(id) {
+    try { const db = await this._openDB(); return await new Promise((res, rej) => { const tx = db.transaction("audio", "readonly"); const r = tx.objectStore("audio").get(id); r.onsuccess = () => res(r.result || null); r.onerror = () => rej(r.error); }); } catch (e) { return null; }
+  }
+  async _idbDel(id) {
+    try { const db = await this._openDB(); await new Promise((res) => { const tx = db.transaction("audio", "readwrite"); tx.objectStore("audio").delete(id); tx.oncomplete = res; tx.onerror = res; }); } catch (e) {}
+  }
+  onFile = async (e) => {
+    const file = e.target.files[0]; if (!file || !this.engine) return;
+    this.engine.resetSong();
+    this._songFile = file; // keep the original file so it can be saved/restored
+    this._lastLoadedId = null;
+    const ab = await file.arrayBuffer();
+    const dur = await this.engine.loadSong(ab);
+    this.engine.setTempo(this.state.tempo);
+    this.engine.setPitch(this.state.pitch);
+    this.setState({ songLoaded: true, songName: file.name, songDur: dur, songPos: 0, songPlaying: false });
+  };
+  onSongEnd = () => this.setState({ songPlaying: false, songPos: 0 });
+  toggleSongPlay = () => {
+    if (!this.engine || !this.state.songLoaded) return;
+    if (this.engine.song.playing) { this.engine.stopSong(); this.setState({ songPlaying: false, songPos: this.engine.songPosition() }); }
+    else { this.engine.playSong(this.onSongEnd); this.setState({ songPlaying: true }); }
+  };
+  resetSongBtn = () => { if (!this.engine) return; this.engine.resetSong(); this.setState({ songPlaying: false, songPos: 0 }); };
+  seekSong = (e) => {
+    if (!this.engine || !this.state.songLoaded) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    const off = frac * this.engine.song.dur;
+    const was = this.engine.song.playing;
+    this.engine.stopSong();
+    this.engine.song.offset = off;
+    this.setState({ songPos: off });
+    if (was) { this.engine.playSong(this.onSongEnd); this.setState({ songPlaying: true }); }
+  };
+  setTempo = (e) => { const v = +e.target.value / 100; if (this.engine) this.engine.setTempo(v); this.setState({ tempo: v }); };
+  setPitch = (e) => { const v = +e.target.value; if (this.engine) this.engine.setPitch(v); this.setState({ pitch: v }); };
+  saveSong = () => {
+    const sr = this.SRUTHI.find(x => Math.abs(x[1] - this.state.tonicHz) < 0.5);
+    const id = "sv" + Date.now();
+    const item = { id, name: this.state.songName || "പാട്ട്", tempo: this.state.tempo, pitch: this.state.pitch, tonic: this.state.tonicHz, tonicName: sr ? sr[0] : "", hasAudio: !!this._songFile, when: Date.now() };
+    const saved = [item, ...this.state.saved].slice(0, 12);
+    try { localStorage.setItem("sws_saved", JSON.stringify(saved)); } catch (e) {}
+    if (this._songFile) this._idbPut(id, this._songFile);
+    this.setState({ saved });
+  };
+  async applySaved(s) {
+    if (this.engine) { this.engine.setTempo(s.tempo); this.engine.setPitch(s.pitch); this.engine.setTonic(s.tonic); }
+    this.setState({ tempo: s.tempo, pitch: s.pitch, tonicHz: s.tonic });
+    // load the saved audio file back into the player and play it
+    const blob = s.id ? await this._idbGet(s.id) : null;
+    if (!blob) {
+      this.setState({ songPlaying: false });
+      if (s.hasAudio) alert("ഈ ക്രമീകരണത്തിന്റെ ഫയൽ കണ്ടെത്താനായില്ല. ദയവായി വീണ്ടും തിരഞ്ഞെടുത്ത് സേവ് ചെയ്യുക.");
+      return;
+    }
+    try {
+      this.engine.stopSong();
+      this._songFile = blob;
+      const ab = await blob.arrayBuffer();
+      const dur = await this.engine.loadSong(ab);
+      this.engine.setTempo(s.tempo);
+      this.engine.setPitch(s.pitch);
+      this._lastLoadedId = s.id;
+      this.setState({ songLoaded: true, songName: s.name || "പാട്ട്", songDur: dur, songPos: 0 });
+      this.engine.playSong(this.onSongEnd);
+      this.setState({ songPlaying: true });
+    } catch (e) {
+      this.setState({ songPlaying: false });
+      alert("ഫയൽ ലോഡ് ചെയ്യാനായില്ല.");
+    }
+  }
+  removeSaved(i) { const saved = this.state.saved.slice(); const [gone] = saved.splice(i, 1); try { localStorage.setItem("sws_saved", JSON.stringify(saved)); } catch (e) {} if (gone && gone.id) this._idbDel(gone.id); this.setState({ saved }); }
+  async downloadSaved(s) {
+    // prefer this preset's own stored audio so download works without a manual load
+    if (s.id && (!this.engine.song.buffer || this._lastLoadedId !== s.id)) {
+      const blob = await this._idbGet(s.id);
+      if (blob) {
+        try { const ab = await blob.arrayBuffer(); await this.engine.loadSong(ab); this._lastLoadedId = s.id; this._songFile = blob; this.setState({ songLoaded: true, songName: s.name || "പാട്ട്", songDur: this.engine.song.dur }); } catch (e) {}
+      }
+    }
+    if (!this.engine || !this.engine.song.buffer) {
+      alert("ഡൗൺലോഡ് ചെയ്യാൻ ആദ്യം ഒരു MP3 ഫയൽ തിരഞ്ഞെടുക്കുക.");
+      return;
+    }
+    try {
+      const blob = await this.engine.renderSongToWav(s.tempo, s.pitch);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const base = (s.name || "song").replace(/[^\w\u0900-\u0DFF -]/g, "").trim() || "song";
+      a.download = base + " (" + Math.round(s.tempo * 100) + "% " + (s.pitch > 0 ? "+" : "") + s.pitch + ").wav";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    } catch (e) {
+      alert("ഡൗൺലോഡ് പരാജയപ്പെട്ടു.");
+    }
+  }
+
+  // ---------- song book ----------
+  // 12 swarasthanas as semitone offsets (palette order)
+  SB_PALETTE = [0,1,2,3,4,5,6,7,8,9,10,11];
+  setSbTitle = (e) => this.setState({ sbTitle: e.target.value });
+  selectSbOctave(o) { this.setState({ sbOctave: o }); }
+  sbAddNote(semi) {
+    const off = semi + this.state.sbOctave * 12;
+    this.setState({ sbNotes: [...this.state.sbNotes, off] });
+  }
+  sbAddHold = () => { if (this.state.sbNotes.length) this.setState({ sbNotes: [...this.state.sbNotes, "h"] }); };
+  sbAddGap = () => { if (this.state.sbNotes.length) this.setState({ sbNotes: [...this.state.sbNotes, "r"] }); };
+  sbAddBar = () => this.setState({ sbNotes: [...this.state.sbNotes, "|"] });
+  sbAddDoubleBar = () => this.setState({ sbNotes: [...this.state.sbNotes, "||"] });
+  sbBackspace = () => this.setState({ sbNotes: this.state.sbNotes.slice(0, -1) });
+  sbClear = () => this.setState({ sbNotes: [] });
+  setSbInst = (e) => this.setState({ sbInst: e.target.value });
+  setSbBpm = (e) => this.setState({ sbBpm: +e.target.value });
+  sbStopPlay() { if (this.engine) this.engine.stopExercise(); this.setState({ sbPlayingId: null }); }
+  sbPlayNotes(notes, id) {
+    if (!this.engine || !notes.length) return;
+    if (this.state.sbPlayingId === id) { this.sbStopPlay(); return; }
+    this.engine.playExercise(notes, {
+      bpm: this.state.sbBpm, npb: 1, click: false, loop: false, instrument: this.state.sbInst,
+      onDone: () => this.setState({ sbPlayingId: null }),
+    });
+    this.setState({ sbPlayingId: id });
+  }
+  sbPreview = () => this.sbPlayNotes(this.state.sbNotes, "__draft");
+  sbSave = () => {
+    const notes = this.state.sbNotes;
+    if (!notes.length) return;
+    const title = this.state.sbTitle.trim() || ("പാട്ട് " + (this.state.sbSongs.length + 1));
+    let songs, savedSong;
+    if (this.state.sbEditId) {
+      const eid = this.state.sbEditId;
+      songs = this.state.sbSongs.map(s => s.id === eid ? { ...s, title, notes } : s);
+      savedSong = songs.find(s => s.id === eid);
+    } else {
+      savedSong = { id: "sb" + Date.now(), title, notes, when: Date.now() };
+      songs = [savedSong, ...this.state.sbSongs].slice(0, 40);
+    }
+    try { localStorage.setItem("sws_songbook", JSON.stringify(songs)); } catch (e) {}
+    this.setState({ sbSongs: songs, sbTitle: "", sbNotes: [], sbEditId: null, sbEditorOpen: false, sbPlayingId: savedSong.id });
+    // auto-play the saved song so the student hears it back
+    if (this.engine && savedSong.notes.length) {
+      this.engine.stopExercise();
+      this.engine.playExercise(savedSong.notes, {
+        bpm: this.state.sbBpm, npb: 1, click: false, loop: false, instrument: this.state.sbInst,
+        onDone: () => this.setState({ sbPlayingId: null }),
+      });
+    }
+  };
+  sbEditSong(s) { this.sbStopPlay(); this.setState({ sbTitle: s.title, sbNotes: s.notes.slice(), sbEditId: s.id, sbEditorOpen: true }); }
+  sbNewSong = () => { this.sbStopPlay(); this.setState({ sbTitle: "", sbNotes: [], sbEditId: null, sbEditorOpen: true }); };
+  sbCloseEditor = () => { this.sbStopPlay(); this.setState({ sbEditorOpen: false, sbTitle: "", sbNotes: [], sbEditId: null }); };
+  sbRemoveSong(id) {
+    const songs = this.state.sbSongs.filter(s => s.id !== id);
+    try { localStorage.setItem("sws_songbook", JSON.stringify(songs)); } catch (e) {}
+    this.setState({ sbSongs });
+  }
+  sbTokenList(notes) {
+    if (!this.lib) return [];
+    return notes.map((n, i) => {
+      const gap = n === "r" ? "16px" : "0px";
+      if (n === "|" || n === "||") return { key: i, hold: false, show: false, mark: true, markStr: n, base: "", sub: "", up: false, down: false, gap, cellColor: "var(--gold)" };
+      if (n === "h") return { key: i, hold: true, show: false, mark: false, base: "", sub: "", up: false, down: false, gap, cellColor: "var(--ink)" };
+      if (n === "r") return { key: i, hold: false, show: false, mark: false, base: "", sub: "", up: false, down: false, gap, cellColor: "var(--ink)" };
+      const oct = Math.floor(n / 12), pos = ((n % 12) + 12) % 12;
+      const s = this.lib.SWARAS[pos];
+      return { key: i, hold: false, show: true, mark: false, base: s.base, sub: s.sub, up: oct > 0, down: oct < 0, gap, cellColor: "var(--ink)" };
+    });
+  }
+
+  // ---------- record ----------
+  onPitch = (freq, sv) => {
+    const now = performance.now();
+    if (now - this._lastPitchUpd < 70) return;
+    this._lastPitchUpd = now;
+    if (freq > 0 && sv) this.setState({ liveActive: true, liveFreq: Math.round(freq), liveCents: Math.round(sv.cents), liveSwara: this.token(sv.pos, sv.octave) });
+    else this.setState({ liveActive: false });
+  };
+  openStandalone = () => {
+    try { if (this.engine) this.engine.stopAll(); } catch (e) {}
+    window.open(window.location.href, "_blank", "noopener");
+  };
+
+  // ---------- exercises ----------
+  exItems() { return this.exItemsFor(this.state.exCat); }
+  exItemsFor(cat) {
+    const builtins = (this.lib && this.lib.EXERCISES[cat] ? this.lib.EXERCISES[cat].items : [])
+      .filter(it => !this.state.exDeleted.includes(it.id))
+      .map(it => { const ov = this.state.exOverrides[it.id]; return ov ? { ...it, ...ov } : it; });
+    const user = this.state.userEx[cat] || [];
+    return [...builtins, ...user];
+  }
+  exIsUserItem(cat, id) { return (this.state.userEx[cat] || []).some(x => x.id === id); }
+  exSelected() { return this.exItems().find(x => x.id === this.state.exId) || this.exItems()[0]; }
+  exScale() {
+    const r = this.lib && this.lib.MELAKARTHA.find(x => x.id === this.state.exRaga);
+    return r ? r.scale : [0,1,4,5,7,8,11];
+  }
+  exScaleTokenList() {
+    if (!this.lib) return [];
+    const r = this.lib.MELAKARTHA.find(x => x.id === this.state.exRaga);
+    if (r && r.aroToks) return r.aroToks.map((t, k) => ({ key: k, base: t.base, sub: t.sub, up: t.up }));
+    const scale = this.exScale();
+    return [0,1,2,3,4,5,6,7].map(deg => {
+      const semi = deg === 7 ? 12 : scale[deg];
+      const oct = Math.floor(semi / 12), pos = ((semi % 12) + 12) % 12;
+      const s = this.lib.SWARAS[pos];
+      return { key: deg, base: s.base, sub: s.sub, up: oct > 0 };
+    });
+  }
+  exRagaNameStr() {
+    const r = this.lib && this.lib.MELAKARTHA.find(x => x.id === this.state.exRaga);
+    return r ? r.name : "";
+  }
+  exTransposed(notes) { return this.lib ? this.lib.transposeExercise(notes, this.exScale()) : notes; }
+  stopExercisePlay() {
+    this._allRun = false;
+    clearTimeout(this._allTimer);
+    if (this.engine) this.engine.stopExercise();
+    this.setState({ exPlaying: false, exCurrent: -1, exAllIdx: -1 });
+  }
+  toggleExShowAll = () => { this.stopExercisePlay(); this.setState(s => ({ exShowAll: !s.exShowAll })); };
+  toggleExFocus = () => { this.setState(s => ({ focusEx: !s.focusEx })); };
+  startPlayAll() {
+    if (!this.engine) return;
+    const items = this.exItems();
+    if (!items.length) return;
+    this._allRun = true;
+    this.setState({ exPlaying: true, exShowAll: true });
+    this._playAllSeq(items, 0);
+  }
+  _playAllSeq(items, _i) {
+    if (!this._allRun) return;
+    // Concatenate every varisai into one notes array so playback is gap-free.
+    // Track which item & local index each global index belongs to.
+    const flat = [];
+    const itemOf = [];
+    const localOf = [];
+    items.forEach((ex, idx) => {
+      const notes = this.exTransposed(ex.notes);
+      notes.forEach((n, j) => { flat.push(n); itemOf.push(idx); localOf.push(j); });
+    });
+    if (!flat.length) { this._allRun = false; this.setState({ exPlaying: false, exCurrent: -1, exAllIdx: -1 }); return; }
+    this.setState({ exAllIdx: 0, exCurrent: -1 });
+    this.engine.playExercise(flat, {
+      bpm: this.state.exBpm, npb: this.state.exNpb,
+      click: this.state.exClick, loop: false, instrument: this.state.exInst,
+      onNote: (g) => {
+        if (g < 0) return;
+        const it = itemOf[g], lo = localOf[g];
+        const s = this.state;
+        if (s.exAllIdx !== it || s.exCurrent !== lo) this.setState({ exAllIdx: it, exCurrent: lo });
+      },
+      onDone: () => {
+        if (!this._allRun) return;
+        if (this.state.exLoop) { this._playAllSeq(items, 0); return; }
+        this._allRun = false; this.setState({ exPlaying: false, exCurrent: -1, exAllIdx: -1 });
+      },
+    });
+  }
+  selectExCat(cat) {
+    this.stopExercisePlay();
+    const items = this.exItemsFor(cat);
+    const first = items[0] ? items[0].id : null;
+    this.setState({ exCat: cat, exId: first, exCurrent: -1, ceOpen: false });
+  }
+  // ---------- exercise editor (add / edit across every category) ----------
+  MAYA_PALETTE = [0, 1, 4, 5, 7, 8, 11]; // Mayamalavagowla swarasthanas (S R₁ G₃ M₁ P D₁ N₃)
+  ceSetName = (e) => this.setState({ ceName: e.target.value });
+  ceSelectOctave(o) { this.setState({ ceOctave: o }); }
+  ceSelectGroup(g) { this.setState({ ceGroup: g }); }
+  ceAddNote(semi) { this.setState({ ceNotes: [...this.state.ceNotes, semi + this.state.ceOctave * 12] }); }
+  ceAddHold = () => { if (this.state.ceNotes.length) this.setState({ ceNotes: [...this.state.ceNotes, "h"] }); };
+  ceAddBar = () => this.setState({ ceNotes: [...this.state.ceNotes, "|"] });
+  ceAddDoubleBar = () => this.setState({ ceNotes: [...this.state.ceNotes, "||"] });
+  ceBackspace = () => this.setState({ ceNotes: this.state.ceNotes.slice(0, -1) });
+  ceClear = () => this.setState({ ceNotes: [] });
+  ceStop() { if (this.engine) this.engine.stopExercise(); this.setState({ cePlaying: false }); }
+  exNewExercise = () => { this.stopExercisePlay(); this.ceStop(); this.setState({ ceOpen: true, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], ceOctave: 0, ceGroup: 8 }); };
+  exEditSelected = () => { const ex = this.exSelected(); if (ex) this.exEditExercise(ex); };
+  exEditExercise(ex) {
+    this.stopExercisePlay(); this.ceStop();
+    const builtin = !this.exIsUserItem(this.state.exCat, ex.id);
+    this.setState({ ceOpen: true, ceEditId: ex.id, ceBuiltin: builtin, ceName: ex.name, ceNotes: (ex.notes || []).slice(), ceGroup: ex.group || 8, ceOctave: 0 });
+  }
+  ceCancel = () => { this.ceStop(); this.setState({ ceOpen: false, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [] }); };
+  cePreview = () => {
+    if (!this.engine || !this.state.ceNotes.length) return;
+    if (this.state.cePlaying) { this.ceStop(); return; }
+    this.engine.stopExercise();
+    this.engine.playExercise(this.exTransposed(this.state.ceNotes), {
+      bpm: this.state.exBpm || 60, npb: 1, click: false, loop: false, instrument: this.state.exInst,
+      onDone: () => this.setState({ cePlaying: false }),
+    });
+    this.setState({ cePlaying: true });
+  };
+  ceSave = () => {
+    const notes = this.state.ceNotes;
+    if (!notes.length) return;
+    const cat = this.state.exCat;
+    const name = this.state.ceName.trim() || ("അഭ്യാസം " + (this.exItemsFor(cat).length + 1));
+    const group = this.state.ceGroup;
+    let savedId;
+    if (this.state.ceEditId && this.state.ceBuiltin) {
+      // editing a built-in exercise → store an override keyed by its id
+      savedId = this.state.ceEditId;
+      const exOverrides = { ...this.state.exOverrides, [savedId]: { name, notes, group } };
+      try { localStorage.setItem("sws_ex_overrides", JSON.stringify(exOverrides)); } catch (e) {}
+      this.setState({ exOverrides });
+    } else {
+      // new user exercise, or editing an existing user exercise
+      const list = (this.state.userEx[cat] || []).slice();
+      if (this.state.ceEditId) {
+        savedId = this.state.ceEditId;
+        const i = list.findIndex(x => x.id === savedId);
+        if (i >= 0) list[i] = { ...list[i], name, notes, group };
+      } else {
+        savedId = "ce" + Date.now();
+        list.push({ id: savedId, name, latin: "", group, desc: "", notes });
+      }
+      const userEx = { ...this.state.userEx, [cat]: list };
+      try { localStorage.setItem("sws_user_exercises", JSON.stringify(userEx)); } catch (e) {}
+      this.setState({ userEx });
+    }
+    this.setState({ ceOpen: false, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], exId: savedId, exCurrent: -1 });
+  };
+  exDeleteSelected = () => { const ex = this.exSelected(); if (ex) this.exDeleteExercise(ex); };
+  exDeleteExercise(ex) {
+    this.stopExercisePlay();
+    const cat = this.state.exCat;
+    let userEx = this.state.userEx, exOverrides = this.state.exOverrides, exDeleted = this.state.exDeleted;
+    if (this.exIsUserItem(cat, ex.id)) {
+      userEx = { ...userEx, [cat]: (userEx[cat] || []).filter(x => x.id !== ex.id) };
+      try { localStorage.setItem("sws_user_exercises", JSON.stringify(userEx)); } catch (e) {}
+    } else {
+      exDeleted = [...exDeleted, ex.id];
+      exOverrides = { ...exOverrides }; delete exOverrides[ex.id];
+      try { localStorage.setItem("sws_ex_deleted", JSON.stringify(exDeleted)); } catch (e) {}
+      try { localStorage.setItem("sws_ex_overrides", JSON.stringify(exOverrides)); } catch (e) {}
+    }
+    this.setState({ userEx, exOverrides, exDeleted, ceOpen: false }, () => {
+      const items = this.exItemsFor(cat);
+      if (!items.some(x => x.id === this.state.exId)) this.setState({ exId: items[0] ? items[0].id : null, exCurrent: -1 });
+    });
+  }
+  exResetCategory = () => {
+    const cat = this.state.exCat;
+    const builtinIds = (this.lib && this.lib.EXERCISES[cat] ? this.lib.EXERCISES[cat].items : []).map(it => it.id);
+    const exDeleted = this.state.exDeleted.filter(id => !builtinIds.includes(id));
+    const exOverrides = { ...this.state.exOverrides };
+    builtinIds.forEach(id => delete exOverrides[id]);
+    try { localStorage.setItem("sws_ex_deleted", JSON.stringify(exDeleted)); } catch (e) {}
+    try { localStorage.setItem("sws_ex_overrides", JSON.stringify(exOverrides)); } catch (e) {}
+    this.setState({ exDeleted, exOverrides });
+  };
+  selectEx(id) { this.stopExercisePlay(); this.setState({ exId: id, exCurrent: -1 }); }
+  setExId = (e) => this.selectEx(e.target.value);
+  // chunk the flat token list into display lines (with line numbers)
+  exTokenLines() { return this.linesFor(this.exSelected(), this.state.exCurrent); }
+  linesFor(ex, activeIdx) {
+    if (!ex || !this.lib) return [];
+    const tokens = this.tokensFor(ex, activeIdx);
+    const PER = 16;
+    const lines = [];
+    // make a padding token (invisible filler so 8/8 grid keeps shape)
+    const pad = (k) => ({ key: "pad" + k, hold: false, show: false, empty: true, base: "", sub: "", up: false, down: false,
+      subColor: "transparent", cellBg: "transparent", cellColor: "transparent", gap: "0px", mark: false });
+    for (let i = 0; i < tokens.length; i += PER) {
+      const slice = tokens.slice(i, i + PER);
+      while (slice.length < PER) slice.push(pad(i + slice.length));
+      lines.push({
+        key: lines.length, num: lines.length + 1,
+        left: slice.slice(0, 8),
+        right: slice.slice(8, 16),
+      });
+    }
+    const multi = lines.length > 1;
+    lines.forEach(l => { l.showNum = multi; });
+    return lines;
+  }
+  exThalaNameStr() {
+    const th = this.lib && this.lib.AudioEngine.THALAS[this.state.mriThala];
+    return th ? th.name : "";
+  }
+  setExNpb(n) { const w = this.state.exPlaying; this.stopExercisePlay(); this.setState({ exNpb: n }, () => { if (w) this.startExercise(); }); }
+  setExBpm = (e) => { const v = +e.target.value; const w = this.state.exPlaying; this.setState({ exBpm: v }, () => { if (w) { this.stopExercisePlay(); this.startExercise(); } }); };
+  setExRaga = (e) => { const v = e.target.value; const w = this.state.exPlaying; this.stopExercisePlay(); this.setState({ exRaga: v }, () => { if (w) this.startExercise(); }); };
+  setExInst(v) { const w = this.state.exPlaying; this.stopExercisePlay(); this.setState({ exInst: v }, () => { if (w) this.startExercise(); }); }
+  setExInstSel = (e) => this.setExInst(e.target.value);
+  toggleExClick = () => this.setState({ exClick: !this.state.exClick });
+  toggleExLoop = () => this.setState({ exLoop: !this.state.exLoop });
+  toggleExDrone = () => { this.toggleTan(); };
+  startExercise() {
+    if (!this.engine) return;
+    const ex = this.exSelected();
+    if (!ex) return;
+    this.engine.playExercise(this.exTransposed(ex.notes), {
+      bpm: this.state.exBpm, npb: this.state.exNpb,
+      click: this.state.exClick, loop: this.state.exLoop, instrument: this.state.exInst,
+      onNote: (i) => this.setState({ exCurrent: i }),
+      onDone: () => this.setState({ exPlaying: false, exCurrent: -1 }),
+    });
+    this.setState({ exPlaying: true });
+  }
+  toggleExPlay = () => {
+    if (this.state.exPlaying) this.stopExercisePlay();
+    else if (this.state.exShowAll) this.startPlayAll();
+    else this.startExercise();
+  };
+  exTokenList() { return this.tokensFor(this.exSelected(), this.state.exCurrent); }
+  tokensFor(ex, activeIdx) {
+    if (!ex || !this.lib) return [];
+    const group = ex.group || 0;
+    const transposed = this.exTransposed(ex.notes);
+    const hl = Math.max(1, this.state.exNpb || 1);
+    // map raw indices → playable index (skipping mark tokens) so the highlight
+    // group is N actual swaras, not N cells of any kind.
+    const playableIdxOf = [];
+    let pCount = 0;
+    ex.notes.forEach((nn, ii) => {
+      const isMark = nn === "|" || nn === "||";
+      playableIdxOf.push(isMark ? -1 : pCount);
+      if (!isMark) pCount++;
+    });
+    const activePlayable = activeIdx >= 0 ? playableIdxOf[activeIdx] : -1;
+    return ex.notes.map((n, i) => {
+      const p = playableIdxOf[i];
+      const active = activePlayable >= 0 && p >= 0 && Math.floor(p / hl) === Math.floor(activePlayable / hl);
+      const gapAfter = group && ((i + 1) % group === 0) && i < ex.notes.length - 1;
+      const gap = gapAfter ? "14px" : "0px";
+      if (n === "|" || n === "||") {
+        return { key: i, hold: false, show: false, empty: false, mark: true, markStr: n,
+          base: "", sub: "", up: false, down: false, subColor: "transparent",
+          cellBg: "transparent", cellColor: "var(--gold)", gap };
+      }
+      if (n === "h") {
+        return { key: i, hold: true, show: false, base: "", sub: "", up: false, down: false, subColor: "#7a2424",
+          cellBg: active ? "#5c1a1a" : "transparent", cellColor: active ? "#f4ecdd" : "#8c7659", gap, mark: false };
+      }
+      const semi = transposed[i];
+      const oct = Math.floor(semi / 12), pos = ((semi % 12) + 12) % 12;
+      const s = this.lib.SWARAS[pos];
+      return { key: i, hold: false, show: true, base: s.base, sub: s.sub, up: oct > 0, down: oct < 0,
+        subColor: active ? "#d8b863" : "#7a2424",
+        cellBg: active ? "#5c1a1a" : "#f7efe0", cellColor: active ? "#f4ecdd" : "#3a2418", gap };
+    });
+  }
+
+  startRec = async () => {
+    if (!this.engine) return;
+    this.setState({ recState: "recording", recElapsed: 0, analysis: null, recordUrl: null, liveActive: false, micError: null });
+    this._recStart = performance.now();
+    clearInterval(this._recTimer);
+    this._recTimer = setInterval(() => this.setState({ recElapsed: (performance.now() - this._recStart) / 1000 }), 150);
+    try {
+      await this.engine.startRecording(this.onPitch);
+    } catch (err) {
+      clearInterval(this._recTimer);
+      const name = err && err.name ? err.name : "";
+      const inFrame = window.top !== window.self;
+      let msg, blocked = false;
+      if (name === "NotAllowedError" || name === "SecurityError" || name === "PermissionDeniedError") {
+        if (inFrame) {
+          msg = "ഈ പ്രിവ്യൂ ഫ്രെയിമിന് മൈക്ക് ഉപയോഗിക്കാൻ അനുമതിയില്ല. താഴെയുള്ള ബട്ടൺ ഉപയോഗിച്ച് ആപ്പ് പുതിയ ടാബിൽ തുറന്ന് റെക്കോർഡ് ചെയ്യുക.";
+          blocked = true;
+        } else {
+          msg = "മൈക്ക് അനുമതി നിഷേധിച്ചിരിക്കുന്നു. ബ്രൗസറിന്റെ വിലാസബാറിലെ 🔒 ഐക്കണിൽ ക്ലിക്ക് ചെയ്ത് മൈക്രോഫോൺ 'അനുവദിക്കുക' (Allow) ആക്കി വീണ്ടും ശ്രമിക്കുക.";
+        }
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+        msg = "മൈക്രോഫോൺ കണ്ടെത്താനായില്ല. ഉപകരണം ഘടിപ്പിച്ചിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുക.";
+      } else if (name === "NotReadableError" || name === "TrackStartError") {
+        msg = "മറ്റൊരു ആപ്ലിക്കേഷൻ മൈക്ക് ഉപയോഗിക്കുന്നുണ്ടാകാം. അത് അടച്ച് വീണ്ടും ശ്രമിക്കുക.";
+      } else {
+        msg = "റെക്കോർഡിംഗ് ആരംഭിക്കാനായില്ല" + (name ? (" (" + name + ")") : "") + ". വീണ്ടും ശ്രമിക്കുക.";
+      }
+      this.setState({ recState: "idle", micError: { msg, blocked: blocked || inFrame } });
+    }
+  };
+  stopRec = async () => {
+    if (!this.engine) return;
+    clearInterval(this._recTimer);
+    const { track, url, blob } = await this.engine.stopRecording();
+    this.lastTrack = track;
+    this._lastRecBlob = blob || null;
+    this._lastRecDur = this.state.recElapsed;
+    this.runAnalysis(track, url);
+    this.setState({ recState: "done", liveActive: false, recCanSave: !!blob });
+  };
+  runAnalysis(track, url) {
+    let ragaObj = null;
+    if (this.state.evalRaga !== "auto") {
+      ragaObj = (this.lib.MELAKARTHA && this.lib.MELAKARTHA.find(r => r.id === this.state.evalRaga))
+             || this.lib.RAGAS.find(r => r.id === this.state.evalRaga) || null;
+    }
+    const res = this.engine.analyze(track, { raga: ragaObj, bpm: this.state.mriBpm });
+    this.setState({ analysis: this.buildView(res), recordUrl: url !== undefined ? url : this.state.recordUrl });
+  }
+  setRagaFilter = (e) => this.setState({ ragaFilter: e.target.value });
+  setRagaVoice = (e) => this.setState({ ragaVoice: e.target.value });
+  playRaga(mela, aro, ava) {
+    if (!this.engine) return;
+    if (this.state.ragaPlaying === mela) { this.engine.stopExercise(); this.setState({ ragaPlaying: null }); return; }
+    this.engine.stopExercise();
+    const notes = aro.concat(ava.slice(1)); // aro up, then ava down (no doubled top Sa)
+    this.engine.playExercise(notes, {
+      bpm: 90, npb: 1, click: false, instrument: this.state.ragaVoice,
+      onDone: () => this.setState({ ragaPlaying: null }),
+    });
+    this.setState({ ragaPlaying: mela });
+  }
+  setEvalRaga = (e) => {    const v = e.target.value;
+    this.setState({ evalRaga: v }, () => { if (this.lastTrack && this.state.recState === "done") this.runAnalysis(this.lastTrack); });
+  };
+  _recRagaLabel() {
+    const ev = this.state.evalRaga;
+    if (ev && ev !== "auto" && this.lib) {
+      const r = (this.lib.MELAKARTHA && this.lib.MELAKARTHA.find(x => x.id === ev)) || this.lib.RAGAS.find(x => x.id === ev);
+      if (r) return r.name;
+    }
+    const an = this.state.analysis;
+    if (an && !an.empty && an.detectedName && an.detectedName !== "—") return an.detectedName;
+    return "";
+  }
+  _recExt() {
+    const t = (this._lastRecBlob && this._lastRecBlob.type) || "";
+    if (t.includes("webm")) return "webm";
+    if (t.includes("ogg")) return "ogg";
+    if (t.includes("mp4") || t.includes("m4a")) return "m4a";
+    if (t.includes("wav")) return "wav";
+    return "webm";
+  }
+  saveRecording = async () => {
+    if (!this._lastRecBlob) { alert("സേവ് ചെയ്യാൻ ഒരു റെക്കോർഡിംഗ് ഇല്ല. ആദ്യം റെക്കോർഡ് ചെയ്യുക."); return; }
+    const id = "rec" + Date.now();
+    const an = this.state.analysis;
+    const n = this.state.recordings.length + 1;
+    const item = {
+      id, name: "റെക്കോർഡിംഗ് " + n,
+      raga: this._recRagaLabel(),
+      overall: an && !an.empty ? an.overall : null,
+      dur: Math.round(this._lastRecDur || 0),
+      ext: this._recExt(),
+      when: Date.now(),
+    };
+    await this._idbPut(id, this._lastRecBlob);
+    const recordings = [item, ...this.state.recordings].slice(0, 30);
+    try { localStorage.setItem("sws_recordings", JSON.stringify(recordings)); } catch (e) {}
+    this.setState({ recordings, recCanSave: false });
+  };
+  playRecording = async (rec) => {
+    if (this.state.recPlayingId === rec.id && this._recAudio) {
+      this._recAudio.pause(); this._recAudio = null;
+      this.setState({ recPlayingId: null });
+      return;
+    }
+    if (this._recAudio) { this._recAudio.pause(); this._recAudio = null; }
+    const blob = await this._idbGet(rec.id);
+    if (!blob) { alert("ഈ റെക്കോർഡിംഗിന്റെ ഓഡിയോ കണ്ടെത്താനായില്ല."); return; }
+    const url = URL.createObjectURL(blob);
+    const a = new Audio(url);
+    this._recAudio = a;
+    a.onended = () => { URL.revokeObjectURL(url); if (this._recAudio === a) this._recAudio = null; this.setState({ recPlayingId: null }); };
+    a.play().catch(() => {});
+    this.setState({ recPlayingId: rec.id });
+  };
+  downloadRecording = async (rec) => {
+    const blob = await this._idbGet(rec.id);
+    if (!blob) { alert("ഈ റെക്കോർഡിംഗിന്റെ ഓഡിയോ കണ്ടെത്താനായില്ല."); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = (rec.name || "recording") + "." + (rec.ext || "webm");
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  };
+  removeRecording = (i) => {
+    const recordings = this.state.recordings.slice();
+    const [gone] = recordings.splice(i, 1);
+    try { localStorage.setItem("sws_recordings", JSON.stringify(recordings)); } catch (e) {}
+    if (gone && gone.id) this._idbDel(gone.id);
+    if (gone && this.state.recPlayingId === gone.id && this._recAudio) { this._recAudio.pause(); this._recAudio = null; this.setState({ recPlayingId: null }); }
+    this.setState({ recordings });
+  };
+  buildView(res) {
+    if (!res || res.empty) return { empty: true };
+    const total = res.usedSwaras.reduce((a, b) => a + b.count, 0) || 1;
+    const ragaSet = res.targetRaga ? this.lib.ragaPositionSet(res.targetRaga) : null;
+    const usedTokens = res.usedSwaras.map(u => {
+      const t = this.token(u.pos, 0);
+      const inRaga = ragaSet ? ragaSet.has(u.pos) : true;
+      return Object.assign(t, { count: u.count, pct: Math.round(u.count / total * 100), color: inRaga ? "#5c1a1a" : "#b06a1a" });
+    });
+    const tr = res.targetRaga;
+    return {
+      empty: false,
+      overall: res.overall, pitchAcc: res.pitchAcc, ragaAcc: res.ragaAcc, rhythmAcc: res.rhythmAcc,
+      meanCents: res.meanCents, overallText: this.grade(res.overall),
+      usedTokens, hasForeign: res.foreign.length > 0,
+      detectedName: res.detected && res.detected.raga ? res.detected.raga.name : "—",
+      detectedLatin: res.detected && res.detected.raga ? res.detected.raga.latin : "",
+      detectedConf: res.detected ? res.detected.confidence : 0,
+      targetName: tr ? tr.name : null,
+      targetNote: tr ? tr.note : "",
+      aroTokens: tr ? this.offsetsToTokens(tr.aro) : [],
+      avaTokens: tr ? this.offsetsToTokens(tr.ava) : [],
+      tips: res.tips,
+    };
+  }
+
+  // ---------- render ----------
+  renderVals() {
+    const st = this.state;
+    const tab = st.tab;
+    const sr = this.SRUTHI.find(x => Math.abs(x[1] - st.tonicHz) < 0.5);
+    const tonicName = sr ? sr[0] : Math.round(st.tonicHz) + "Hz";
+    const liveCentsPct = Math.max(0, Math.min(100, 50 + st.liveCents));
+    const thala = this.lib ? this.lib.AudioEngine.THALAS[st.mriThala] : null;
+
+    const savedList = st.saved.map((s, i) => ({
+      name: s.name, tonicName: s.tonicName || "",
+      tempoPct: Math.round(s.tempo * 100),
+      pitchStr: (s.pitch > 0 ? "+" : "") + s.pitch,
+      apply: () => this.applySaved(s), remove: () => this.removeSaved(i),
+      download: () => this.downloadSaved(s),
+    }));
+
+    const an = st.analysis && !st.analysis.empty ? st.analysis : null;
+    const student = true; // student build — ragas/songbook/edit hidden, 5 categories only
+    const STUDENT_CATS = ["saptaswara", "sarali", "madhyasthayi", "melsthayi", "keezhsthayi"];
+
+    return {
+      // student-mode gates (hidden in the student build)
+      showRagas: !student, showSongbook: !student, showExEdit: !student,
+      exEditBtns: !!this.exSelected() && !student,
+      // nav
+      tab,
+      isHome: tab === "home", isSong: tab === "song", isRecord: tab === "record",
+      isTools: tab === "tools", isRagas: tab === "ragas", isExercises: tab === "exercises", isSongbook: tab === "songbook",
+      isSettings: tab === "settings", isHelp: tab === "help",
+      navHome: this.setTab("home"), navSong: this.setTab("song"), navRecord: this.setTab("record"),
+      navTools: this.setTab("help"), navRagas: this.setTab("ragas"), navExercises: this.setTab("exercises"), navSongbook: this.setTab("songbook"),
+      navSettings: this.setTab("settings"), navHelp: this.setTab("help"),
+      // header
+      tonicHz: st.tonicHz, tonicName, changeTonic: this.changeTonic, stopAll: this.stopAllAudio,
+      masterVolPct: st.masterVolPct, setMasterVol: this.setMasterVol,
+      headerRaga: this.exRagaNameStr(), headerThala: this.exThalaNameStr(), headerBpm: st.exBpm,
+      // metronome
+      bpm: st.bpm, beats: st.beats, beatsIdx: Math.max(0, [1,2,4,8,16].indexOf(st.beats)), metRunning: st.metRunning,
+      metLabel: st.metRunning ? "⏸ നിർത്തുക" : "▶ ആരംഭിക്കുക",
+      metBtnBg: st.metRunning ? "#7a2424" : "#5c1a1a",
+      toggleMet: this.toggleMet, setBpm: this.setBpm, setBeats: this.setBeats,
+      // tanpura
+      tanRunning: st.tanRunning, tanVolPct: st.tanVolPct,
+      tanLabel: st.tanRunning ? "⏸ തംപുര നിർത്തുക" : "▶ തംപുര ആരംഭിക്കുക",
+      tanBtnBg: st.tanRunning ? "#7a2424" : "#5c1a1a",
+      toggleTan: this.toggleTan, setTanVol: this.setTanVol,
+      toggleTanTogether: this.toggleTanTogether,
+      setTanGap: this.setTanGap, tanGap: st.tanGap, tanGapLabel: st.tanGap.toFixed(1) + " സെ",
+      tanModeTitle: st.tanTogether ? "ഒരുമിച്ച് (chord)" : "വെവ്വേറെ (sequence)",
+      tanModeDesc: st.tanTogether ? "തുടർച്ചയായ ഏകീകൃത ശ്രുതി (rotation)" : "സ – പ – സ̇ ഓരോന്നായി, ഇടവേളയോടെ",
+      tanTogetherTrack: st.tanTogether ? "#5c1a1a" : "#d8cfc0",
+      tanTogetherKnob: st.tanTogether ? "21px" : "3px",
+      tanSwitchState: st.tanRunning ? "ഓൺ" : "ഓഫ്",
+      tanSwitchBg: st.tanRunning ? "rgba(216,184,99,0.22)" : "transparent",
+      tanSwitchColor: st.tanRunning ? "#fffaf3" : "#d8b863",
+      tanTrackBg: st.tanRunning ? "#3f7a4a" : "rgba(244,236,221,0.25)",
+      tanKnobLeft: st.tanRunning ? "20px" : "2px",
+      // mridangam
+      mriRunning: st.mriRunning, mriBpm: st.mriBpm, mriThala: st.mriThala,
+      mriThalaCount: thala ? thala.count : "",
+      mriLabel: st.mriRunning ? "⏸ താളം നിർത്തുക" : "▶ താളം ആരംഭിക്കുക",
+      mriBtnBg: st.mriRunning ? "#7a2424" : "#5c1a1a",
+      toggleMri: this.toggleMri, setMriBpm: this.setMriBpm, setMriThala: this.setMriThala,
+      toggleMriAnd: this.toggleMriAnd,
+      mriAndTrack: st.mriAndSound ? "#5c1a1a" : "#d8cfc0",
+      mriAndKnob: st.mriAndSound ? "21px" : "3px",
+      mriInstruments: [["mridangam", "മൃദംഗം"], ["tabla", "തബല"], ["drum", "ഡ്രം"], ["chenda", "മണി"]].map(([id, label]) => {
+        const on = st.mriInst === id;
+        return { key: id, label, select: () => this.setMriInst(id),
+          bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
+      }),
+      // song
+      songLoaded: st.songLoaded, noSong: !st.songLoaded,
+      songNameDisplay: st.songName || "ഫയൽ തിരഞ്ഞെടുത്തിട്ടില്ല",
+      songPlaying: st.songPlaying,
+      songPlayLabel: st.songPlaying ? "⏸ നിർത്തുക" : "▶ പ്ലേ ചെയ്യുക",
+      tempoPct: Math.round(st.tempo * 100), tempoSlider: Math.round(st.tempo * 100),
+      pitch: st.pitch, pitchLabel: (st.pitch > 0 ? "+" : "") + st.pitch + " സ്വരം",
+      posStr: this.fmt(st.songPos), durStr: this.fmt(st.songDur),
+      songProgPct: st.songDur ? Math.min(100, st.songPos / st.songDur * 100) : 0,
+      onFile: this.onFile, toggleSongPlay: this.toggleSongPlay, resetSongBtn: this.resetSongBtn,
+      seekSong: this.seekSong, setTempo: this.setTempo, setPitch: this.setPitch,
+      saveSong: this.saveSong, savedList, hasSaved: savedList.length > 0,
+      // record
+      evalRaga: st.evalRaga, setEvalRaga: this.setEvalRaga,
+      melaOptions: this.lib && this.lib.MELAKARTHA ? this.lib.MELAKARTHA.map(r => ({ key: r.id, id: r.id, label: r.mela + ". " + r.name + " (" + r.latin + ")" })) : [],
+      recIdle: st.recState === "idle", recActive: st.recState === "recording", recDone: st.recState === "done",
+      recTimerStr: this.fmt(st.recElapsed),
+      liveActive: st.liveActive, liveIdle: !st.liveActive,
+      liveSwara: st.liveSwara || { base: "", sub: "", up: false, down: false },
+      liveFreq: st.liveFreq, liveCentsPct,
+      liveCentsLabel: (st.liveActive ? ((st.liveCents > 0 ? "+" : "") + st.liveCents + "¢") : "—"),
+      startRec: this.startRec, stopRec: this.stopRec,
+      micError: st.micError, hasMicError: !!st.micError,
+      micErrorMsg: st.micError ? st.micError.msg : "",
+      micBlocked: st.micError ? st.micError.blocked : false,
+      inIframe: st.inIframe, openStandalone: this.openStandalone,
+      showFrameHint: st.inIframe && !st.micError,
+      recordUrl: st.recordUrl,
+      recordAudio: st.recordUrl ? React.createElement("audio", { controls: true, src: st.recordUrl, style: { width: "100%", marginTop: "16px" } }) : null,
+      saveRecording: this.saveRecording, recCanSave: st.recCanSave,
+      recordings: st.recordings.map((r, i) => ({
+        key: r.id, id: r.id, name: r.name,
+        meta: [r.raga ? r.raga : null, r.dur ? this.fmt(r.dur) : null, (r.overall != null ? r.overall + "%" : null)].filter(Boolean).join(" · "),
+        isPlaying: st.recPlayingId === r.id,
+        playLabel: st.recPlayingId === r.id ? "⏸ നിർത്തുക" : "▶ കേൾക്കുക",
+        playBg: st.recPlayingId === r.id ? "var(--gold2)" : "var(--maroon)",
+        play: () => this.playRecording(r),
+        download: () => this.downloadRecording(r),
+        remove: () => this.removeRecording(i),
+      })),
+      hasRecordings: st.recordings.length > 0,
+      hasAnalysis: !!an, noAnalysis: !an, an: an || {},
+      // ragas reference
+      swaraChart: this.lib ? this.lib.SWARAS.map(s => ({ base: s.base, sub: s.sub, latin: s.latin, full: s.full })) : [],
+      ragaList: this.lib && this.lib.MELAKARTHA ? this.lib.MELAKARTHA.filter(r => {
+        const q = (st.ragaFilter || "").trim().toLowerCase();
+        if (!q) return true;
+        return r.latin.toLowerCase().includes(q) || (r.name || "").includes(q) || String(r.mela) === q;
+      }).map(r => ({
+        mela: r.mela, name: r.name, latin: r.latin,
+        showLatin: r.name !== r.latin,
+        aroTokens: r.aroToks, avaTokens: r.avaToks,
+        isPlaying: st.ragaPlaying === r.mela,
+        playLabel: st.ragaPlaying === r.mela ? "■" : "▶",
+        play: () => this.playRaga(r.mela, r.aro, r.ava),
+      })).map((r, i) => Object.assign(r, {
+        rowBg: r.isPlaying ? "rgba(216,184,99,0.20)" : (i % 2 ? "rgba(255,255,255,0.4)" : "transparent"),
+        playBg: r.isPlaying ? "var(--gold2)" : "var(--maroon)",
+      })) : [],
+      ragaNone: !!(this.lib && this.lib.MELAKARTHA) && (st.ragaFilter || "").trim() !== "" && this.lib.MELAKARTHA.filter(r => {
+        const q = st.ragaFilter.trim().toLowerCase();
+        return r.latin.toLowerCase().includes(q) || (r.name || "").includes(q) || String(r.mela) === q;
+      }).length === 0,
+      ragaFilter: st.ragaFilter, setRagaFilter: this.setRagaFilter,
+      ragaVoice: st.ragaVoice, setRagaVoice: this.setRagaVoice,
+      // exercises
+      exCats: [["saptaswara", "സപ്തസ്വരം"], ["sarali", "സരളി വരിശ"], ["madhyasthayi", "മധ്യസ്ഥായി"], ["melsthayi", "മേൽസ്ഥായി"], ["keezhsthayi", "കീഴ്സ്ഥായി"], ["janta", "ജണ്ട വരിശ"], ["vakrajanta", "വക്ര ജണ്ട"], ["datu", "ദാട്ടു വരിശ"], ["alankaram", "അലങ്കാരം"], ["geethangal", "ഗീതങ്ങൾ"], ["varnangal", "വർണ്ണങ്ങൾ"], ["info", "ജതിസ്വരം · സ്വരജതി"]].filter(([id]) => !student || STUDENT_CATS.includes(id)).map(([id, label]) => {
+        const on = st.exCat === id;
+        return { label, select: () => this.selectExCat(id),
+          bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
+      }),
+      exShowInfo: st.exCat === "info",
+      exShowPlayer: st.exCat !== "info" || (st.userEx["info"] || []).length > 0,
+      exIntro: this.lib && this.lib.EXERCISES[st.exCat] ? this.lib.EXERCISES[st.exCat].intro : "",
+      // editor / toolbar
+      ceOpen: st.ceOpen, exShowAddBar: !st.ceOpen && !student && !st.focusEx,
+      exNew: this.exNewExercise, exReset: this.exResetCategory,
+      exCanReset: (() => {
+        const ids = (this.lib && this.lib.EXERCISES[st.exCat] ? this.lib.EXERCISES[st.exCat].items : []).map(it => it.id);
+        return ids.some(id => st.exDeleted.includes(id) || st.exOverrides[id]);
+      })(),
+      exInfoList: this.lib ? this.lib.EXERCISE_INFO.map((x, i) => ({ key: i, name: x.name, latin: x.latin, text: x.text })) : [],
+      exList: this.exItems().map((e, i) => {
+        const on = e.id === st.exId;
+        return { key: e.id, id: e.id, num: i + 1, name: e.name, latin: e.latin, select: () => this.selectEx(e.id),
+          bg: on ? "#fbf5e8" : "#fff", border: on ? "var(--gold)" : "var(--line)",
+          titleColor: on ? "var(--maroon)" : "var(--ink)",
+          numBg: on ? "var(--maroon)" : "#ece0c6", numColor: on ? "#f4ecdd" : "var(--muted)" };
+      }),
+      exSelName: this.exSelected() ? this.exSelected().name : "",
+      exSelDesc: this.exSelected() ? this.exSelected().desc : "",
+      exHasSel: !!this.exSelected(),
+      exEditSel: this.exEditSelected, exDeleteSel: this.exDeleteSelected,
+      exTokens: this.exTokenList(),
+      exLines: this.exTokenLines(),
+      exThalaName: this.exThalaNameStr(),
+      setExId: this.setExId, exId: st.exId,
+      // ----- exercise editor (composer) -----
+      ceTitle: st.ceEditId ? "അഭ്യാസം എഡിറ്റ് ചെയ്യുക" : "പുതിയ അഭ്യാസം",
+      ceName: st.ceName, ceSetName: this.ceSetName,
+      ceOctaves: [[-2, "കീഴ²"], [-1, "കീഴ് ●"], [0, "മധ്യ"], [1, "● മേൽ"], [2, "മേൽ²"]].map(([o, label]) => {
+        const on = st.ceOctave === o;
+        return { key: o, label, select: () => this.ceSelectOctave(o),
+          bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
+      }),
+      ceGroups: [[8, "8"], [4, "4"], [3, "3"]].map(([g, label]) => {
+        const on = st.ceGroup === g;
+        return { key: g, label, select: () => this.ceSelectGroup(g),
+          bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
+      }),
+      cePalette: this.lib ? this.MAYA_PALETTE.map(semi => {
+        const s = this.lib.SWARAS[semi];
+        const o = st.ceOctave;
+        return { key: semi, base: s.base, sub: s.sub, up: o > 0, down: o < 0, add: () => this.ceAddNote(semi) };
+      }) : [],
+      ceAddHold: this.ceAddHold, ceAddBar: this.ceAddBar, ceAddDoubleBar: this.ceAddDoubleBar, ceBackspace: this.ceBackspace, ceClear: this.ceClear,
+      ceTokens: this.sbTokenList(st.ceNotes),
+      ceCount: st.ceNotes.filter(n => n !== "h").length,
+      ceEmpty: st.ceNotes.length === 0, ceHasNotes: st.ceNotes.length > 0,
+      cePreview: this.cePreview, ceSave: this.ceSave, ceCancel: this.ceCancel,
+      cePreviewLabel: st.cePlaying ? "⏹ നിർത്തുക" : "▶ കേൾക്കുക",
+      ceSaveLabel: st.ceEditId ? "💾 പുതുക്കുക" : "💾 സേവ് ചെയ്യുക",
+      helpItems: [
+        { key: "h1", icon: "🎼", title: "അഭ്യാസം (Practice)", body: "സപ്തസ്വരം, സരളി-ജണ്ട വരിശകൾ, അലങ്കാരം എന്നിവ തിരഞ്ഞെടുക്കുക. രാഗം, ശബ്ദം/വാദ്യം (സ്ത്രീ/പുരുഷ ശബ്ദം ഉൾപ്പെടെ), വേഗത (1×–4×), കാലപ്രമാണം എന്നിവ ക്രമീകരിച്ച് '▶ പാടിക്കേൾക്കുക' അമർത്തുക. സ്വരങ്ങൾ തെളിയുന്നത് നോക്കി കൂടെ പാടുക. താളം, തംപുര, ആവർത്തനം ടോഗിളുകൾ ഉപയോഗിക്കാം." },
+        { key: "h2", icon: "✍️", title: "എന്റെ പാട്ടുകൾ (My Songs)", body: "സ്വരങ്ങൾ ടാപ്പ് ചെയ്ത് സ്വന്തം പാട്ട് എഴുതാം. സ്ഥായി (കീഴ്/മധ്യ/മേൽ) തിരഞ്ഞെടുത്താൽ കുത്ത് താനേ വരും. നീട്ടൽ (–), വിടവ്, മായ്ക്കൽ എന്നിവയുണ്ട്. പേര് നൽകി സേവ് ചെയ്താൽ ഉടനെ പാടിക്കേൾക്കും; ഓരോ പാട്ടും വീണ്ടും പ്ലേ ചെയ്യാം, എഡിറ്റ് ചെയ്യാം." },
+        { key: "h3", icon: "🎙️", title: "റെക്കോർഡ് & വിലയിരുത്തൽ", body: "ലക്ഷ്യ രാഗം തിരഞ്ഞെടുത്ത് റെക്കോർഡ് ചെയ്യുക. തത്സമയ ട്യൂണർ നിങ്ങളുടെ സ്വരവും ശ്രുതിവ്യതിയാനവും കാണിക്കും. നിർത്തിയാൽ ശ്രുതി, രാഗം, താളം എന്നിവയ്ക്ക് സ്കോറും മെച്ചപ്പെടാനുള്ള നിർദേശങ്ങളും ലഭിക്കും. (മൈക്ക് അനുമതി വേണം — ഹെഡ്ഫോൺ ഉപയോഗിക്കുക.)" },
+        { key: "h4", icon: "🎵", title: "പാട്ട് & ശ്രുതി (MP3)", body: "MP3 അപ്‌ലോഡ് ചെയ്ത് വേഗതയും ശ്രുതിയും വെവ്വേറെ മാറ്റാം — പഠിക്കാൻ പാട്ട് പതുക്കെയാക്കാം, ശ്രുതി മാറില്ല. ക്രമീകരണം സേവ് ചെയ്യാം." },
+        { key: "h5", icon: "🥁", title: "ക്രമീകരണം — താളവാദ്യങ്ങൾ", body: "ക്രമീകരണ പേജിൽ മാസ്റ്റർ വോള്യം, സ്ഥിര രാഗം, കാലപ്രമാണം എന്നിവ സജ്ജമാക്കാം. തംപുര (സ–പ–സ–സ̣), മെട്രോണോം, മൃദംഗം/തബല/ഡ്രം/ചെണ്ട താള ജനറേറ്റർ എന്നിവ ഇവിടെയുണ്ട്." },
+        { key: "h6", icon: "📜", title: "രാഗങ്ങൾ", body: "12 സ്വരസ്ഥാനങ്ങളും പ്രധാന രാഗങ്ങളുടെ ആരോഹണ–അവരോഹണ നൊട്ടേഷനും. മേൽ കുത്ത് = മേൽസ്ഥായി, കീഴ് കുത്ത് = കീഴ്സ്ഥായി, ₁₂₃ = സ്വരസ്ഥാന ഭേദം." },
+      ],
+      exRaga: st.exRaga, setExRaga: this.setExRaga,
+      // song book
+      sbTitle: st.sbTitle, setSbTitle: this.setSbTitle,
+      sbOctaves: [[-1, "കീഴ് ●"], [0, "മധ്യ"], [1, "● മേൽ"]].map(([o, label]) => {
+        const on = st.sbOctave === o;
+        return { key: o, label, select: () => this.selectSbOctave(o),
+          bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
+      }),
+      sbPalette: this.lib ? this.SB_PALETTE.map(semi => {
+        const s = this.lib.SWARAS[semi];
+        const o = st.sbOctave;
+        return { key: semi, base: s.base, sub: s.sub, up: o > 0, down: o < 0, add: () => this.sbAddNote(semi) };
+      }) : [],
+      sbAddHold: this.sbAddHold, sbAddGap: this.sbAddGap, sbAddBar: this.sbAddBar, sbAddDoubleBar: this.sbAddDoubleBar, sbBackspace: this.sbBackspace, sbClear: this.sbClear,
+      sbTokens: this.sbTokenList(st.sbNotes),
+      sbCount: st.sbNotes.filter(n => n !== "h" && n !== "r").length,
+      sbEmpty: st.sbNotes.length === 0, sbHasNotes: st.sbNotes.length > 0,
+      sbPreview: this.sbPreview, sbSave: this.sbSave,
+      sbEditorOpen: st.sbEditorOpen, sbNewSong: this.sbNewSong, sbCloseEditor: this.sbCloseEditor,
+      sbEditorTitle: st.sbEditId ? "പാട്ട് എഡിറ്റ് ചെയ്യുക" : "പുതിയ പാട്ട്",
+      sbPreviewLabel: st.sbPlayingId === "__draft" ? "⏹ നിർത്തുക" : "▶ കേൾക്കുക",
+      sbInst: st.sbInst, setSbInst: this.setSbInst,
+      sbBpm: st.sbBpm, setSbBpm: this.setSbBpm,
+      sbNoSongs: st.sbSongs.length === 0, sbHasSongs: st.sbSongs.length > 0,
+      sbSongs: st.sbSongs.map(s => ({
+        key: s.id, title: s.title,
+        count: s.notes.filter(n => n !== "h" && n !== "r").length,
+        tokens: this.sbTokenList(s.notes),
+        border: st.sbPlayingId === s.id ? "var(--gold)" : "var(--line)",
+        playBg: st.sbPlayingId === s.id ? "#3a1212" : "#5c1a1a",
+        playLabel: st.sbPlayingId === s.id ? "⏹ നിർത്തുക" : "▶ പാടിക്കേൾക്കുക",
+        play: () => this.sbPlayNotes(s.notes, s.id),
+        edit: () => this.sbEditSong(s),
+        remove: () => this.sbRemoveSong(s.id),
+      })),
+      exRagaName: this.exRagaNameStr(),
+      exScaleTokens: this.exScaleTokenList(),
+      exRagaList: this.lib ? this.lib.MELAKARTHA.map(r => ({ key: r.id, id: r.id, name: r.mela + ". " + r.name, latin: r.latin })) : [],
+      exInst: st.exInst, setExInstSel: this.setExInstSel,
+      exInstruments: [["harmonium", "ഹാർമോണിയം", "🎹"], ["violin", "വയലിൻ", "🎻"], ["veena", "വീണ", "🪕"], ["flute", "ഓടക്കുഴൽ", "🎵"], ["piano", "പിയാനോ", "🎹"]].map(([id, label, icon]) => {
+        const on = st.exInst === id;
+        return { key: id, label, icon, optLabel: icon + "  " + label, select: () => this.setExInst(id),
+          bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
+      }),
+      exSpeeds: [{label:"1×",val:1},{label:"2×",val:2},{label:"3×",val:4},{label:"4×",val:8}].map(({label,val}) => {
+        const on = st.exNpb === val;
+        return { key: val, label, select: () => this.setExNpb(val),
+          bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
+      }),
+      exBpm: st.exBpm, setExBpm: this.setExBpm,
+      exClick: st.exClick, exClickState: st.exClick ? "ഓൺ" : "ഓഫ്",
+      exClickBg: st.exClick ? "#fbf5e8" : "#fff", exClickBorder: st.exClick ? "var(--gold)" : "var(--line)", exClickColor: st.exClick ? "var(--maroon)" : "var(--muted)",
+      toggleExClick: this.toggleExClick,
+      exDroneState: st.tanRunning ? "ഓൺ" : "ഓഫ്",
+      exDroneBg: st.tanRunning ? "#fbf5e8" : "#fff", exDroneBorder: st.tanRunning ? "var(--gold)" : "var(--line)", exDroneColor: st.tanRunning ? "var(--maroon)" : "var(--muted)",
+      toggleExDrone: this.toggleExDrone,
+      exLoopState: st.exLoop ? "ഓൺ" : "ഓഫ്",
+      exLoopBg: st.exLoop ? "#fbf5e8" : "#fff", exLoopBorder: st.exLoop ? "var(--gold)" : "var(--line)", exLoopColor: st.exLoop ? "var(--maroon)" : "var(--muted)",
+      toggleExLoop: this.toggleExLoop,
+      exPlaying: st.exPlaying,
+      exPlayLabel: st.exPlaying ? "⏹ നിർത്തുക" : (st.exShowAll ? "▶ എല്ലാം പാടിക്കേൾക്കുക" : "▶ പാടിക്കേൾക്കുക"),
+      exPlayBg: st.exPlaying ? "#3a1212" : "#5c1a1a",
+      toggleExPlay: this.toggleExPlay,
+      // show-all mode
+      exShowAll: st.exShowAll, exShowSingle: !st.exShowAll,
+      toggleExShowAll: this.toggleExShowAll,
+      // focus mode — hide heading/selection/controls, keep only the action row
+      exFull: !st.focusEx,
+      toggleExFocus: this.toggleExFocus,
+      exFocusLabel: st.focusEx ? "⤡ വികസിപ്പിക്കുക" : "⤢ ഫോക്കസ്",
+      exFocusBg: st.focusEx ? "#5c1a1a" : "#fff",
+      exFocusColor: st.focusEx ? "#f4ecdd" : "var(--ink)",
+      exFocusBorder: st.focusEx ? "#5c1a1a" : "var(--line)",
+      exShowAllLabel: st.exShowAll ? "☷ ഒറ്റയായി" : "☰ എല്ലാം ഒരുമിച്ച്",
+      exShowAllBg: st.exShowAll ? "#5c1a1a" : "#fff",
+      exShowAllColor: st.exShowAll ? "#f4ecdd" : "var(--ink)",
+      exShowAllBorder: st.exShowAll ? "#5c1a1a" : "var(--line)",
+      exAllLines: st.exShowAll ? (() => {
+        const out = [];
+        this.exItems().forEach((ex, i) => {
+          const isActive = i === st.exAllIdx;
+          const lines = this.linesFor(ex, isActive ? st.exCurrent : -1);
+          lines.forEach((l, j) => {
+            out.push({
+              key: i + "_" + j,
+              vnum: j === 0 ? (i + 1) : "",
+              showVnum: j === 0,
+              left: l.left, right: l.right,
+              rowBg: isActive ? "#fbf5e8" : "#fff",
+              rowBorder: isActive ? "var(--gold)" : "var(--line)",
+            });
+          });
+        });
+        return out;
+      })() : [],
+    };
+  }
+}
+</script>
+<script src="./assets/app.js"></script>
+</body>
+</html>

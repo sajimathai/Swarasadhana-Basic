@@ -1,0 +1,56 @@
+/* Swarasadhana — extracted component styles */
+*{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    ::selection{background:#d8b863;color:#3a2418;}
+    input[type=range]{-webkit-appearance:none;appearance:none;height:18px;border-radius:0;outline:none;padding:0;background:
+      linear-gradient(#a07a35,#a07a35) right 10px top 2px / 1px 14px no-repeat,
+      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 10%) 10px 2px / calc(100% - 20px) 14px no-repeat,
+      linear-gradient(to bottom,transparent 0,transparent 7px,#e3d4b6 7px,#e3d4b6 11px,transparent 11px) 10px 0 / calc(100% - 20px) 100% no-repeat;
+      background-color:transparent;}
+    input[type=range][data-scale="beats4"]{background:
+      linear-gradient(#a07a35,#a07a35) right 10px top 2px / 1px 14px no-repeat,
+      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 25%) 10px 2px / calc(100% - 20px) 14px no-repeat,
+      linear-gradient(to bottom,transparent 0,transparent 7px,#e3d4b6 7px,#e3d4b6 11px,transparent 11px) 10px 0 / calc(100% - 20px) 100% no-repeat;
+      background-color:transparent;}
+    input[type=range][data-scale="tempo"]{background:
+      linear-gradient(#a07a35,#a07a35) right 10px top 2px / 1px 14px no-repeat,
+      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 12.5%) 10px 2px / calc(100% - 20px) 14px no-repeat,
+      linear-gradient(to bottom,transparent 0,transparent 7px,#e3d4b6 7px,#e3d4b6 11px,transparent 11px) 10px 0 / calc(100% - 20px) 100% no-repeat;
+      background-color:transparent;}
+
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
+    input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
+
+    /* ============ RESPONSIVE (one layout, adapts to screen) ============ */
+    /* Nav wraps & centers instead of side-scrolling, so every tab is reachable
+       without a hidden scroll. Tablet & phone tighten paddings and type. */
+    @media (max-width: 920px){
+      header{ padding:14px 18px !important; }
+      nav{ flex-wrap:wrap !important; justify-content:center !important;
+           overflow-x:visible !important; row-gap:0 !important; padding:0 8px !important; }
+      nav > button, nav > * > button{ font-size:15px !important; padding:13px 15px !important; }
+      main{ padding:26px 16px 70px !important; }
+      /* controls drop to their own row and line up flush-left instead of
+         spreading awkwardly across the width */
+      .header-controls{ width:100% !important; margin-left:0 !important;
+        justify-content:flex-start !important; gap:12px !important; }
+    }
+    @media (max-width: 600px){
+      header{ padding:12px 14px !important; gap:12px !important; }
+      nav{ gap:1px !important; }
+      nav > button, nav > * > button{ font-size:13.5px !important; padding:11px 12px !important; }
+      main{ padding:20px 12px 64px !important; }
+      /* section headings shrink so they don't dwarf small screens */
+      main section > h2{ font-size:24px !important; }
+      /* control rows stay tappable: full-width primary actions */
+      .ex-controls > button{ flex:1 1 calc(50% - 8px) !important; }
+      /* header controls: each item grows to fill, neatly aligned, never clumsy */
+      .header-controls{ gap:8px 10px !important; }
+      .header-controls > label{ flex:1 1 auto !important; }
+      .header-controls > label select{ flex:1 1 auto !important; }
+      .header-brand{ gap:10px !important; }
+    }
+    /* Touch targets: never below 44px tap height on coarse pointers */
+    @media (pointer: coarse){
+      select, input[type=range]{ min-height:40px; }
+    }
