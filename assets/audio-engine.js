@@ -333,9 +333,40 @@ class AudioEngine {
       if (this.ac && this.ac.state === "suspended") { try { this.ac.resume(); } catch (e) {} }
       if (this._silentAudio && this._silentAudio.paused) { try { this._silentAudio.play().catch(() => {}); } catch (e) {} }
     };
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) resume(); });
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) { resume(); this._refreshWakeLock(); }
+    });
     window.addEventListener("focus", resume);
     window.addEventListener("pageshow", resume);
+  }
+
+  // ---- Screen Wake Lock ------------------------------------------------
+  // setTimeout/setInterval (which drive the metronome, tanpura and mridangam
+  // schedulers) are frozen once the phone screen sleeps, so no new beats get
+  // queued and they fall silent — while the tanpura's long overlapping notes
+  // keep ringing, making it *seem* like only it survives. Holding a screen
+  // wake lock while anything is playing keeps the page alive so every
+  // scheduler keeps filling the audio timeline.
+  _anyPlaying() {
+    return !!(this.met.running || this.tan.running || this.mri.running ||
+              this.ex.running || (this.song && this.song.playing));
+  }
+  async _acquireWakeLock() {
+    if (typeof navigator === "undefined" || !navigator.wakeLock) return;
+    if (this._wakeLock || document.hidden) return;
+    try {
+      this._wakeLock = await navigator.wakeLock.request("screen");
+      this._wakeLock.addEventListener("release", () => { this._wakeLock = null; });
+    } catch (e) { this._wakeLock = null; }
+  }
+  _releaseWakeLock() {
+    if (this._wakeLock) { try { this._wakeLock.release(); } catch (e) {} this._wakeLock = null; }
+  }
+  // Re-acquire when returning to the foreground (the OS auto-releases the lock
+  // when the page is hidden), or drop it once nothing is playing.
+  _refreshWakeLock() {
+    if (this._anyPlaying()) this._acquireWakeLock();
+    else this._releaseWakeLock();
   }
 
   setTonic(hz) { this.tonicHz = hz; }
@@ -352,12 +383,20 @@ class AudioEngine {
     const m = this.met;
     if (m.running) return;
     m.running = true; m.beat = 0; m.next = this._now() + 0.06;
+    this._acquireWakeLock();
     const lookahead = 0.1;
     const tick = () => {
       if (!m.running) return;
       const spb = 60 / m.bpm;
       while (m.next < this._now() + lookahead) {
-        this._click(m.next, m.beat % m.beats === 0, m.gain);
+        const accent = m.beat % m.beats === 0;
+        this._click(m.next, accent, m.gain);
+        // fire a UI beat callback at the precise sounding time
+        if (typeof m.onBeat === "function") {
+          const beat = m.beat, total = m.beats;
+          const delay = Math.max(0, (m.next - this._now()) * 1000);
+          setTimeout(() => { if (m.running) m.onBeat(beat, accent, total); }, delay);
+        }
         m.beat = (m.beat + 1) % m.beats;
         m.next += spb;
       }
@@ -365,7 +404,7 @@ class AudioEngine {
     };
     tick();
   }
-  stopMetronome() { this.met.running = false; clearTimeout(this.met.timer); }
+  stopMetronome() { this.met.running = false; clearTimeout(this.met.timer); this._refreshWakeLock(); }
   _click(time, accent, gain, dest) {
     const ac = this.ac;
     const osc = ac.createOscillator();
@@ -467,12 +506,17 @@ class AudioEngine {
     // overlapping drone keeps headroom and stays governed by master volume
     // instead of dominating / clipping the output.
     const now = this.ac.currentTime;
-    const TAN_HEADROOM = 0.5;
+    // Headroom for the tanpura bus. The drone is continuous and polyphonic, so
+    // its perceived loudness is far higher than its peak gain suggests — kept
+    // well below the percussion buses (which hit master directly) so the
+    // metronome / thala vadya read clearly above the drone.
+    const TAN_HEADROOM = 0.3;
     t.bus.gain.cancelScheduledValues(now);
     t.bus.gain.setValueAtTime(t.bus.gain.value, now);
     t.bus.gain.linearRampToValueAtTime(TAN_HEADROOM, now + 0.06);
     if (t.running) return;
     t.running = true; t.step = 0; t.next = this._now() + 0.08;
+    this._acquireWakeLock();
     const tick = () => {
       if (!t.running) return;
       const strum = t.gap || 1.3; // seconds between swara strikes (user-set)
@@ -510,6 +554,7 @@ class AudioEngine {
   stopTanpura() {
     this.tan.running = false;
     clearTimeout(this.tan.timer);
+    this._refreshWakeLock();
     // hard-mute the bus so any in-flight plucks are silenced immediately
     if (this.tan.bus && this.ac) {
       const now = this.ac.currentTime;
@@ -818,6 +863,7 @@ class AudioEngine {
     const m = this.mri;
     if (m.running) return;
     m.running = true; m.idx = 0; m.next = this._now() + 0.08;
+    this._acquireWakeLock();
     const tick = () => {
       if (!m.running) return;
       const th = AudioEngine.THALAS[m.thala];
@@ -843,7 +889,7 @@ class AudioEngine {
     };
     tick();
   }
-  stopMridangam() { this.mri.running = false; clearTimeout(this.mri.timer); }
+  stopMridangam() { this.mri.running = false; clearTimeout(this.mri.timer); this._refreshWakeLock(); }
 
   // =========================================================================
   //  EXERCISE VOCAL PLAYER  (akaaram "aa" formant voice + scheduler)
@@ -1116,6 +1162,7 @@ class AudioEngine {
     }
     const endT = t0 + acc;
     ex.running = true; ex._lastIdx = -2;
+    this._acquireWakeLock();
     ex.notes = notes; ex.opts = opts; ex.endT = endT;
     ex._evt = events; ex._ei = 0;
     const LOOKAHEAD = 0.4; // seconds of audio scheduled ahead of playback
@@ -1148,6 +1195,7 @@ class AudioEngine {
   stopExercise() {
     const ex = this.ex;
     ex.running = false;
+    this._refreshWakeLock();
     if (ex.raf) cancelAnimationFrame(ex.raf);
     clearInterval(ex.timer); ex.timer = null;
     if (ex.curVB && this.ac) {
@@ -1210,6 +1258,7 @@ class AudioEngine {
     src.start(0, s.offset);
     s.startedAt = ac.currentTime;
     s.playing = true;
+    this._acquireWakeLock();
     return true;
   }
   stopSong() {
@@ -1222,6 +1271,7 @@ class AudioEngine {
       s.source = null;
     }
     s.playing = false;
+    this._refreshWakeLock();
   }
   resetSong() { this.stopSong(); this.song.offset = 0; }
   songPosition() {
@@ -1493,29 +1543,33 @@ class AudioEngine {
 
     // ---- guidance (Malayalam) ----
     const tips = [];
-    if (meanCents > 28) tips.push({ k: "ശ്രുതി", t: `ശരാശരി ${Math.round(meanCents)} സെന്റ് വ്യതിയാനം ഉണ്ട്. തംപുര വെച്ച് ഓരോ സ്വരവും ശ്രുതിയിൽ ഉറപ്പിച്ച് പിടിക്കാൻ പരിശീലിക്കുക.` });
-    else if (meanCents > 14) tips.push({ k: "ശ്രുതി", t: `ശ്രുതി നന്നായിട്ടുണ്ട് (${Math.round(meanCents)} സെന്റ്). ഗമകങ്ങളിൽ കൂടുതൽ കൃത്യത വരുത്താം.` });
-    else tips.push({ k: "ശ്രുതി", t: "മികച്ച ശ്രുതിശുദ്ധി! സ്വരസ്ഥാനങ്ങൾ കൃത്യമാണ്." });
+    if (meanCents > 28) tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `ശരാശരി ${Math.round(meanCents)} സെന്റ് വ്യതിയാനം ഉണ്ട്. തംപുര വെച്ച് ഓരോ സ്വരവും ശ്രുതിയിൽ ഉറപ്പിച്ച് പിടിക്കാൻ പരിശീലിക്കുക.`, ten: `Your average deviation is ${Math.round(meanCents)} cents. Practise holding each swara steady against the tanpura.` });
+    else if (meanCents > 14) tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `ശ്രുതി നന്നായിട്ടുണ്ട് (${Math.round(meanCents)} സെന്റ്). ഗമകങ്ങളിൽ കൂടുതൽ കൃത്യത വരുത്താം.`, ten: `Your shruti is good (${Math.round(meanCents)} cents). You can bring more precision to the gamakas.` });
+    else tips.push({ k: "ശ്രുതി", ken: "Shruti", t: "മികച്ച ശ്രുതിശുദ്ധി! സ്വരസ്ഥാനങ്ങൾ കൃത്യമാണ്.", ten: "Excellent shruti purity! Your swarasthanas are accurate." });
 
     if (foreign.length) {
       const fl = foreign.slice(0, 2).map(f => swaraLabel(f.pos)).join(", ");
+      const flEn = foreign.slice(0, 2).map(f => SWARAS[((f.pos % 12) + 12) % 12].latin).join(", ");
       const rn = targetRaga ? targetRaga.name : "";
-      tips.push({ k: "രാഗം", t: `${rn} രാഗത്തിൽ ഇല്ലാത്ത സ്വരങ്ങൾ കടന്നുവന്നു: ${fl}. ഈ സ്വരങ്ങൾ ഒഴിവാക്കി ആരോഹണ–അവരോഹണം വീണ്ടും അഭ്യസിക്കുക.` });
+      const rnEn = targetRaga ? (targetRaga.latin || targetRaga.name) : "";
+      tips.push({ k: "രാഗം", ken: "Raga", t: `${rn} രാഗത്തിൽ ഇല്ലാത്ത സ്വരങ്ങൾ കടന്നുവന്നു: ${fl}. ഈ സ്വരങ്ങൾ ഒഴിവാക്കി ആരോഹണ–അവരോഹണം വീണ്ടും അഭ്യസിക്കുക.`, ten: `Swaras outside raga ${rnEn} crept in: ${flEn}. Leave them out and practise the arohana–avarohana again.` });
     } else if (targetRaga) {
-      tips.push({ k: "രാഗം", t: `${targetRaga.name} രാഗത്തിന്റെ സ്വരങ്ങൾ ഭംഗിയായി പാലിച്ചു.` });
+      tips.push({ k: "രാഗം", ken: "Raga", t: `${targetRaga.name} രാഗത്തിന്റെ സ്വരങ്ങൾ ഭംഗിയായി പാലിച്ചു.`, ten: `You kept beautifully to the swaras of raga ${targetRaga.latin || targetRaga.name}.` });
     }
     if (selRaga && missing.length) {
       const ml = missing.slice(0, 3).map(m => swaraLabel(m.pos)).join(", ");
-      tips.push({ k: "സ്വരം", t: `${selRaga.name} രാഗത്തിലെ ${ml} എന്നീ സ്വരങ്ങൾ പാടിയിട്ടില്ല. ആരോഹണ–അവരോഹണത്തിൽ ഇവ ഉൾപ്പെടുത്തുക.` });
+      const mlEn = missing.slice(0, 3).map(m => SWARAS[((m.pos % 12) + 12) % 12].latin).join(", ");
+      tips.push({ k: "സ്വരം", ken: "Swara", t: `${selRaga.name} രാഗത്തിലെ ${ml} എന്നീ സ്വരങ്ങൾ പാടിയിട്ടില്ല. ആരോഹണ–അവരോഹണത്തിൽ ഇവ ഉൾപ്പെടുത്തുക.`, ten: `You did not sing ${mlEn} of raga ${selRaga.latin || selRaga.name}. Include them in the arohana–avarohana.` });
     }
     if (Math.abs(keyShift) >= 1) {
       const dir = keyShift > 0 ? "മുകളിൽ" : "താഴെ";
-      tips.push({ k: "ശ്രുതി", t: `നിങ്ങൾ പാടിയത് ആപ്പിന്റെ ഷഡ്ജത്തിൽ നിന്ന് ${Math.abs(keyShift)} സ്വരസ്ഥാനം ${dir} ആണ്. തംപുര നിങ്ങളുടെ ശ്രുതിയിൽ ക്രമീകരിച്ച് പാടിയാൽ വിലയിരുത്തൽ കൂടുതൽ കൃത്യമാകും.` });
+      const dirEn = keyShift > 0 ? "above" : "below";
+      tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `നിങ്ങൾ പാടിയത് ആപ്പിന്റെ ഷഡ്ജത്തിൽ നിന്ന് ${Math.abs(keyShift)} സ്വരസ്ഥാനം ${dir} ആണ്. തംപുര നിങ്ങളുടെ ശ്രുതിയിൽ ക്രമീകരിച്ച് പാടിയാൽ വിലയിരുത്തൽ കൂടുതൽ കൃത്യമാകും.`, ten: `You sang ${Math.abs(keyShift)} swarasthana(s) ${dirEn} the app's Sa. Tune the tanpura to your own shruti for a more accurate evaluation.` });
     }
 
-    if (ioiCV > 0.35) tips.push({ k: "താളം", t: "താളത്തിന്റെ വേഗത ഏകീകൃതമല്ല. മെട്രോണോം/തംപുര ഉപയോഗിച്ച് കാലപ്രമാണം സ്ഥിരമാക്കുക." });
-    else if (rhythmAcc < 70) tips.push({ k: "താളം", t: "ചില സ്വരങ്ങൾ താളത്തിന്റെ അക്ഷരത്തിൽ വീഴുന്നില്ല. കുറഞ്ഞ വേഗതയിൽ പരിശീലിച്ച് കൃത്യത വരുത്തുക." });
-    else tips.push({ k: "താളം", t: "താളബോധം നന്നായിട്ടുണ്ട്." });
+    if (ioiCV > 0.35) tips.push({ k: "താളം", ken: "Thala", t: "താളത്തിന്റെ വേഗത ഏകീകൃതമല്ല. മെട്രോണോം/തംപുര ഉപയോഗിച്ച് കാലപ്രമാണം സ്ഥിരമാക്കുക.", ten: "Your tempo is not steady. Use the metronome/tanpura to keep the kalapramanam constant." });
+    else if (rhythmAcc < 70) tips.push({ k: "താളം", ken: "Thala", t: "ചില സ്വരങ്ങൾ താളത്തിന്റെ അക്ഷരത്തിൽ വീഴുന്നില്ല. കുറഞ്ഞ വേഗതയിൽ പരിശീലിച്ച് കൃത്യത വരുത്തുക.", ten: "Some swaras are not landing on the beat. Practise at a slower speed to build precision." });
+    else tips.push({ k: "താളം", ken: "Thala", t: "താളബോധം നന്നായിട്ടുണ്ട്.", ten: "Your sense of thala is good." });
 
     return {
       empty: false,

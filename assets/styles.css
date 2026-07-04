@@ -1,5 +1,5 @@
-/* Swarasadhana — extracted component styles */
-*{box-sizing:border-box;}
+
+    *{box-sizing:border-box;}
     html,body{margin:0;padding:0;}
     ::selection{background:#d8b863;color:#3a2418;}
     input[type=range]{-webkit-appearance:none;appearance:none;height:18px;border-radius:0;outline:none;padding:0;background:
@@ -21,6 +21,21 @@
     input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
     input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
 
+    @keyframes stairBob{ from{ transform:translateY(0); } to{ transform:translateY(-5px); } }
+    @keyframes stairHold{ from{ opacity:0.5; transform:scaleY(0.82); } to{ opacity:1; transform:scaleY(1.14); } }
+    @media (max-width: 560px){
+      .stair-card{ padding:14px 12px 12px !important; }
+      .stair-floor{ height:152px !important; gap:2px !important; }
+      .stair-label{ font-size:12px !important; }
+      .stair-note{ height:15px !important; }
+      .stair-note span{ font-size:14px !important; }
+    }
+    @media (max-width: 380px){
+      .stair-floor{ height:134px !important; gap:1px !important; }
+      .stair-label{ font-size:10.5px !important; }
+      .stair-note{ height:13px !important; }
+      .stair-note span{ font-size:12px !important; }
+    }
     /* ============ RESPONSIVE (one layout, adapts to screen) ============ */
     /* Nav wraps & centers instead of side-scrolling, so every tab is reachable
        without a hidden scroll. Tablet & phone tighten paddings and type. */
@@ -37,20 +52,44 @@
     }
     @media (max-width: 600px){
       header{ padding:12px 14px !important; gap:12px !important; }
-      nav{ gap:1px !important; }
-      nav > button, nav > * > button{ font-size:13.5px !important; padding:11px 12px !important; }
+      /* compact single-row scrolling nav */
+      nav{ flex-wrap:nowrap !important; justify-content:flex-start !important;
+           overflow-x:auto !important; overflow-y:hidden !important; gap:0 !important;
+           padding:0 6px !important; scrollbar-width:none !important; -ms-overflow-style:none !important;
+           -webkit-overflow-scrolling:touch; }
+      nav::-webkit-scrollbar{ display:none !important; }
+      nav > button, nav > * > button{ font-size:14px !important; padding:12px 14px !important;
+           flex:0 0 auto !important; }
       main{ padding:20px 12px 64px !important; }
       /* section headings shrink so they don't dwarf small screens */
       main section > h2{ font-size:24px !important; }
       /* control rows stay tappable: full-width primary actions */
       .ex-controls > button{ flex:1 1 calc(50% - 8px) !important; }
-      /* header controls: each item grows to fill, neatly aligned, never clumsy */
+      /* header controls: keep each item at its natural width — the shruti
+         dropdown holds short labels (C, D…) so it must not stretch */
       .header-controls{ gap:8px 10px !important; }
-      .header-controls > label{ flex:1 1 auto !important; }
-      .header-controls > label select{ flex:1 1 auto !important; }
+      .header-controls > label{ flex:0 0 auto !important; font-size:14px !important; }
+      .header-controls > label select{ flex:0 0 auto !important; width:auto !important; }
       .header-brand{ gap:10px !important; }
+    }
+    /* ---- compact mobile header ---- */
+    @media (max-width: 600px){
+      header{ padding:9px 13px !important; row-gap:9px !important; }
+      .header-brand{ gap:8px 10px !important; row-gap:8px !important; }
+      .hdr-eyebrow{ display:none !important; }
+      .hdr-logo{ width:38px !important; height:38px !important; }
+      .hdr-logo img{ width:27px !important; height:27px !important; }
+      .hdr-title{ font-size:21px !important; }
+      .hdr-lang{ margin-left:auto !important; }
+      .hdr-lang button{ padding:5px 11px !important; font-size:12px !important; }
+      .hdr-pills{ width:100% !important; margin-left:0 !important; gap:5px !important; }
+      .hdr-pills span{ font-size:11px !important; padding:3px 9px !important; }
+      .header-controls{ gap:9px 12px !important; }
+      .header-controls > label{ font-size:13px !important; gap:6px !important; }
+      .header-controls > label select{ padding:6px 8px !important; font-size:14px !important; }
     }
     /* Touch targets: never below 44px tap height on coarse pointers */
     @media (pointer: coarse){
       select, input[type=range]{ min-height:40px; }
     }
+  

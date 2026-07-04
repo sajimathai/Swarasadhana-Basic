@@ -1,5 +1,5 @@
-/* Swarasadhana — service worker (offline-capable PWA) */
-const VERSION = 'swarasadhana-v2';
+/* Swara Sadhana Basic — service worker (offline-capable PWA) */
+const VERSION = 'swarasadhana-basic-v4';
 const CORE_CACHE = VERSION + '-core';
 const RUNTIME_CACHE = VERSION + '-runtime';
 
@@ -18,7 +18,8 @@ const CORE_ASSETS = [
   './assets/images/icon-192.png',
   './assets/images/icon-512.png',
   './assets/images/logo-white.png',
-  './assets/images/logo.png'
+  './assets/images/logo.png',
+  './assets/images/tanpura.png'
 ];
 
 /* Cross-origin runtime deps cached the first time they load (React + Babel

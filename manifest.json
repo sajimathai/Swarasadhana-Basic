@@ -1,21 +1,44 @@
 {
-  "name": "സ്വരസാധന — Carnatic Practice",
-  "short_name": "സ്വരസാധന",
-  "description": "Swarasadhana — a Carnatic music riyaz companion: sarali varisai exercises, tanpura drone, metronome and a song builder.",
+  "name": "സ്വരസാധന Basic — Carnatic Practice",
+  "short_name": "സ്വരസാധന Basic",
+  "description": "Swara Sadhana (Basic) — tanpura drone, metronome and thala vadyam with independent volume controls.",
   "lang": "ml",
   "dir": "ltr",
   "start_url": "./index.html",
   "scope": "./",
-  "id": "swarasadhana-student",
+  "id": "swarasadhana-basic",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f4ecdd",
   "theme_color": "#5c1a1a",
-  "categories": ["education", "music"],
+  "categories": [
+    "education",
+    "music"
+  ],
   "icons": [
-    { "src": "./assets/images/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "./assets/images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "./assets/images/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "./assets/images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "./assets/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./assets/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
