@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Swara Sadhana-Basic· Carnatic Practice App</title>
+<title>സ്വരസാധന — Basic · Carnatic Practice</title>
 <meta name="description" content="Swara Sadhana (Basic) — a Carnatic music riyaz companion: tanpura drone, metronome and thala vadyam with independent volume controls.">
 <meta name="theme-color" content="#5c1a1a">
 <meta name="mobile-web-app-capable" content="yes">
@@ -900,12 +900,30 @@
         <sc-if value="{{ exFocusMode }}" hint-placeholder-val="{{ false }}">
         <div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:10px 12px; align-items:flex-end;">
           <div class="ex-focus-top" style="display:contents;">
-            <label style="display:flex; flex-direction:column; gap:3px; flex:1 1 150px; min-width:130px;">
+            <div style="display:flex; flex-direction:column; gap:3px; flex:1 1 150px; min-width:130px;">
               <span style="font-size:11px; font-weight:600; color:var(--muted);">{{ lblType }}</span>
-              <select onChange="{{ setExCatSel }}" value="{{ exCat }}" style="font-family:inherit; font-size:14px; padding:9px 11px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--maroon); font-weight:600; cursor:pointer; width:100%;">
-                <sc-for list="{{ exCatOptions }}" as="o" hint-placeholder-count="5"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
-              </select>
-            </label>
+              <div style="position:relative;">
+                <button onClick="{{ exCatDropToggle }}" style="font-family:inherit; font-size:14px; text-align:left; padding:9px 11px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--maroon); font-weight:600; width:100%; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ exCatDropSummary }}</span>
+                  <span style="flex:none; color:var(--gold); font-size:11px;">▼</span>
+                </button>
+                <sc-if value="{{ exCatDropOpen }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ exCatDropToggle }}" style="position:fixed; inset:0; z-index:29;"></div>
+                  <div style="position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:30; background:#fff; border:1px solid var(--gold); border-radius:10px; box-shadow:0 8px 24px rgba(60,30,12,0.18); max-height:300px; overflow:auto; min-width:200px;">
+                    <div style="display:flex; gap:7px; padding:9px 10px; border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff;">
+                      <button onClick="{{ exCatSelectAll }}" style="font-family:inherit; font-size:12.5px; padding:6px 10px; border-radius:7px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);">{{ exSelectAllLabel }}</button>
+                      <button onClick="{{ exCatClear }}" style="font-family:inherit; font-size:12.5px; padding:6px 10px; border-radius:7px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--muted);">{{ exClearSelLabel }}</button>
+                    </div>
+                    <sc-for list="{{ exCatChecks }}" as="c" hint-placeholder-count="6">
+                      <div onClick="{{ c.toggle }}" style="display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer; background:{{ c.rowBg }}; border-bottom:1px solid var(--line);">
+                        <span style="flex:none; width:20px; height:20px; border-radius:5px; border:1.5px solid {{ c.boxBorder }}; background:{{ c.boxBg }}; color:#f4ecdd; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">{{ c.mark }}</span>
+                        <span style="font-size:14.5px; color:var(--ink);">{{ c.label }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
             <div style="display:flex; flex-direction:column; gap:3px; flex:1 1 170px; min-width:150px;">
               <span style="font-size:11px; font-weight:600; color:var(--muted);">{{ lblNum }}</span>
               <div style="position:relative;">
@@ -1389,7 +1407,7 @@ class Component extends DCLogic {
       ragaFilter: "", ragaPlaying: null, ragaVoice: "harmonium",
       // exercises
       exCat: prefs.exCat ?? "saptaswara", exId: prefs.exId ?? "sapasa", exCurrent: -1, exPlaying: false,
-      exShowAll: prefs.exShowAll ?? false, exAllIdx: -1, focusEx: prefs.focusEx ?? true, exSelIds: prefs.exSelIds ?? {}, exDropOpen: false,
+      exShowAll: prefs.exShowAll ?? false, exAllIdx: -1, focusEx: prefs.focusEx ?? true, exSelIds: prefs.exSelIds ?? {}, exDropOpen: false, exCatSel: prefs.exCatSel ?? {}, exCatDropOpen: false,
       exNpb: prefs.exNpb ?? 1, exBpm: prefs.exBpm ?? 40, exClick: prefs.exClick ?? true, exLoop: prefs.exLoop ?? false,
       exRaga: prefs.exRaga ?? "mayamalavagowla", exInst: prefs.exInst ?? "violin",
       // editable exercises (authored in Mayamalavagowla degrees; transpose by selected raga on play)
@@ -1463,7 +1481,7 @@ class Component extends DCLogic {
       const KEYS = ["lang", "tonicHz", "masterVolPct", "bpm", "beats", "metVolPct",
         "tanVolPct", "tanTogether", "tanGap",
         "mriBpm", "mriThala", "mriInst", "mriAndSound", "mriVolPct",
-        "tab", "exCat", "exId", "exRaga", "exInst", "exBpm", "exNpb", "exClick", "exLoop", "exShowAll", "exSelIds", "focusEx"];
+        "tab", "exCat", "exId", "exRaga", "exInst", "exBpm", "exNpb", "exClick", "exLoop", "exShowAll", "exSelIds", "exCatSel", "focusEx"];
       const out = {};
       KEYS.forEach(k => { out[k] = this.state[k]; });
       const json = JSON.stringify(out);
@@ -1824,7 +1842,24 @@ class Component extends DCLogic {
   };
 
   // ---------- exercises ----------
-  exItems() { return this.exItemsFor(this.state.exCat); }
+  exItems() { return this.exItemsUnion(); }
+  // categories currently active: the multi-selected set, or the single exCat
+  selCats() {
+    const m = this.state.exCatSel || {};
+    const ks = Object.keys(m).filter(k => m[k]);
+    return ks.length ? ks : [this.state.exCat];
+  }
+  // exercises across all active categories. With one category, ids stay raw so
+  // editing/overrides/prefs keep working; with 2+, ids are namespaced cat/id.
+  exItemsUnion() {
+    const cats = this.selCats();
+    if (cats.length <= 1) return this.exItemsFor(cats[0] || this.state.exCat);
+    const out = [];
+    cats.forEach(cat => this.exItemsFor(cat).forEach(e => {
+      out.push(Object.assign({}, e, { id: cat + "/" + e.id, rawId: e.id, cat }));
+    }));
+    return out;
+  }
   exItemsFor(cat) {
     const builtins = (this.lib && this.lib.EXERCISES[cat] ? this.lib.EXERCISES[cat].items : [])
       .filter(it => !this.state.exDeleted.includes(it.id))
@@ -1833,6 +1868,32 @@ class Component extends DCLogic {
     return [...builtins, ...user];
   }
   exIsUserItem(cat, id) { return (this.state.userEx[cat] || []).some(x => x.id === id); }
+  // category definitions (student build shows 6 categories)
+  catDefs() {
+    const STUDENT_CATS = ["saptaswara", "sarali", "madhyasthayi", "melsthayi", "keezhsthayi", "janta"];
+    return [["saptaswara", "സപ്തസ്വരം"], ["sarali", "സരളി വരിശ"], ["madhyasthayi", "മധ്യസ്ഥായി"], ["melsthayi", "മേൽസ്ഥായി"], ["keezhsthayi", "കീഴ്സ്ഥായി"], ["janta", "ജണ്ട വരിശ"]]
+      .filter(([id]) => STUDENT_CATS.includes(id))
+      .map(([id, label]) => ({ id, label: this.tr(label) }));
+  }
+  // ----- multi-select: choose which categories to draw exercises from -----
+  exCatToggle = (cat) => {
+    this.stopExercisePlay();
+    this.setState(s => {
+      const m = Object.assign({}, s.exCatSel || {});
+      const on = Object.keys(m).filter(k => m[k]);
+      if (m[cat]) { if (on.length > 1) delete m[cat]; }
+      else { if (!on.length && s.exCat && s.exCat !== cat) m[s.exCat] = true; m[cat] = true; }
+      const keys = Object.keys(m).filter(k => m[k]);
+      const exCat = keys.length ? (m[s.exCat] ? s.exCat : keys[0]) : cat;
+      return { exCatSel: m, exCat, exSelIds: {}, exDropOpen: false };
+    }, () => {
+      const items = this.exItems();
+      if (!items.some(x => x.id === this.state.exId)) this.setState({ exId: items[0] ? items[0].id : null, exCurrent: -1 });
+    });
+  };
+  exCatDropToggle = () => this.setState(s => ({ exCatDropOpen: !s.exCatDropOpen }));
+  exCatSelectAll = () => { const m = {}; this.catDefs().forEach(c => { m[c.id] = true; }); this.stopExercisePlay(); this.setState({ exCatSel: m, exSelIds: {}, exDropOpen: false }); };
+  exCatClear = () => { this.stopExercisePlay(); this.setState({ exCatSel: {}, exSelIds: {} }); };
   exSelected() { const items = this.exItems(); const sel = items.filter(x => this.state.exSelIds[x.id]); if (sel.length === 1) return sel[0]; return items.find(x => x.id === this.state.exId) || items[0]; }
   exScale() {
     const r = this.lib && this.lib.MELAKARTHA.find(x => x.id === this.state.exRaga);
@@ -1914,7 +1975,7 @@ class Component extends DCLogic {
     this.stopExercisePlay();
     const items = this.exItemsFor(cat);
     const first = items[0] ? items[0].id : null;
-    this.setState({ exCat: cat, exId: first, exCurrent: -1, ceOpen: false, exSelIds: {} });
+    this.setState({ exCat: cat, exCatSel: {}, exId: first, exCurrent: -1, ceOpen: false, exSelIds: {} });
   }
   // ---------- exercise editor (add / edit across every category) ----------
   MAYA_PALETTE = [0, 1, 4, 5, 7, 8, 11]; // Mayamalavagowla swarasthanas (S R₁ G₃ M₁ P D₁ N₃)
@@ -2520,8 +2581,25 @@ class Component extends DCLogic {
       }),
       exFocusMode: true,
       exCat: st.exCat,
-      exCatOptions: [["saptaswara", this.tr("സപ്തസ്വരം")], ["sarali", this.tr("സരളി വരിശ")], ["madhyasthayi", this.tr("മധ്യസ്ഥായി")], ["melsthayi", this.tr("മേൽസ്ഥായി")], ["keezhsthayi", this.tr("കീഴ്സ്ഥായി")], ["janta", this.tr("ജണ്ട വരിശ")], ["vakrajanta", this.tr("വക്ര ജണ്ട")], ["datu", this.tr("ദാട്ടു വരിശ")], ["alankaram", this.tr("അലങ്കാരം")], ["geethangal", this.tr("ഗീതങ്ങൾ")], ["varnangal", this.tr("വർണ്ണങ്ങൾ")]].filter(([id]) => !student || STUDENT_CATS.includes(id)).map(([id, label]) => ({ id, label })),
+      exCatOptions: this.catDefs(),
       setExCatSel: (e) => this.selectExCat(e.target.value),
+      exCatDropOpen: st.exCatDropOpen, exCatDropToggle: this.exCatDropToggle,
+      exCatSelectAll: this.exCatSelectAll, exCatClear: this.exCatClear,
+      exCatChecks: (() => {
+        const none = !Object.keys(st.exCatSel || {}).some(k => st.exCatSel[k]);
+        return this.catDefs().map(c => {
+          const on = (st.exCatSel && st.exCatSel[c.id]) || (none && c.id === st.exCat);
+          return { key: c.id, id: c.id, label: c.label, on, mark: on ? "✓" : "",
+            toggle: () => this.exCatToggle(c.id),
+            boxBg: on ? "#5c1a1a" : "#fff", boxBorder: on ? "#5c1a1a" : "var(--line)", rowBg: on ? "#fbf5e8" : "#fff" };
+        });
+      })(),
+      exCatDropSummary: (() => {
+        const on = this.catDefs().filter(c => (st.exCatSel && st.exCatSel[c.id]));
+        if (on.length >= 2) return on.length + this.tr(" ഇനം");
+        const one = this.catDefs().find(c => c.id === st.exCat);
+        return one ? one.label : this.tr("തിരഞ്ഞെടുക്കുക");
+      })(),
       lblType: this.isEn ? "Exercise" : "അഭ്യാസം",
       lblNum: this.isEn ? "Varisai" : "വരിശ",
       lblRaga: this.isEn ? "Ragam" : "രാഗം",
