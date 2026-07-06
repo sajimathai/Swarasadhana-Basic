@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Swara Sadhana. Carnatic Practice App</title>
+<title>സ്വരസാധന — Basic · Carnatic Practice</title>
 <meta name="description" content="Swara Sadhana (Basic) — a Carnatic music riyaz companion: tanpura drone, metronome and thala vadyam with independent volume controls.">
 <meta name="theme-color" content="#5c1a1a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Swara Sadhana Basic">
+<meta name="apple-mobile-web-app-title" content="സ്വരസാധന Basic">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" href="./assets/images/favicon.png">
 <link rel="apple-touch-icon" href="./assets/images/apple-touch-icon.png">
@@ -26,6 +26,13 @@
   <script src="./assets/i18n.js"></script>
 </helmet>
 
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#5c1a1a"/>
+    <circle cx="50" cy="50" r="34" fill="none" stroke="#d8b863" stroke-width="3"/>
+    <image href="data:image/png;base64,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" x="28" y="28" width="44" height="44"/>
+  </svg>
+</template>
 
 <div style="--cream:#f4ecdd; --warm:#fffaf3; --maroon:#5c1a1a; --maroon2:#7a2424; --gold:#b58a2e; --gold2:#d8b863; --ink:#3a2418; --muted:#8c7659; --line:#e7d8ba; --good:#3f7a4a; --warn:#b06a1a; font-family:'Noto Serif Malayalam',serif; color:var(--ink); background:var(--cream); min-height:100vh; background-image:radial-gradient(circle at 50% -10%, rgba(181,138,46,0.10), transparent 55%);">
 
@@ -47,19 +54,8 @@
       <div class="header-controls" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-left:auto;">
       <label style="display:flex; align-items:center; gap:8px; font-family:inherit; font-size:14px; padding:5px 8px 5px 14px; border-radius:30px; border:1px solid var(--gold2); color:#f4ecdd;">
         <span>{{ pitchWord }}</span>
-        <select onChange="{{ changeTonic }}" value="{{ tonicHz }}" style="font-family:inherit; font-size:14px; padding:5px 8px; border-radius:20px; border:1px solid var(--gold); background:#fffaf3; color:var(--ink); cursor:pointer;">
-          <option value="130.81">C</option>
-          <option value="138.59">C♯ / D♭</option>
-          <option value="146.83">D</option>
-          <option value="155.56">D♯ / E♭</option>
-          <option value="164.81">E</option>
-          <option value="174.61">F</option>
-          <option value="185.00">F♯ / G♭</option>
-          <option value="196.00">G</option>
-          <option value="207.65">G♯ / A♭</option>
-          <option value="220.00">A</option>
-          <option value="233.08">A♯ / B♭</option>
-          <option value="246.94">B</option>
+        <select onChange="{{ changeTonic }}" value="{{ tonicVal }}" style="font-family:inherit; font-size:14px; padding:5px 8px; border-radius:20px; border:1px solid var(--gold); background:#fffaf3; color:var(--ink); cursor:pointer;">
+          <sc-for list="{{ pitchOptions }}" as="p" hint-placeholder-count="12"><option value="{{ p.val }}">{{ p.label }}</option></sc-for>
         </select>
       </label>
       <button onClick="{{ toggleTan }}" title="{{ L.k173 }}" style="display:flex; align-items:center; gap:9px; font-family:inherit; font-size:14px; padding:7px 12px 7px 14px; border-radius:30px; border:1px solid var(--gold2); background:{{ tanSwitchBg }}; color:{{ tanSwitchColor }}; cursor:pointer;">
@@ -428,8 +424,17 @@
               <div style="font-size:17px; color:var(--gold2);">{{ an.overallText }}</div>
             </div>
 
+            <sc-if value="{{ an.weak }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fdf4e3; border:1px solid #ecd9b0; border-radius:12px; padding:14px 16px; font-size:14px; line-height:1.55; color:#8a6a1a; display:flex; gap:10px; align-items:flex-start;"><span style="font-size:16px; flex:none;">🎙️</span><span>{{ an.weakText }}</span></div>
+            </sc-if>
+
             <!-- three scores -->
             <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:22px;">
+              <div style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; font-size:15px; margin-bottom:6px;"><span style="font-weight:600;">{{ an.shrutiLabel }}</span><span style="color:var(--maroon); font-weight:600;">{{ an.shrutiMatch }}%</span></div>
+                <div style="height:9px; background:#ece0c6; border-radius:6px; overflow:hidden;"><div style="height:100%; width:{{ an.shrutiMatch }}%; background:var(--gold2); border-radius:6px;"></div></div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{{ an.shrutiText }}</div>
+              </div>
               <div style="margin-bottom:16px;">
                 <div style="display:flex; justify-content:space-between; font-size:15px; margin-bottom:6px;"><span style="font-weight:600;">{{ L.k39 }}</span><span style="color:var(--maroon); font-weight:600;">{{ an.pitchAcc }}%</span></div>
                 <div style="height:9px; background:#ece0c6; border-radius:6px; overflow:hidden;"><div style="height:100%; width:{{ an.pitchAcc }}%; background:var(--maroon); border-radius:6px;"></div></div>
@@ -987,6 +992,11 @@
         </sc-if>
       </div>
 
+      <!-- empty category hint -->
+      <sc-if value="{{ exEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--warm); border:1px dashed var(--gold); border-radius:14px; padding:26px 22px; text-align:center; color:var(--muted); font-size:15px; line-height:1.6;">{{ ceEmptyMsg }}</div>
+      </sc-if>
+
       <!-- SWARA STAIRCASE (sapta swara only) — animates in sync with playback -->
       <sc-if value="{{ stairShow }}" hint-placeholder-val="{{ false }}">
       <div class="stair-card" style="margin-bottom:18px; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:18px 22px 16px; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
@@ -1040,6 +1050,7 @@
               <sc-if value="{{ ln.showNum }}" hint-placeholder-val="{{ false }}">
                 <span style="flex:none; width:26px; text-align:right; font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--gold); font-weight:700;">{{ ln.num }}</span>
               </sc-if>
+              <sc-if value="{{ ln.classic }}" hint-placeholder-val="{{ true }}">
               <div style="flex:1; min-width:0; background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 10px;">
                 <div style="display:grid; grid-template-columns:auto repeat(8,minmax(0,1fr)) auto repeat(8,minmax(0,1fr)) auto; align-items:center; column-gap:0.18em; font-size:clamp(14px, 2.2cqi, 28px); line-height:1.5;">
                   <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
@@ -1071,6 +1082,28 @@
                   <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
                 </div>
               </div>
+              </sc-if>
+              <sc-if value="{{ ln.variable }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1; min-width:0; background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 12px;">
+                <div style="display:flex; flex-wrap:wrap; align-items:center; column-gap:0.3em; row-gap:0.2em; font-size:clamp(15px, 2.6cqi, 28px); line-height:1.5;">
+                  <span style="color:var(--gold); font-weight:700; font-size:1.1em;">‖</span>
+                  <sc-for list="{{ ln.cells }}" as="t" hint-placeholder-count="6">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; min-width:1.1em; height:1.7em; padding:0 0.16em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }};">
+                      <sc-if value="{{ t.mark }}" hint-placeholder-val="{{ false }}"><span style="color:var(--gold); font-weight:700;">{{ t.markStr }}</span></sc-if>
+                      <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
+                      <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                        <span style="position:relative;">
+                          <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                          {{ t.base }}<span style="font-size:0.62em; vertical-align:sub; font-weight:600; color:{{ t.subColor }};">{{ t.sub }}</span>
+                          <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                        </span>
+                      </sc-if>
+                    </span>
+                  </sc-for>
+                  <span style="color:var(--gold); font-weight:700; font-size:1.1em;">‖</span>
+                </div>
+              </div>
+              </sc-if>
             </div>
           </sc-for>
         </div>
@@ -1084,6 +1117,7 @@
           <sc-for list="{{ exAllLines }}" as="ln" hint-placeholder-count="8">
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="flex:none; width:20px; text-align:left; font-family:'Cormorant Garamond',serif; font-size:20px; color:var(--maroon); font-weight:700;">{{ ln.vnum }}</span>
+              <sc-if value="{{ ln.classic }}" hint-placeholder-val="{{ true }}">
               <div style="flex:1; min-width:0; background:{{ ln.rowBg }}; border:1px solid {{ ln.rowBorder }}; border-radius:10px; padding:8px 10px; opacity:{{ ln.rowOpacity }}; transition:opacity 0.2s;">
                 <div style="display:grid; grid-template-columns:auto repeat(8,minmax(0,1fr)) auto repeat(8,minmax(0,1fr)) auto; align-items:center; column-gap:0.18em; font-size:clamp(13px, 2.1cqi, 26px); line-height:1.5;">
                   <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
@@ -1115,6 +1149,28 @@
                   <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
                 </div>
               </div>
+              </sc-if>
+              <sc-if value="{{ ln.variable }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1; min-width:0; background:{{ ln.rowBg }}; border:1px solid {{ ln.rowBorder }}; border-radius:10px; padding:8px 12px; opacity:{{ ln.rowOpacity }}; transition:opacity 0.2s;">
+                <div style="display:flex; flex-wrap:wrap; align-items:center; column-gap:0.3em; row-gap:0.2em; font-size:clamp(14px, 2.4cqi, 26px); line-height:1.5;">
+                  <span style="color:var(--gold); font-weight:700; font-size:1.1em;">‖</span>
+                  <sc-for list="{{ ln.cells }}" as="t" hint-placeholder-count="6">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; min-width:1.1em; height:1.7em; padding:0 0.16em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }};">
+                      <sc-if value="{{ t.mark }}" hint-placeholder-val="{{ false }}"><span style="color:var(--gold); font-weight:700;">{{ t.markStr }}</span></sc-if>
+                      <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
+                      <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
+                        <span style="position:relative;">
+                          <sc-if value="{{ t.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.42em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                          {{ t.base }}<span style="font-size:0.62em; vertical-align:sub; font-weight:600; color:{{ t.subColor }};">{{ t.sub }}</span>
+                          <sc-if value="{{ t.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.3em; left:50%; transform:translateX(-50%); font-size:0.3em;">●</span></sc-if>
+                        </span>
+                      </sc-if>
+                    </span>
+                  </sc-for>
+                  <span style="color:var(--gold); font-weight:700; font-size:1.1em;">‖</span>
+                </div>
+              </div>
+              </sc-if>
             </div>
           </sc-for>
         </div>
@@ -1363,7 +1419,7 @@
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.SRUTHI = [["C",130.81],["C♯",138.59],["D",146.83],["D♯",155.56],["E",164.81],["F",174.61],["F♯",185.00],["G",196.00],["G♯",207.65],["A",220.00],["A♯",233.08],["B",246.94]];
+    this.SRUTHI = [["G2",98.00],["G#2",103.83],["A2",110.00],["A#2",116.54],["B2",123.47],["C3",130.81],["C#3",138.59],["D3",146.83],["D#3",155.56],["E3",164.81],["F3",174.61],["F#3",185.00],["G3",196.00],["G#3",207.65],["A3",220.00],["A#3",233.08],["B3",246.94],["C4",261.63],["C#4",277.18],["D4",293.66],["D#4",311.13],["E4",329.63],["F4",349.23],["F#4",369.99],["G4",392.00]];
     let saved = [];
     try { saved = JSON.parse(localStorage.getItem("sws_saved") || "[]"); } catch (e) {}
     let sbSongs = [];
@@ -1383,7 +1439,7 @@ class Component extends DCLogic {
     this.state = {
       tab: prefs.tab ?? "home",
       lang: prefs.lang ?? "en",
-      tonicHz: prefs.tonicHz ?? 146.83,
+      tonicHz: prefs.tonicHz ?? 130.81,
       // metronome
       bpm: prefs.bpm ?? 40, beats: prefs.beats ?? 8, metRunning: false, metVolPct: prefs.metVolPct ?? 90, metBeat: -1,
       // tanpura
@@ -1412,7 +1468,7 @@ class Component extends DCLogic {
       exRaga: prefs.exRaga ?? "mayamalavagowla", exInst: prefs.exInst ?? "violin",
       // editable exercises (authored in Mayamalavagowla degrees; transpose by selected raga on play)
       userEx, exOverrides, exDeleted,
-      ceOpen: false, ceName: "", ceNotes: [], ceOctave: 0, ceGroup: 8, ceEditId: null, ceBuiltin: false, cePlaying: false,
+      ceOpen: false, ceName: "", ceNotes: [], ceText: "", ceOctave: 0, ceGroup: 8, ceEditId: null, ceBuiltin: false, cePlaying: false, ceCopied: false,
     };
     this._lastPitchUpd = 0;
   }
@@ -1819,6 +1875,7 @@ class Component extends DCLogic {
     if (!this.lib) return [];
     return notes.map((n, i) => {
       const gap = n === "r" ? "16px" : "0px";
+      if (n === "/") return { key: i, br: true, hold: false, show: false, mark: false, base: "", sub: "", up: false, down: false, gap: "0px", cellColor: "var(--gold)" };
       if (n === "|" || n === "||") return { key: i, hold: false, show: false, mark: true, markStr: n, base: "", sub: "", up: false, down: false, gap, cellColor: "var(--gold)" };
       if (n === "h") return { key: i, hold: true, show: false, mark: false, base: "", sub: "", up: false, down: false, gap, cellColor: "var(--ink)" };
       if (n === "r") return { key: i, hold: false, show: false, mark: false, base: "", sub: "", up: false, down: false, gap, cellColor: "var(--ink)" };
@@ -1870,8 +1927,8 @@ class Component extends DCLogic {
   exIsUserItem(cat, id) { return (this.state.userEx[cat] || []).some(x => x.id === id); }
   // category definitions (student build shows 6 categories)
   catDefs() {
-    const STUDENT_CATS = ["saptaswara", "sarali", "madhyasthayi", "melsthayi", "keezhsthayi", "janta"];
-    return [["saptaswara", "സപ്തസ്വരം"], ["sarali", "സരളി വരിശ"], ["madhyasthayi", "മധ്യസ്ഥായി"], ["melsthayi", "മേൽസ്ഥായി"], ["keezhsthayi", "കീഴ്സ്ഥായി"], ["janta", "ജണ്ട വരിശ"]]
+    const STUDENT_CATS = ["saptaswara", "sarali", "madhyasthayi", "melsthayi", "keezhsthayi", "janta", "special"];
+    return [["saptaswara", "സപ്തസ്വരം"], ["sarali", "സരളി വരിശ"], ["madhyasthayi", "മധ്യസ്ഥായി"], ["melsthayi", "മേൽസ്ഥായി"], ["keezhsthayi", "കീഴ്സ്ഥായി"], ["janta", "ജണ്ട വരിശ"], ["special", "പ്രത്യേക അഭ്യാസം"]]
       .filter(([id]) => STUDENT_CATS.includes(id))
       .map(([id, label]) => ({ id, label: this.tr(label) }));
   }
@@ -1979,24 +2036,76 @@ class Component extends DCLogic {
   }
   // ---------- exercise editor (add / edit across every category) ----------
   MAYA_PALETTE = [0, 1, 4, 5, 7, 8, 11]; // Mayamalavagowla swarasthanas (S R₁ G₃ M₁ P D₁ N₃)
+  // ----- text <-> notes (copy / paste / inline text editing) -----
+  CE_LETTER_TO_MAYA = { S: 0, R: 1, G: 4, M: 5, P: 7, D: 8, N: 11 };
+  ceSerialize(notes) {
+    const out = [];
+    (notes || []).forEach(n => {
+      if (n === "/") { out.push("\n"); return; }
+      if (n === "h") { out.push("-"); return; }
+      if (n === "r") { out.push("r"); return; }
+      if (n === "|") { out.push("|"); return; }
+      if (n === "||") { out.push("||"); return; }
+      const oct = Math.floor(n / 12), pos = ((n % 12) + 12) % 12;
+      const s = this.lib ? this.lib.SWARAS[pos] : null;
+      let letter = s ? (s.latin || "S").charAt(0).toUpperCase() : "S";
+      if (oct > 0) letter += "'".repeat(oct);
+      else if (oct < 0) letter += ",".repeat(-oct);
+      out.push(letter);
+    });
+    let text = "";
+    out.forEach(p => {
+      if (p === "\n") { text = text.replace(/[ ]+$/, "") + "\n"; }
+      else { if (text && !text.endsWith("\n")) text += " "; text += p; }
+    });
+    return text;
+  }
+  ceParse(text) {
+    const notes = [];
+    const lines = String(text == null ? "" : text).split("\n");
+    lines.forEach((line, li) => {
+      if (li > 0) notes.push("/");
+      line.trim().split(/\s+/).filter(Boolean).forEach(tok => {
+        if (tok === "||") { notes.push("||"); return; }
+        if (tok === "|") { notes.push("|"); return; }
+        if (/^-+$/.test(tok)) { for (let k = 0; k < tok.length; k++) notes.push("h"); return; }
+        const m = tok.match(/^([sSrRgGmMpPdDnN])(['`,\u2019]*)$/);
+        if (!m) return;
+        const base = m[1].toUpperCase();
+        if (!(base in this.CE_LETTER_TO_MAYA)) return;
+        let oct = 0;
+        for (const ch of m[2]) { if (ch === ",") oct--; else oct++; }
+        notes.push(this.CE_LETTER_TO_MAYA[base] + oct * 12);
+      });
+    });
+    return notes;
+  }
+  _ceSet(notes) { this.setState({ ceNotes: notes, ceText: this.ceSerialize(notes) }); }
+  ceSetText = (e) => { const text = e.target.value; this.setState({ ceText: text, ceNotes: this.ceParse(text), ceCopied: false }); };
+  ceCopy = () => {
+    const text = this.state.ceText || this.ceSerialize(this.state.ceNotes);
+    const done = () => { this.setState({ ceCopied: true }); clearTimeout(this._ceCopyT); this._ceCopyT = setTimeout(() => this.setState({ ceCopied: false }), 1400); };
+    try { navigator.clipboard.writeText(text).then(done, () => {}); } catch (e) {}
+  };
   ceSetName = (e) => this.setState({ ceName: e.target.value });
   ceSelectOctave(o) { this.setState({ ceOctave: o }); }
   ceSelectGroup(g) { this.setState({ ceGroup: g }); }
-  ceAddNote(semi) { this.setState({ ceNotes: [...this.state.ceNotes, semi + this.state.ceOctave * 12] }); }
-  ceAddHold = () => { if (this.state.ceNotes.length) this.setState({ ceNotes: [...this.state.ceNotes, "h"] }); };
-  ceAddBar = () => this.setState({ ceNotes: [...this.state.ceNotes, "|"] });
-  ceAddDoubleBar = () => this.setState({ ceNotes: [...this.state.ceNotes, "||"] });
-  ceBackspace = () => this.setState({ ceNotes: this.state.ceNotes.slice(0, -1) });
-  ceClear = () => this.setState({ ceNotes: [] });
+  ceAddNote(semi) { this._ceSet([...this.state.ceNotes, semi + this.state.ceOctave * 12]); }
+  ceAddHold = () => { if (this.state.ceNotes.length) this._ceSet([...this.state.ceNotes, "h"]); };
+  ceAddBar = () => this._ceSet([...this.state.ceNotes, "|"]);
+  ceAddDoubleBar = () => this._ceSet([...this.state.ceNotes, "||"]);
+  ceAddLineBreak = () => this._ceSet([...this.state.ceNotes, "/"]);
+  ceBackspace = () => this._ceSet(this.state.ceNotes.slice(0, -1));
+  ceClear = () => this._ceSet([]);
   ceStop() { if (this.engine) this.engine.stopExercise(); this.setState({ cePlaying: false }); }
-  exNewExercise = () => { this.stopExercisePlay(); this.ceStop(); this.setState({ ceOpen: true, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], ceOctave: 0, ceGroup: 8 }); };
+  exNewExercise = () => { this.stopExercisePlay(); this.ceStop(); this.setState({ ceOpen: true, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], ceText: "", ceOctave: 0, ceGroup: 8 }); };
   exEditSelected = () => { const ex = this.exSelected(); if (ex) this.exEditExercise(ex); };
   exEditExercise(ex) {
     this.stopExercisePlay(); this.ceStop();
     const builtin = !this.exIsUserItem(this.state.exCat, ex.id);
-    this.setState({ ceOpen: true, ceEditId: ex.id, ceBuiltin: builtin, ceName: ex.name, ceNotes: (ex.notes || []).slice(), ceGroup: ex.group || 8, ceOctave: 0 });
+    this.setState({ ceOpen: true, ceEditId: ex.id, ceBuiltin: builtin, ceName: ex.name, ceNotes: (ex.notes || []).slice(), ceText: this.ceSerialize(ex.notes || []), ceGroup: ex.group || 8, ceOctave: 0 });
   }
-  ceCancel = () => { this.ceStop(); this.setState({ ceOpen: false, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [] }); };
+  ceCancel = () => { this.ceStop(); this.setState({ ceOpen: false, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], ceText: "" }); };
   cePreview = () => {
     if (!this.engine || !this.state.ceNotes.length) return;
     if (this.state.cePlaying) { this.ceStop(); return; }
@@ -2035,7 +2144,7 @@ class Component extends DCLogic {
       try { localStorage.setItem("sws_user_exercises", JSON.stringify(userEx)); } catch (e) {}
       this.setState({ userEx });
     }
-    this.setState({ ceOpen: false, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], exId: savedId, exCurrent: -1 });
+    this.setState({ ceOpen: false, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], ceText: "", exId: savedId, exCurrent: -1 });
   };
   exDeleteSelected = () => { const ex = this.exSelected(); if (ex) this.exDeleteExercise(ex); };
   exDeleteExercise(ex) {
@@ -2078,11 +2187,23 @@ class Component extends DCLogic {
     // make a padding token (invisible filler so 8/8 grid keeps shape)
     const pad = (k) => ({ key: "pad" + k, hold: false, show: false, empty: true, base: "", sub: "", up: false, down: false,
       subColor: "transparent", cellBg: "transparent", cellColor: "transparent", gap: "0px", mark: false });
+    // Explicit line breaks ("/") → variable-length lines, one per authored line.
+    if ((ex.notes || []).some(n => n === "/")) {
+      let cur = [];
+      const push = () => { lines.push({ key: lines.length, num: lines.length + 1, variable: true, classic: false, cells: cur, left: [], right: [] }); };
+      tokens.forEach(t => {
+        if (t.lineBreak) { push(); cur = []; return; }
+        cur.push(t);
+      });
+      push();
+      lines.forEach(l => { l.showNum = lines.length > 1; });
+      return lines;
+    }
     for (let i = 0; i < tokens.length; i += PER) {
       const slice = tokens.slice(i, i + PER);
       while (slice.length < PER) slice.push(pad(i + slice.length));
       lines.push({
-        key: lines.length, num: lines.length + 1,
+        key: lines.length, num: lines.length + 1, variable: false, classic: true, cells: [],
         left: slice.slice(0, 8),
         right: slice.slice(8, 16),
       });
@@ -2132,7 +2253,7 @@ class Component extends DCLogic {
     const playableIdxOf = [];
     let pCount = 0;
     ex.notes.forEach((nn, ii) => {
-      const isMark = nn === "|" || nn === "||";
+      const isMark = nn === "|" || nn === "||" || nn === "/";
       playableIdxOf.push(isMark ? -1 : pCount);
       if (!isMark) pCount++;
     });
@@ -2142,6 +2263,11 @@ class Component extends DCLogic {
       const active = activePlayable >= 0 && p >= 0 && Math.floor(p / hl) === Math.floor(activePlayable / hl);
       const gapAfter = group && ((i + 1) % group === 0) && i < ex.notes.length - 1;
       const gap = gapAfter ? "14px" : "0px";
+      if (n === "/") {
+        return { key: i, lineBreak: true, hold: false, show: false, empty: false, mark: false, markStr: "",
+          base: "", sub: "", up: false, down: false, subColor: "transparent",
+          cellBg: "transparent", cellColor: "transparent", gap: "0px" };
+      }
       if (n === "|" || n === "||") {
         return { key: i, hold: false, show: false, empty: false, mark: true, markStr: n,
           base: "", sub: "", up: false, down: false, subColor: "transparent",
@@ -2167,21 +2293,32 @@ class Component extends DCLogic {
     const hl = Math.max(1, this.state.exNpb || 1);
     const playableIdxOf = []; let pc = 0;
     ex.notes.forEach(nn => {
-      if (nn === "|" || nn === "||") { playableIdxOf.push(-1); return; }
+      if (nn === "|" || nn === "||" || nn === "/") { playableIdxOf.push(-1); return; }
       if (nn === "h") { playableIdxOf.push(pc - 1); return; } // hold shares the held swara's slot → its pillar stays lit
       playableIdxOf.push(pc); pc++;
     });
     const activeIsHold = activeIdx >= 0 && ex.notes[activeIdx] === "h";
     const activePlayable = activeIdx >= 0 ? playableIdxOf[activeIdx] : -1;
-    // Show ONE notation line at a time (16 raw slots per line, matching linesFor),
-    // swapping to the next line's swaras as playback crosses into it.
-    const PER = 16;
-    const curLine = activeIdx >= 0 ? Math.floor(activeIdx / PER) : 0;
-    const lineStart = curLine * PER, lineEnd = lineStart + PER;
+    // Show ONE notation line at a time, swapping to the next line's swaras as
+    // playback crosses into it. Variable exercises break on "/"; classic ones
+    // use a fixed 16-slot window (matching linesFor).
+    let lineStart, lineEnd;
+    if (ex.notes.some(t => t === "/")) {
+      const bounds = []; let s = 0;
+      ex.notes.forEach((t, i) => { if (t === "/") { bounds.push([s, i]); s = i + 1; } });
+      bounds.push([s, ex.notes.length]);
+      let li = 0;
+      if (activeIdx >= 0) { const f = bounds.findIndex(([a, b]) => activeIdx >= a && activeIdx < b); if (f >= 0) li = f; }
+      lineStart = bounds[li][0]; lineEnd = bounds[li][1];
+    } else {
+      const PER = 16;
+      const curLine = activeIdx >= 0 ? Math.floor(activeIdx / PER) : 0;
+      lineStart = curLine * PER; lineEnd = lineStart + PER;
+    }
     const raw = [];
     ex.notes.forEach((n, i) => {
       if (i < lineStart || i >= lineEnd) return;
-      if (n === "|" || n === "||" || n === "h" || n === "r") return;
+      if (n === "|" || n === "||" || n === "h" || n === "r" || n === "/") return;
       const semi = transposed[i];
       const oct = Math.floor(semi / 12), pos = ((semi % 12) + 12) % 12;
       const s = this.lib.SWARAS[pos];
@@ -2270,7 +2407,8 @@ class Component extends DCLogic {
       ragaObj = (this.lib.MELAKARTHA && this.lib.MELAKARTHA.find(r => r.id === this.state.evalRaga))
              || this.lib.RAGAS.find(r => r.id === this.state.evalRaga) || null;
     }
-    const res = this.engine.analyze(track, { raga: ragaObj, bpm: this.state.mriBpm });
+    const sr = this.SRUTHI.find(x => Math.abs(x[1] - this.state.tonicHz) < 0.5);
+    const res = this.engine.analyze(track, { raga: ragaObj, bpm: this.state.mriBpm, tonicName: sr ? sr[0] : null });
     this.setState({ analysis: this.buildView(res), recordUrl: url !== undefined ? url : this.state.recordUrl });
   }
   setRagaFilter = (e) => this.setState({ ragaFilter: e.target.value });
@@ -2369,8 +2507,32 @@ class Component extends DCLogic {
       return Object.assign(t, { count: u.count, pct: Math.round(u.count / total * 100), color: inRaga ? "#5c1a1a" : "#b06a1a" });
     });
     const tr = res.targetRaga;
+    // shruti-match phrasing (relative to the SELECTED Sa) + soft-signal notice
+    const sm = res.selName;
+    const saTxt = sm ? " (" + sm + ")" : "";
+    let shrutiText;
+    if (Math.abs(res.keyShift) >= 1) {
+      const dir = res.keyShift > 0 ? (this.isEn ? "above" : "മുകളിൽ") : (this.isEn ? "below" : "താഴെ");
+      shrutiText = this.isEn
+        ? `You sang ${Math.abs(res.keyShift)} swarasthana(s) ${dir} your selected Sa${saTxt}.`
+        : `തിരഞ്ഞെടുത്ത ഷഡ്ജത്തിൽ${saTxt} നിന്ന് ${Math.abs(res.keyShift)} സ്വരസ്ഥാനം ${dir} പാടി.`;
+    } else if (Math.abs(res.driftCents) > 20) {
+      const dir = res.driftCents > 0 ? (this.isEn ? "sharp" : "കൂടുതൽ") : (this.isEn ? "flat" : "കുറവ്");
+      shrutiText = this.isEn
+        ? `About ${Math.abs(res.driftCents)} cents ${dir} of your selected Sa${saTxt}.`
+        : `തിരഞ്ഞെടുത്ത ഷഡ്ജത്തോട്${saTxt} ഉറച്ച് ${Math.abs(res.driftCents)} സെന്റ് ${dir}.`;
+    } else {
+      shrutiText = this.isEn
+        ? `Right on your selected Sa${saTxt}. Excellent!`
+        : `തിരഞ്ഞെടുത്ത ഷഡ്ജത്തിൽ${saTxt} ഉറച്ചുനിന്നു. മികച്ചത്!`;
+    }
+    const weakText = res.weak
+      ? (this.isEn ? "Soft recording — sing a little louder or move closer to the mic for a more accurate evaluation." : "പതിഞ്ഞ റെക്കോർഡിംഗ് — കൂടുതൽ കൃത്യതയ്ക്ക് ഉറക്കെ / മൈക്കിനടുത്ത് പാടുക.") : "";
     return {
       empty: false,
+      shrutiMatch: res.shrutiMatch, shrutiText,
+      shrutiLabel: this.isEn ? "Shruti match" : "ശ്രുതി ചേർച",
+      weak: res.weak, weakText, level: res.level,
       overall: res.overall, pitchAcc: res.pitchAcc, ragaAcc: res.ragaAcc, rhythmAcc: res.rhythmAcc,
       meanCents: res.meanCents, overallText: this.grade(res.overall),
       usedTokens, hasForeign: res.foreign.length > 0,
@@ -2404,7 +2566,7 @@ class Component extends DCLogic {
 
     const an = st.analysis && !st.analysis.empty ? st.analysis : null;
     const student = true; // student build — ragas/songbook/edit hidden, 6 categories only
-    const STUDENT_CATS = ["saptaswara", "sarali", "madhyasthayi", "melsthayi", "keezhsthayi", "janta"];
+    const STUDENT_CATS = ["saptaswara", "sarali", "madhyasthayi", "melsthayi", "keezhsthayi", "janta", "special"];
     const exSelItems = this.exItems().filter(e => st.exSelIds[e.id]);
     const exMulti = exSelItems.length >= 2;
     const effShowAll = st.exShowAll || exMulti;
@@ -2436,7 +2598,8 @@ class Component extends DCLogic {
       langMlBg: !this.isEn ? "var(--gold2)" : "transparent",
       langMlColor: !this.isEn ? "#3a2418" : "var(--gold2)",
       // header
-      tonicHz: st.tonicHz, tonicName, changeTonic: this.changeTonic, stopAll: this.stopAllAudio,
+      tonicHz: st.tonicHz, tonicVal: String(st.tonicHz), tonicName, changeTonic: this.changeTonic, stopAll: this.stopAllAudio,
+      pitchOptions: this.SRUTHI.map(([label, hz]) => ({ key: label, val: String(hz), label })),
       masterVolPct: st.masterVolPct, setMasterVol: this.setMasterVol,
       volOptions: (() => { const s = new Set([0,10,20,30,40,50,60,70,80,90,100]); s.add(st.masterVolPct); return [...s].sort((a,b)=>a-b).map(v => ({ key: v, val: v, label: v + "%" })); })(),
       tempoOptions: (() => { const s = new Set([10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160]); s.add(st.exBpm); return [...s].sort((a,b)=>a-b).map(v => ({ key: v, val: v, label: v + " BPM" })); })(),
@@ -2514,7 +2677,12 @@ class Component extends DCLogic {
       songPlaying: st.songPlaying,
       songPlayLabel: st.songPlaying ? this.tr("⏸ നിർത്തുക") : this.tr("▶ പ്ലേ ചെയ്യുക"),
       tempoPct: Math.round(st.tempo * 100), tempoSlider: Math.round(st.tempo * 100),
-      pitch: st.pitch, pitchLabel: (st.pitch > 0 ? "+" : "") + st.pitch + this.tr(" സ്വരം"),
+      pitch: st.pitch, pitchLabel: (() => {
+        const base = (st.pitch > 0 ? "+" : "") + st.pitch + this.tr(" സ്വരം");
+        const idx = this.SRUTHI.findIndex(x => Math.abs(x[1] - st.tonicHz) < 0.5);
+        const ni = idx + st.pitch;
+        return (idx < 0 || ni < 0 || ni >= this.SRUTHI.length) ? base : base + " · " + this.SRUTHI[ni][0];
+      })(),
       posStr: this.fmt(st.songPos), durStr: this.fmt(st.songDur),
       songProgPct: st.songDur ? Math.min(100, st.songPos / st.songDur * 100) : 0,
       onFile: this.onFile, toggleSongPlay: this.toggleSongPlay, resetSongBtn: this.resetSongBtn,
@@ -2574,7 +2742,7 @@ class Component extends DCLogic {
       ragaFilter: st.ragaFilter, setRagaFilter: this.setRagaFilter,
       ragaVoice: st.ragaVoice, setRagaVoice: this.setRagaVoice,
       // exercises
-      exCats: [["saptaswara", this.tr("സപ്തസ്വരം")], ["sarali", this.tr("സരളി വരിശ")], ["madhyasthayi", this.tr("മധ്യസ്ഥായി")], ["melsthayi", this.tr("മേൽസ്ഥായി")], ["keezhsthayi", this.tr("കീഴ്സ്ഥായി")], ["janta", this.tr("ജണ്ട വരിശ")], ["vakrajanta", this.tr("വക്ര ജണ്ട")], ["datu", this.tr("ദാട്ടു വരിശ")], ["alankaram", this.tr("അലങ്കാരം")], ["geethangal", this.tr("ഗീതങ്ങൾ")], ["varnangal", this.tr("വർണ്ണങ്ങൾ")], ["info", this.tr("ജതിസ്വരം · സ്വരജതി")]].filter(([id]) => !student || STUDENT_CATS.includes(id)).map(([id, label]) => {
+      exCats: [["saptaswara", this.tr("സപ്തസ്വരം")], ["sarali", this.tr("സരളി വരിശ")], ["madhyasthayi", this.tr("മധ്യസ്ഥായി")], ["melsthayi", this.tr("മേൽസ്ഥായി")], ["keezhsthayi", this.tr("കീഴ്സ്ഥായി")], ["janta", this.tr("ജണ്ട വരിശ")], ["vakrajanta", this.tr("വക്ര ജണ്ട")], ["datu", this.tr("ദാട്ടു വരിശ")], ["alankaram", this.tr("അലങ്കാരം")], ["geethangal", this.tr("ഗീതങ്ങൾ")], ["varnangal", this.tr("വർണ്ണങ്ങൾ")], ["special", this.tr("പ്രത്യേക അഭ്യാസം")], ["info", this.tr("ജതിസ്വരം · സ്വരജതി")]].filter(([id]) => !student || STUDENT_CATS.includes(id)).map(([id, label]) => {
         const on = st.exCat === id;
         return { label, select: () => this.selectExCat(id),
           bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
@@ -2605,12 +2773,14 @@ class Component extends DCLogic {
       lblRaga: this.isEn ? "Ragam" : "രാഗം",
       lblVoice: this.isEn ? "Voice" : "ശബ്ദം",
       lblVol: this.isEn ? "Volume" : "വോള്യം",
-      exCatName: this.tr(({saptaswara:"സപ്തസ്വരം", sarali:"സരളി വരിശ", madhyasthayi:"മധ്യസ്ഥായി", melsthayi:"മേൽസ്ഥായി", keezhsthayi:"കീഴ്സ്ഥായി", janta:"ജണ്ട വരിശ", vakrajanta:"വക്ര ജണ്ട", datu:"ദാട്ടു വരിശ", alankaram:"അലങ്കാരം", geethangal:"ഗീതങ്ങൾ", varnangal:"വർണ്ണങ്ങൾ", info:"ജതിസ്വരം · സ്വരജതി"})[st.exCat] || ""),
+      exCatName: this.tr(({saptaswara:"സപ്തസ്വരം", sarali:"സരളി വരിശ", madhyasthayi:"മധ്യസ്ഥായി", melsthayi:"മേൽസ്ഥായി", keezhsthayi:"കീഴ്സ്ഥായി", janta:"ജണ്ട വരിശ", vakrajanta:"വക്ര ജണ്ട", datu:"ദാട്ടു വരിശ", alankaram:"അലങ്കാരം", geethangal:"ഗീതങ്ങൾ", varnangal:"വർണ്ണങ്ങൾ", special:"പ്രത്യേക അഭ്യാസം", info:"ജതിസ്വരം · സ്വരജതി"})[st.exCat] || ""),
       exShowInfo: st.exCat === "info",
       exShowPlayer: st.exCat !== "info" || (st.userEx["info"] || []).length > 0,
       exIntro: this.lib && this.lib.EXERCISES[st.exCat] ? this.tr(this.lib.EXERCISES[st.exCat].intro) : "",
       // editor / toolbar
       ceOpen: st.ceOpen, exShowAddBar: !st.ceOpen && !student && !st.focusEx,
+      exEmpty: st.exCat !== "info" && !st.ceOpen && !this.exSelected(),
+      ceEmptyMsg: this.isEn ? "No exercises in this section yet." : "ഈ വിഭാഗത്തിൽ അഭ്യാസങ്ങൾ ഇല്ല.",
       exNew: this.exNewExercise, exReset: this.exResetCategory,
       exCanReset: (() => {
         const ids = (this.lib && this.lib.EXERCISES[st.exCat] ? this.lib.EXERCISES[st.exCat].items : []).map(it => it.id);
@@ -2656,7 +2826,7 @@ class Component extends DCLogic {
       }) : [],
       ceAddHold: this.ceAddHold, ceAddBar: this.ceAddBar, ceAddDoubleBar: this.ceAddDoubleBar, ceBackspace: this.ceBackspace, ceClear: this.ceClear,
       ceTokens: this.sbTokenList(st.ceNotes),
-      ceCount: st.ceNotes.filter(n => n !== "h").length,
+      ceCount: st.ceNotes.filter(n => n !== "h" && n !== "/").length,
       ceEmpty: st.ceNotes.length === 0, ceHasNotes: st.ceNotes.length > 0,
       cePreview: this.cePreview, ceSave: this.ceSave, ceCancel: this.ceCancel,
       cePreviewLabel: st.cePlaying ? this.tr("⏹ നിർത്തുക") : this.tr("▶ കേൾക്കുക"),
@@ -2732,7 +2902,7 @@ class Component extends DCLogic {
       exPlayBg: st.exPlaying ? "#3a1212" : "#5c1a1a",
       toggleExPlay: this.toggleExPlay,
       // show-all mode
-      exShowAll: effShowAll, exShowSingle: !effShowAll,
+      exShowAll: effShowAll && !!this.exSelected(), exShowSingle: !effShowAll && !!this.exSelected(),
       toggleExShowAll: this.toggleExShowAll,
       // focus mode — hide heading/selection/controls, keep only the action row
       exFull: false,
@@ -2771,7 +2941,7 @@ class Component extends DCLogic {
               key: ex.id + "_" + j,
               vnum: j === 0 ? (oi + 1) : "",
               showVnum: j === 0,
-              left: l.left, right: l.right,
+              left: l.left, right: l.right, variable: l.variable, classic: l.classic, cells: l.cells,
               rowBg: isActive ? "#fbf5e8" : "#fff",
               rowBorder: isActive ? "var(--gold)" : "var(--line)",
               rowOpacity: "1",

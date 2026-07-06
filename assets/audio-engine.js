@@ -119,7 +119,7 @@ function autoCorrelate(buf, sampleRate) {
   let rms = 0;
   for (let i = 0; i < SIZE; i++) { const v = buf[i]; rms += v * v; }
   rms = Math.sqrt(rms / SIZE);
-  if (rms < 0.01) return { freq: -1, rms };
+  if (rms < 0.006) return { freq: -1, rms }; // low gate so soft humming / vowels still register
 
   let r1 = 0, r2 = SIZE - 1;
   const thres = 0.2;
@@ -1128,8 +1128,8 @@ class AudioEngine {
     // build slots; 'h' = kaarvai (hold previous); 'r' = rest (silence); '|' '||' = thala marks (zero-duration, visual only)
     const slots = notes.map(t => ({
       hold: t === "h", rest: t === "r",
-      mark: t === "|" || t === "||",
-      off: (t === "h" || t === "r" || t === "|" || t === "||") ? null : t,
+      mark: t === "|" || t === "||" || t === "/",
+      off: (t === "h" || t === "r" || t === "|" || t === "||" || t === "/") ? null : t,
     }));
     for (let i = 0; i < slots.length; i++) {
       if (!slots[i].hold && !slots[i].rest && !slots[i].mark) {
@@ -1390,7 +1390,7 @@ class AudioEngine {
       const { freq, rms } = autoCorrelate(buf, this.ac.sampleRate);
       const t = (performance.now() - r.t0) / 1000;
       if (freq > 50 && freq < 1200) {
-        r.track.push({ t, freq });
+        r.track.push({ t, freq, rms });
         if (onPitch) onPitch(freq, freqToSwara(freq, this.tonicHz));
       } else if (onPitch) onPitch(-1, null);
       r.raf = requestAnimationFrame(loop);
@@ -1424,6 +1424,7 @@ class AudioEngine {
     const appTonic = this.tonicHz;
     const selRaga = opts && opts.raga ? opts.raga : null;
     const bpm = opts && opts.bpm ? opts.bpm : 70;
+    const selName = opts && opts.tonicName ? opts.tonicName : null;
     if (!track || track.length < 5) {
       return { empty: true };
     }
@@ -1431,6 +1432,13 @@ class AudioEngine {
     const cents = [];
     for (const f of track) { if (f.freq > 0) cents.push(1200 * Math.log2(f.freq / appTonic)); }
     if (cents.length < 5) return { empty: true };
+
+    // Signal strength (soft humming / quiet vowels vs full voice). Used to
+    // temper expectations and coach volume — never a raw penalty.
+    let rmsSum = 0, rmsN = 0;
+    for (const f of track) { if (typeof f.rms === "number") { rmsSum += f.rms; rmsN++; } }
+    const meanRms = rmsN ? rmsSum / rmsN : 0;
+    const weak = meanRms > 0 && meanRms < 0.02;
 
     // Estimate the singer's systematic tuning offset within a semitone
     // (circular mean of cents mod 100) so note classification is key-fair —
@@ -1464,6 +1472,12 @@ class AudioEngine {
     }
     const keyShift = ((saShift + 6) % 12) - 6; // signed semitones from the app's Sa
     const tonic = appTonic * Math.pow(2, saShift / 12);
+
+    // How faithfully the singer sat on the SELECTED shruti (chosen Sa). This is
+    // separate from swara-ID above, which re-anchors to the singer's own Sa so
+    // humming / vowel singing in any key or octave is still classified right.
+    const driftCents = keyShift * 100 + tuneOffset; // signed cents: singer's Sa vs selected Sa
+    const shrutiMatch = Math.max(0, Math.min(100, Math.round(100 - Math.abs(driftCents) * 0.5)));
 
     // ---- per-frame analysis at the singer's actual Sa ----
     const posCounts = countsFor(saShift);
@@ -1533,7 +1547,10 @@ class AudioEngine {
       rhythmAcc = 60;
     }
 
-    const overall = Math.round(pitchAcc * 0.4 + ragaAcc * 0.35 + rhythmAcc * 0.25);
+    const overall = Math.round(pitchAcc * 0.34 + shrutiMatch * 0.16 + ragaAcc * 0.3 + rhythmAcc * 0.2);
+    // Calibrate the tone of feedback to the student's current level, so a
+    // beginner (or a soft, tentative take) isn't judged by concert standards.
+    const level = overall >= 78 ? "advanced" : (overall >= 55 ? "intermediate" : "beginner");
 
     // ---- swaras actually used (sorted by prominence) ----
     const usedSwaras = posCounts
@@ -1543,6 +1560,7 @@ class AudioEngine {
 
     // ---- guidance (Malayalam) ----
     const tips = [];
+    if (weak) tips.push({ k: "ശബ്ദനില", ken: "Volume", t: "റെക്കോർഡിംഗ് വളരെ പതിഞ്ഞതാണ്. മൈക്കിനോട് അല്പം അടുത്ത്, കുറച്ചുകൂടെ ഉറക്കെ പാടിയാൽ വിലയിരുത്തൽ കൂടുതൽ കൃത്യമാകും.", ten: "Your recording is very soft. Sing a little louder and closer to the mic for a more accurate evaluation." });
     if (meanCents > 28) tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `ശരാശരി ${Math.round(meanCents)} സെന്റ് വ്യതിയാനം ഉണ്ട്. തംപുര വെച്ച് ഓരോ സ്വരവും ശ്രുതിയിൽ ഉറപ്പിച്ച് പിടിക്കാൻ പരിശീലിക്കുക.`, ten: `Your average deviation is ${Math.round(meanCents)} cents. Practise holding each swara steady against the tanpura.` });
     else if (meanCents > 14) tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `ശ്രുതി നന്നായിട്ടുണ്ട് (${Math.round(meanCents)} സെന്റ്). ഗമകങ്ങളിൽ കൂടുതൽ കൃത്യത വരുത്താം.`, ten: `Your shruti is good (${Math.round(meanCents)} cents). You can bring more precision to the gamakas.` });
     else tips.push({ k: "ശ്രുതി", ken: "Shruti", t: "മികച്ച ശ്രുതിശുദ്ധി! സ്വരസ്ഥാനങ്ങൾ കൃത്യമാണ്.", ten: "Excellent shruti purity! Your swarasthanas are accurate." });
@@ -1561,19 +1579,37 @@ class AudioEngine {
       const mlEn = missing.slice(0, 3).map(m => SWARAS[((m.pos % 12) + 12) % 12].latin).join(", ");
       tips.push({ k: "സ്വരം", ken: "Swara", t: `${selRaga.name} രാഗത്തിലെ ${ml} എന്നീ സ്വരങ്ങൾ പാടിയിട്ടില്ല. ആരോഹണ–അവരോഹണത്തിൽ ഇവ ഉൾപ്പെടുത്തുക.`, ten: `You did not sing ${mlEn} of raga ${selRaga.latin || selRaga.name}. Include them in the arohana–avarohana.` });
     }
+    const saRef = selName ? selName : "ഷഡ്ജം";
+    const saRefEn = selName ? selName : "Sa";
     if (Math.abs(keyShift) >= 1) {
       const dir = keyShift > 0 ? "മുകളിൽ" : "താഴെ";
       const dirEn = keyShift > 0 ? "above" : "below";
-      tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `നിങ്ങൾ പാടിയത് ആപ്പിന്റെ ഷഡ്ജത്തിൽ നിന്ന് ${Math.abs(keyShift)} സ്വരസ്ഥാനം ${dir} ആണ്. തംപുര നിങ്ങളുടെ ശ്രുതിയിൽ ക്രമീകരിച്ച് പാടിയാൽ വിലയിരുത്തൽ കൂടുതൽ കൃത്യമാകും.`, ten: `You sang ${Math.abs(keyShift)} swarasthana(s) ${dirEn} the app's Sa. Tune the tanpura to your own shruti for a more accurate evaluation.` });
+      const enc = level === "beginner"
+        ? { t: `സാരമില്ല — തിരഞ്ഞെടുത്ത ശ്രുതി (${saRef}) തംപുരയിൽ വെച്ച്, ആ ഷഡ്ജത്തിൽ നിന്ന് തുടങ്ങി പതുക്കെ പരിശീലിക്കുക.`, ten: `No worries — set the tanpura to your chosen shruti (${saRefEn}), start from that Sa and practise slowly.` }
+        : { t: `തംപുര ${saRef}-ൽ ക്രമീകരിച്ച്, ഓരോ ഫ്രെയ്‌സും ആ ഷഡ്ജത്തിലേക് മടങ്ങുന്നുവെന്ന് ഉറപ്പാക്കുക.`, ten: `Keep the tanpura on ${saRefEn} and make sure every phrase resolves back to that Sa.` };
+      tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `നിങ്ങൾ പാടിയത് തിരഞ്ഞെടുത്ത ഷഡ്ജത്തിൽ (${saRef}) നിന്ന് ${Math.abs(keyShift)} സ്വരസ്ഥാനം ${dir} ആണ്. ${enc.t}`, ten: `You sang ${Math.abs(keyShift)} swarasthana(s) ${dirEn} your selected Sa (${saRefEn}). ${enc.ten}` });
+    } else if (Math.abs(driftCents) > 20) {
+      const dir = driftCents > 0 ? "കൂടുതൽ" : "കുറവ്";
+      const dirEn = driftCents > 0 ? "sharp" : "flat";
+      tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `തിരഞ്ഞെടുത്ത ഷഡ്ജത്തോട് (${saRef}) വളരെ അടുത്താണ് — ശരാശരി ${Math.abs(Math.round(driftCents))} സെന്റ് ${dir}. തംപുരയോട് ചേർന്ന് ഷഡ്ജം ഉറപ്പിക്കുക.`, ten: `Very close to your selected Sa (${saRefEn}) — about ${Math.abs(Math.round(driftCents))} cents ${dirEn}. Lock onto the tanpura's Sa.` });
+    } else if (selName) {
+      tips.push({ k: "ശ്രുതി", ken: "Shruti", t: `തിരഞ്ഞെടുത്ത ഷഡ്ജത്തിൽ (${saRef}) ഭംഗിയായി ഉറച്ചുനിന്നു. മികച്ചത്!`, ten: `You stayed right on your selected Sa (${saRefEn}). Excellent!` });
     }
 
     if (ioiCV > 0.35) tips.push({ k: "താളം", ken: "Thala", t: "താളത്തിന്റെ വേഗത ഏകീകൃതമല്ല. മെട്രോണോം/തംപുര ഉപയോഗിച്ച് കാലപ്രമാണം സ്ഥിരമാക്കുക.", ten: "Your tempo is not steady. Use the metronome/tanpura to keep the kalapramanam constant." });
     else if (rhythmAcc < 70) tips.push({ k: "താളം", ken: "Thala", t: "ചില സ്വരങ്ങൾ താളത്തിന്റെ അക്ഷരത്തിൽ വീഴുന്നില്ല. കുറഞ്ഞ വേഗതയിൽ പരിശീലിച്ച് കൃത്യത വരുത്തുക.", ten: "Some swaras are not landing on the beat. Practise at a slower speed to build precision." });
     else tips.push({ k: "താളം", ken: "Thala", t: "താളബോധം നന്നായിട്ടുണ്ട്.", ten: "Your sense of thala is good." });
 
+    tips.push(level === "advanced"
+      ? { k: "മൊത്തം", ken: "Overall", t: "മൊത്തത്തിൽ മികച്ച നിലവാരം. സൂക്ഷ്മമായ ഗമകങ്ങളിലും ഭാവത്തിലും ശ്രദ്ധിച്ച് ഇനിയും മെച്ചപ്പെടുത്താം.", ten: "Strong overall. Refine the subtle gamakas and bhava to go further." }
+      : level === "intermediate"
+      ? { k: "മൊത്തം", ken: "Overall", t: "നല്ല പുരോഗതി! ദിവസവും തംപുരയോടൊപ്പം പരിശീലിച്ചാൽ ശ്രുതിശുദ്ധി ഇനിയും ഉറയ്ക്കും.", ten: "Good progress! Daily practice with the tanpura will firm up your shruti further." }
+      : { k: "മൊത്തം", ken: "Overall", t: "നല്ല തുടക്കം. ഓരോ സ്വരവും തംപുരയോട് ചേർത്ത് പതുക്കെ ഉറപ്പിച്ച് പാടി തുടങ്ങുക — ക്രമേണ മെച്ചപ്പെടും.", ten: "A good start. Sing each swara slowly and firmly with the tanpura — it will steadily improve." });
+
     return {
       empty: false,
       pitchAcc, ragaAcc, rhythmAcc, overall, meanCents: Math.round(meanCents),
+      shrutiMatch, keyShift, driftCents: Math.round(driftCents), weak, meanRms, level, selName,
       usedSwaras, foreign, posCounts, swaraSeq,
       detected, targetRaga, tips, onsetCount: onsets.length,
       duration: track[track.length - 1].t,
@@ -1638,8 +1674,14 @@ const EXERCISES = {
         notes: [1,0,4,1,5,4,7,5, 0,1,4,5,7,8,11,12, 11,12,8,11,7,8,5,7, 12,11,8,7,5,4,1,0],
         desc: "വിശാലമായ വളവുകൾ." },
       { id: "s16", name: "സരളി വരിശ 14", latin: "Full elaboration", group: 8,
-        notes: [0,1,4,5,12,11,8,7, 0,1,4,5,7,8,11,12, 7,8,11,12,5,4,1,0, 12,11,8,7,5,4,1,0],
+        notes: [4,1,0,5,4,1,7,5,0,1,4,5,7,8,11,12,8,11,12,7,8,11,5,7,12,11,8,7,5,4,1,0],
         desc: "എല്ലാ ചലനങ്ങളും ചേർന്ന സമാപന വരിശ." },
+      { id: "ce1783122788405", name: "സരളി വരിശ 15", latin: "", group: 8,
+        notes: [5,4,1,0,7,5,4,1,0,1,4,5,7,8,11,12,7,8,11,12,5,7,8,11,12,11,8,7,5,4,1,0],
+        desc: "" },
+      { id: "ce1783123093475", name: "സരളി വരിശ 16", latin: "", group: 8,
+        notes: [0,1,4,5,12,11,8,7,0,1,4,5,7,8,11,12,7,8,11,12,5,4,1,0,12,11,8,7,5,4,1,0],
+        desc: "" },
     ],
   },
   madhyasthayi: {
@@ -1671,7 +1713,7 @@ const EXERCISES = {
         notes: [0,1,4,5,7,8,11,12,12,"h","h","h",12,"h","h","h",8,11,12,13,12,11,8,7,12,11,8,7,5,4,1,0],
         desc: "പ മുതൽ മേൽ പ വരെ — താരസ്ഥായിയിലേക്കുള്ള കയറ്റം." },
       { id: "ml2", name: "മേൽസ്ഥായി 2", latin: "Full tara octave", group: 8,
-        notes: [0,1,4,5,7,8,11,12,12,"h","h","h",12,"h","h","h",8,11,12,13,12,12,13,12,12,13,12,11,8,7,5,7,8,11,12,13,12,11,8,7,12,23,20,19,17,16,13,12],
+        notes: [0,1,4,5,7,8,11,12,12,"h","h","h",12,"h","h","h",8,11,12,13,12,12,13,12,12,13,12,11,8,7,5,7,8,11,12,13,12,11,8,7,12,11,8,7,5,4,1,0],
         desc: "മേൽ സ മുതൽ അതിമേൽ സ വരെ പൂർണ്ണ ഒക്ടേവ്." },
       { id: "ml3", name: "മേൽസ്ഥായി 3", latin: "Madhya to tara span", group: 8,
         notes: [0,1,4,5,7,8,11,12,12,"h","h","h",12,"h","h","h",8,11,12,13,16,13,12,13,12,13,12,11,8,7,5,7,8,11,12,13,12,12,13,12,12,13,12,11,8,7,5,7,8,11,12,13,12,11,8,7,12,11,8,7,5,4,1,0],
@@ -1709,6 +1751,12 @@ const EXERCISES = {
       { id: "j1", name: "ജണ്ട വരിശ 1", latin: "Double notes", group: 8,
         notes: [0,0,1,1,4,4,5,5,7,7,8,8,11,11,12,12, 12,12,11,11,8,8,7,7,5,5,4,4,1,1,0,0],
         desc: "സ്വരങ്ങൾ ഇരട്ടിച്ച്. ശബ്ദത്തിന് ഉറപ്പും ഗാംഭീര്യവും നൽകുന്നു." },
+      { id: "ce1783123292883", name: "ജണ്ട വരിശ 2", latin: "", group: 8,
+        notes: [0,0,1,1,4,4,5,5,1,1,4,4,5,5,7,7,4,4,5,5,7,7,8,8,5,5,7,7,8,8,11,11,7,7,8,8,11,11,12,12,12,12,11,11,8,8,7,7,11,11,8,8,7,7,5,5,8,8,7,7,5,5,4,4,7,7,5,5,4,4,1,1,5,5,4,4,1,1,0,0],
+        desc: "" },
+      { id: "ce1783166495092", name: "Janta Varisai 3", latin: "", group: 8,
+        notes: [0,0,1,1,4,4,1,1,0,0,1,1,4,4,5,5,1,1,4,4,5,5,4,4,1,1,4,4,5,5,7,7,4,4,5,5,7,7,5,5,4,4,5,5,7,7,8,8,5,5,7,7,8,8,7,7,5,5,7,7,8,8,11,11,7,7,8,8,11,11,8,8,7,7,8,8,11,11,12,12,12,12,11,11,8,8,11,11,12,12,11,11,8,8,7,7,11,11,8,8,7,7,8,8,11,11,8,8,7,7,5,5,8,8,7,7,5,5,7,7,8,8,7,7,5,5,4,4,7,7,5,5,4,4,5,5,7,7,5,5,4,4,1,1,5,5,4,4,1,1,4,4,5,5,4,4,1,1,0,0],
+        desc: "" },
     ],
   },
   alankaram: {
@@ -1752,7 +1800,7 @@ const EXERCISES = {
     intro: "ലളിതമായ ആദ്യ സംഗീത രചനകൾ. തിരഞ്ഞെടുത്ത രാഗത്തിൽ ഈണം പാടും. (പരമ്പരാഗത മൂലരാഗം ബ്രാക്കറ്റിൽ.)",
     items: [
       { id: "ge_gananatha", name: "ശ്രീ ഗണനാഥ", latin: "Sri Gananatha", group: 4,
-        notes: [0,5,4,5, 7,7,8,7, 5,4,5,4, 1,0,1,0, 5,7,8,7, 8,11,12,11, 8,7,5,4, 5,4,1,0],
+        notes: [5,7,8,12,12,13,13,12,8,7,5,7,1,5,7,8,5,7,8,7,5,4,1,0,0,1,5,4,1,0,1,4,1,0,1,5,7,8,5,7,8,7,5,4,1,0,0,1,5,"h",4,1,0,1,4,1,0],
         desc: "പിള്ളയാർ സ്തുതി — ആദ്യം പഠിക്കുന്ന ഗീതം (മൂലം: മലഹരി)." },
       { id: "ge_varaveena", name: "വരവീണ", latin: "Varaveena", group: 4,
         notes: [0,4,7,4, 7,12,7,4, 5,4,1,0, 1,4,5,4, 7,8,12,8, 7,5,4,1, 4,5,7,8, 7,4,1,0],
@@ -1769,6 +1817,24 @@ const EXERCISES = {
       { id: "va_samininne", name: "സാമി നിന്നേ", latin: "Sami Ninne", group: 4,
         notes: [0,1,4,5, 7,8,11,12, 11,8,7,5, 4,1,0,1, 4,5,7,8, 11,12,11,8, 7,5,4,1, 4,1,0,0],
         desc: "ധീരശങ്കരാഭരണം വർണം — സ്വരസ്ഥാന അഭ്യാസത്തിന്." },
+    ],
+  },
+  special: {
+    label: "പ്രത്യേക അഭ്യാസം", latin: "Special Exercises",
+    intro: "സ്വന്തമായി എഴുതുന്ന പ്രത്യേക അഭ്യാസങ്ങൾ — ഓരോ വരിക്കും വ്യത്യസ്ത നീളമാകാം. '↵ പുതിയ വരി' ഉപയോഗിച്ചോ ടെക്സ്റ്റ് ബോക്സിൽ എന്റർ അമർത്തിയോ വരി മുറിക്കാം. സ്വരങ്ങൾ കോപ്പി-പേസ്റ്റ് ചെയ്യാം.",
+    items: [
+      { id: "ce1783297799455", name: "Single Step Middle", latin: "", group: 8,
+        notes: [0,"/",0,1,0,"/",0,1,4,1,0,"/",0,1,4,5,4,1,0,"/",0,1,4,5,7,5,4,1,0,"/",0,1,4,5,7,8,7,5,4,1,0,"/",0,1,4,5,7,8,11,8,7,5,4,1,0,"/",0,1,4,5,7,8,11,12,11,8,7,5,4,1,0],
+        desc: "" },
+      { id: "ce1783302147113", name: "Single Step Lower", latin: "", group: 8,
+        notes: [0,"/",0,-1,0,"/",0,-1,-4,-1,0,"/",0,-1,-4,-5,-4,-1,0,"/",-12,-1,-4,-5,-7,-5,-4,-1,0],
+        desc: "" },
+      { id: "ce1783302233356", name: "Single Step High", latin: "", group: 8,
+        notes: [12,"/",12,13,12,"/",12,13,16,13,12,"/",12,13,16,17,16,13,12,"/",12,13,16,17,19,17,16,13,12],
+        desc: "" },
+      { id: "ce1783302457361", name: "Single Step Lower Mix", latin: "", group: 8,
+        notes: [0,"/",0,1,0,-1,-12,"/",0,1,4,1,0,-1,-4,-1,0,"/",0,1,4,5,4,1,0,-1,-4,-5,-4,-1,0,"/",0,1,4,5,7,5,4,1,0,-1,-4,-5,-7,-5,-4,-1,0],
+        desc: "" },
     ],
   },
 };
@@ -1807,7 +1873,7 @@ function degreeToSemi(deg, scale) {
   return oct * 12 + scale[within];
 }
 function transposeExercise(notes, scale) {
-  return notes.map(n => ((n === "h" || n === "r" || n === "|" || n === "||") ? n : degreeToSemi(mayaToDegree(n), scale)));
+  return notes.map(n => ((n === "h" || n === "r" || n === "|" || n === "||" || n === "/") ? n : degreeToSemi(mayaToDegree(n), scale)));
 }
 
 // ---------------------------------------------------------------------------
