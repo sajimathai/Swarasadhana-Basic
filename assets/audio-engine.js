@@ -1114,7 +1114,7 @@ class AudioEngine {
     src.connect(lp).connect(g).connect(this._exDest || this.master);
     src.start(time); src.stop(time + len);
   }
-  playExercise(notes, opts) {
+  playExercise(notes, opts, startAt) {
     this.ensure();
     const ac = this.ac;
     const ex = this.ex;
@@ -1138,7 +1138,7 @@ class AudioEngine {
         slots[i].units = u;
       }
     }
-    const t0 = ac.currentTime + 0.14;
+    const t0 = startAt != null ? Math.max(startAt, ac.currentTime) : ac.currentTime + 0.14;
     ex.times = [];
     ex.marks = [];
     // Build an event list (tone / click) with absolute times instead of
@@ -1183,7 +1183,7 @@ class AudioEngine {
       if (idx !== ex._lastIdx) { ex._lastIdx = idx; if (opts.onNote) opts.onNote(idx); }
       if (now >= endT) {
         clearInterval(ex.timer); ex.timer = null;
-        if (opts.loop) { this.playExercise(ex.notes, ex.opts); return; }
+        if (opts.loop) { this.playExercise(ex.notes, ex.opts, endT); return; }
         ex.running = false; if (opts.onNote) opts.onNote(-1); if (opts.onDone) opts.onDone(); return;
       }
     };
@@ -1763,10 +1763,10 @@ const EXERCISES = {
     label: "അലങ്കാരം", latin: "Alankaram",
     intro: "സ്വരവും താളവും ചേർന്ന അഭ്യാസങ്ങൾ — സപ്ത താള അലങ്കാരങ്ങൾ. പുരന്ദരദാസർ രചിച്ചത്.",
     items: [
-      { id: "a_triputa", name: "ത്രിപുട (ആദി) അലങ്കാരം", latin: "Triputa — 3-note groups", group: 3,
+      { id: "a_triputa", name: "ത്രിപുട അലങ്കാരം", latin: "Triputa — 3-note groups", group: 3, thala: { key: "triputa", jathi: 3 },
         notes: [0,1,4, 1,4,5, 4,5,7, 5,7,8, 7,8,11, 8,11,12, 12,11,8, 11,8,7, 8,7,5, 7,5,4, 5,4,1, 4,1,0],
         desc: "മൂന്ന് സ്വരങ്ങളുടെ കൂട്ടം. ഏറ്റവും ആദ്യം പഠിക്കുന്ന അലങ്കാരം." },
-      { id: "a_eka", name: "ഏക താള അലങ്കാരം", latin: "Eka — 4-note groups", group: 4,
+      { id: "a_eka", name: "ഏക താള അലങ്കാരം", latin: "Eka — 4-note groups", group: 4, thala: { key: "eka", jathi: 4 },
         notes: [0,1,4,5, 1,4,5,7, 4,5,7,8, 5,7,8,11, 7,8,11,12, 12,11,8,7, 11,8,7,5, 8,7,5,4, 7,5,4,1, 5,4,1,0],
         desc: "നാല് സ്വരങ്ങളുടെ കൂട്ടം, ഏക താളത്തിൽ." },
     ],
@@ -1799,10 +1799,10 @@ const EXERCISES = {
     label: "ഗീതങ്ങൾ", latin: "Geethangal",
     intro: "ലളിതമായ ആദ്യ സംഗീത രചനകൾ. തിരഞ്ഞെടുത്ത രാഗത്തിൽ ഈണം പാടും. (പരമ്പരാഗത മൂലരാഗം ബ്രാക്കറ്റിൽ.)",
     items: [
-      { id: "ge_gananatha", name: "ശ്രീ ഗണനാഥ", latin: "Sri Gananatha", group: 4,
+      { id: "ge_gananatha", name: "ശ്രീ ഗണനാഥ", latin: "Sri Gananatha", group: 4, thala: { key: "triputa", jathi: 4 },
         notes: [5,7,8,12,12,13,13,12,8,7,5,7,1,5,7,8,5,7,8,7,5,4,1,0,0,1,5,4,1,0,1,4,1,0,1,5,7,8,5,7,8,7,5,4,1,0,0,1,5,"h",4,1,0,1,4,1,0],
         desc: "പിള്ളയാർ സ്തുതി — ആദ്യം പഠിക്കുന്ന ഗീതം (മൂലം: മലഹരി)." },
-      { id: "ge_varaveena", name: "വരവീണ", latin: "Varaveena", group: 4,
+      { id: "ge_varaveena", name: "വരവീണ", latin: "Varaveena", group: 4, thala: { key: "triputa", jathi: 4 },
         notes: [0,4,7,4, 7,12,7,4, 5,4,1,0, 1,4,5,4, 7,8,12,8, 7,5,4,1, 4,5,7,8, 7,4,1,0],
         desc: "സരസ്വതി സ്തുതി ഗീതം (മൂലം: മോഹനം)." },
     ],
@@ -1811,10 +1811,10 @@ const EXERCISES = {
     label: "വർണ്ണങ്ങൾ", latin: "Varnangal",
     intro: "സ്വരവും താള പ്രയോഗവും ചേർന്ന അഭ്യാസ രചന — കച്ചേരി തയ്യാറെടുപ്പിന്റെ പ്രധാന ഘട്ടം.",
     items: [
-      { id: "va_ninnukori", name: "നിന്നുകോരി", latin: "Ninnukori", group: 4,
+      { id: "va_ninnukori", name: "നിന്നുകോരി", latin: "Ninnukori", group: 4, thala: { key: "triputa", jathi: 4 },
         notes: [0,4,7,8, 7,8,12,8, 7,4,7,8, 7,4,1,0, 4,7,8,12, 8,7,8,4, 7,4,1,4, 1,0,1,0],
         desc: "പ്രസിദ്ധമായ ആദി താള വർണം (മൂലം: മോഹനം)." },
-      { id: "va_samininne", name: "സാമി നിന്നേ", latin: "Sami Ninne", group: 4,
+      { id: "va_samininne", name: "സാമി നിന്നേ", latin: "Sami Ninne", group: 4, thala: { key: "triputa", jathi: 4 },
         notes: [0,1,4,5, 7,8,11,12, 11,8,7,5, 4,1,0,1, 4,5,7,8, 11,12,11,8, 7,5,4,1, 4,1,0,0],
         desc: "ധീരശങ്കരാഭരണം വർണം — സ്വരസ്ഥാന അഭ്യാസത്തിന്." },
     ],

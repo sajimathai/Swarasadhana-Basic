@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>സ്വരസാധന — Basic · Carnatic Practice</title>
+<title>SwaraSadhana Basic · Carnatic Practice</title>
 <meta name="description" content="Swara Sadhana (Basic) — a Carnatic music riyaz companion: tanpura drone, metronome and thala vadyam with independent volume controls.">
 <meta name="theme-color" content="#5c1a1a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="സ്വരസാധന Basic">
+<meta name="apple-mobile-web-app-title" content="Swara Sadhana Basic">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" href="./assets/images/favicon.png">
 <link rel="apple-touch-icon" href="./assets/images/apple-touch-icon.png">
@@ -18,10 +18,118 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="./assets/support.js"></script>
+<script src="./assets/app.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
+  <link rel="icon" type="image/png" href="./assets/images/favicon.png">
+  <link rel="apple-touch-icon" href="./assets/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    ::selection{background:#d8b863;color:#3a2418;}
+    input[type=range]{-webkit-appearance:none;appearance:none;height:18px;border-radius:0;outline:none;padding:0;background:
+      linear-gradient(#a07a35,#a07a35) right 10px top 2px / 1px 14px no-repeat,
+      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 10%) 10px 2px / calc(100% - 20px) 14px no-repeat,
+      linear-gradient(to bottom,transparent 0,transparent 7px,#e3d4b6 7px,#e3d4b6 11px,transparent 11px) 10px 0 / calc(100% - 20px) 100% no-repeat;
+      background-color:transparent;}
+    input[type=range][data-scale="beats4"]{background:
+      linear-gradient(#a07a35,#a07a35) right 10px top 2px / 1px 14px no-repeat,
+      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 25%) 10px 2px / calc(100% - 20px) 14px no-repeat,
+      linear-gradient(to bottom,transparent 0,transparent 7px,#e3d4b6 7px,#e3d4b6 11px,transparent 11px) 10px 0 / calc(100% - 20px) 100% no-repeat;
+      background-color:transparent;}
+    input[type=range][data-scale="tempo"]{background:
+      linear-gradient(#a07a35,#a07a35) right 10px top 2px / 1px 14px no-repeat,
+      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 12.5%) 10px 2px / calc(100% - 20px) 14px no-repeat,
+      linear-gradient(to bottom,transparent 0,transparent 7px,#e3d4b6 7px,#e3d4b6 11px,transparent 11px) 10px 0 / calc(100% - 20px) 100% no-repeat;
+      background-color:transparent;}
+
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
+    input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
+
+    @keyframes stairBob{ from{ transform:translateY(0); } to{ transform:translateY(-5px); } }
+    @keyframes stairHold{ from{ opacity:0.5; transform:scaleY(0.82); } to{ opacity:1; transform:scaleY(1.14); } }
+    @media (max-width: 560px){
+      .stair-card{ padding:14px 12px 12px !important; }
+      .stair-floor{ height:152px !important; gap:2px !important; }
+      .stair-label{ font-size:12px !important; }
+      .stair-note{ height:15px !important; }
+      .stair-note span{ font-size:14px !important; }
+    }
+    @media (max-width: 380px){
+      .stair-floor{ height:134px !important; gap:1px !important; }
+      .stair-label{ font-size:10.5px !important; }
+      .stair-note{ height:13px !important; }
+      .stair-note span{ font-size:12px !important; }
+    }
+    /* ============ RESPONSIVE (one layout, adapts to screen) ============ */
+    /* Nav wraps & centers instead of side-scrolling, so every tab is reachable
+       without a hidden scroll. Tablet & phone tighten paddings and type. */
+    @media (max-width: 920px){
+      header{ padding:14px 18px !important; gap:8px 16px !important; }
+      nav{ flex-wrap:wrap !important; justify-content:center !important;
+           overflow-x:visible !important; row-gap:0 !important; padding:0 8px !important; }
+      nav > button, nav > * > button{ font-size:15px !important; padding:13px 15px !important; }
+      main{ padding:26px 16px 70px !important; }
+      /* controls drop to their own row and line up flush-left instead of
+         spreading awkwardly across the width */
+      .header-controls{ width:100% !important; margin-left:0 !important;
+        justify-content:flex-start !important; gap:12px !important; }
+    }
+    @media (max-width: 600px){
+      header{ padding:12px 14px !important; gap:12px !important; }
+      /* compact single-row scrolling nav */
+      nav{ flex-wrap:nowrap !important; justify-content:flex-start !important;
+           overflow-x:auto !important; overflow-y:hidden !important; gap:0 !important;
+           padding:0 6px !important; scrollbar-width:none !important; -ms-overflow-style:none !important;
+           -webkit-overflow-scrolling:touch; }
+      nav::-webkit-scrollbar{ display:none !important; }
+      nav > button, nav > * > button{ font-size:14px !important; padding:12px 14px !important;
+           flex:0 0 auto !important; }
+      main{ padding:20px 12px 64px !important; }
+      /* section headings shrink so they don't dwarf small screens */
+      main section > h2{ font-size:24px !important; }
+      /* control rows stay tappable: full-width primary actions */
+      .ex-controls > button{ flex:1 1 calc(50% - 8px) !important; }
+      .ex-focus-bar > button{ flex:1 1 calc(50% - 4px) !important; }
+      .ex-focus-bar .ex-speed{ flex:1 1 0 !important; padding-left:0 !important; padding-right:0 !important; }
+      .ex-speed-group{ flex:1 1 100% !important; }
+      .ex-focus-bar .ex-play{ flex:1 1 100% !important; margin-left:0 !important; }
+      .ex-focus-top > label, .ex-focus-top > div{ flex:1 1 calc(50% - 6px) !important; min-width:0 !important; }
+      .header-controls > button{ flex:1 1 auto !important; justify-content:space-between !important; }
+      .header-controls > .hdr-lang{ flex:1 1 auto !important; justify-content:center !important; }
+      /* header controls: keep each item at its natural width — the shruti
+         dropdown holds short labels (C, D…) so it must not stretch */
+      .header-controls{ gap:8px 10px !important; }
+      .header-controls > label{ flex:0 0 auto !important; font-size:14px !important; }
+      .header-controls > label select{ flex:0 0 auto !important; width:auto !important; }
+      .header-brand{ gap:10px !important; }
+    }
+    /* ---- compact mobile header ---- */
+    @media (max-width: 600px){
+      header{ padding:9px 13px !important; row-gap:9px !important; }
+      .header-brand{ gap:8px 10px !important; row-gap:8px !important; }
+      .hdr-eyebrow{ display:none !important; }
+      .hdr-logo{ width:38px !important; height:38px !important; }
+      .hdr-logo img{ width:27px !important; height:27px !important; }
+      .hdr-title{ font-size:21px !important; }
+      .hdr-lang{ margin-left:auto !important; }
+      .hdr-lang button{ padding:5px 11px !important; font-size:12px !important; }
+      .hdr-pills{ width:100% !important; margin-left:0 !important; gap:5px !important; }
+      .hdr-pills span{ font-size:11px !important; padding:3px 9px !important; }
+      .header-controls{ gap:9px 12px !important; }
+      .header-controls > label{ font-size:13px !important; gap:6px !important; }
+      .header-controls > label select{ padding:6px 8px !important; font-size:14px !important; }
+    }
+    /* Touch targets: never below 44px tap height on coarse pointers */
+    @media (pointer: coarse){
+      select, input[type=range]{ min-height:40px; }
+    }
+  </style>
   <script src="./assets/audio-engine.js"></script>
   <script src="./assets/i18n.js"></script>
 </helmet>
@@ -79,10 +187,13 @@
         </span>
         <span style="font-size:12px; opacity:0.85;">{{ masterOnState }}</span>
       </button>
-      <button onClick="{{ toggleLang }}" class="hdr-lang" title="Language / ഭാഷ" style="display:flex; align-items:center; gap:7px; font-family:inherit; font-size:13px; padding:7px 15px; border-radius:20px; border:1px solid var(--gold); background:transparent; color:#f4ecdd; cursor:pointer; flex:none; white-space:nowrap;">
-        <span style="font-size:14px;">🌐</span>
-        <span>{{ langLabel }}</span>
-      </button>
+      <select onChange="{{ setLangSel }}" value="{{ lang }}" class="hdr-lang" title="Language / ഭാഷ" style="font-family:inherit; font-size:13px; padding:7px 12px; border-radius:20px; border:1px solid var(--gold); background:transparent; color:#f4ecdd; cursor:pointer; flex:none; white-space:nowrap;">
+        <option value="en" style="color:#3a2418;">English</option>
+        <option value="ml" style="color:#3a2418;">മലയാളം</option>
+      </select>
+      <sc-if value="{{ canInstall }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ installApp }}" class="hdr-install" title="{{ installLabel }}" style="display:flex; align-items:center; gap:6px; font-family:inherit; font-size:13px; padding:7px 14px; border-radius:20px; border:1px solid var(--gold); background:var(--gold2); color:#3a2418; font-weight:600; cursor:pointer; flex:none; white-space:nowrap;">⬇ {{ installLabel }}</button>
+      </sc-if>
     </div>
   </header>
 
@@ -95,6 +206,10 @@
     <button onClick="{{ navExercises }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
       {{ L.k7 }}
       <sc-if value="{{ isExercises }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
+    </button>
+    <button onClick="{{ navThalaGuide }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
+      {{ lblThalaGuide }}
+      <sc-if value="{{ isThalaGuide }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:14px; right:14px; bottom:0; height:3px; background:var(--maroon); border-radius:3px 3px 0 0;"></span></sc-if>
     </button>
     <button onClick="{{ navSettings }}" style="position:relative; font-family:inherit; font-size:16px; padding:15px 20px; border:none; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap;" style-hover="background:rgba(92,26,26,0.05);">
       {{ L.k8 }}
@@ -149,6 +264,11 @@
           <div style="font-size:30px;">🎼</div>
           <div style="font-size:21px; font-weight:600; color:var(--maroon); margin:10px 0 6px;">{{ L.k7 }}</div>
           <div style="font-size:15px; color:var(--muted); line-height:1.55;">{{ L.k17 }}</div>
+        </button>
+        <button onClick="{{ navThalaGuide }}" style="text-align:left; cursor:pointer; font-family:inherit; color:inherit; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);" style-hover="border-color:var(--gold); transform:translateY(-2px);">
+          <div style="font-size:30px;">🖐️</div>
+          <div style="font-size:21px; font-weight:600; color:var(--maroon); margin:10px 0 6px;">{{ lblThalaGuide }}</div>
+          <div style="font-size:15px; color:var(--muted); line-height:1.55;">{{ homeThalaDesc }}</div>
         </button>
         <sc-if value="{{ showRagas }}" hint-placeholder-val="{{ true }}">
         <button onClick="{{ navRagas }}" style="text-align:left; cursor:pointer; font-family:inherit; color:inherit; background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:24px; box-shadow:0 3px 14px rgba(92,26,26,0.05);" style-hover="border-color:var(--gold); transform:translateY(-2px);">
@@ -742,6 +862,13 @@
     </section>
     </sc-if>
 
+    <!-- ==================== THALA GUIDE ==================== -->
+    <sc-if value="{{ isThalaGuide }}" hint-placeholder-val="{{ false }}">
+    <section>
+      <dc-import name="Thala Guide" embedded="{{ true }}" lang="{{ lang }}" tempo="{{ exBpm }}" hint-size="100%,1400px"></dc-import>
+    </section>
+    </sc-if>
+
     <!-- ==================== HELP ==================== -->
     <sc-if value="{{ isHelp }}" hint-placeholder-val="{{ false }}">
     <section>
@@ -825,6 +952,21 @@
             </sc-for>
           </div>
 
+          <div style="font-size:13px; color:var(--muted); margin-bottom:7px;">{{ ceThalaLbl }}</div>
+          <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+            <select value="{{ ceThalaKey }}" onChange="{{ ceSetThalaKey }}" style="font-family:inherit; font-size:14px; padding:9px 11px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink); flex:1 1 150px; cursor:pointer;">
+              <sc-for list="{{ ceThalaOptions }}" as="t" hint-placeholder-count="7">
+                <option value="{{ t.key }}">{{ t.label }}</option>
+              </sc-for>
+            </select>
+            <select value="{{ ceJathi }}" onChange="{{ ceSetJathi }}" style="font-family:inherit; font-size:14px; padding:9px 11px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink); flex:1 1 150px; cursor:pointer;">
+              <sc-for list="{{ ceJathiOptions }}" as="j" hint-placeholder-count="5">
+                <option value="{{ j.val }}">{{ j.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div style="font-size:12px; color:var(--gold); font-weight:700; margin:-6px 0 14px;">▸ {{ ceThalaPreview }}</div>
+
           <div style="font-size:13px; color:var(--muted); margin-bottom:7px;">{{ L.k127 }}</div>
           <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:7px;">
             <sc-for list="{{ cePalette }}" as="p" hint-placeholder-count="7">
@@ -899,6 +1041,7 @@
       <!-- PLAYABLE categories -->
       <sc-if value="{{ exShowPlayer }}" hint-placeholder-val="{{ true }}">
       <h2 style="font-size:22px; font-weight:600; color:var(--maroon); margin:8px 0 14px;">{{ exCatName }}</h2>
+      <div style="display:flex; align-items:flex-start; gap:8px; margin-bottom:16px; padding:9px 13px; background:#fbf5e8; border:1px solid var(--gold2); border-radius:10px; font-size:13px; color:var(--ink); line-height:1.5;"><span style="flex:none; color:var(--gold); font-weight:700;">♪</span><span>{{ vowelNote }}</span></div>
 
       <!-- CONTROLS (top) -->
       <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:0 3px 14px rgba(92,26,26,0.05); margin-bottom:18px;">
@@ -979,10 +1122,29 @@
             </label>
           </div>
           <div class="ex-focus-bar" style="display:contents;">
-            <div class="ex-speed-group" style="display:flex; gap:8px; flex:0 1 auto;">
-            <sc-for list="{{ exSpeeds }}" as="s" hint-placeholder-count="4">
-              <button onClick="{{ s.select }}" class="ex-speed" style="font-family:inherit; font-size:14px; white-space:nowrap; padding:10px 15px; border-radius:9px; cursor:pointer; border:1px solid {{ s.border }}; background:{{ s.bg }}; color:{{ s.color }};">{{ s.label }}</button>
-            </sc-for>
+            <div class="ex-speed-group" style="display:flex; flex-direction:column; gap:3px; flex:0 1 auto; min-width:150px;">
+              <span style="font-size:11px; font-weight:600; color:var(--muted);">{{ lblSpeed }}</span>
+              <div style="position:relative;">
+                <button onClick="{{ exSpeedDropToggle }}" style="font-family:inherit; font-size:14px; text-align:left; padding:9px 11px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); width:100%; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ exSpeedDropSummary }}</span>
+                  <span style="flex:none; color:var(--gold); font-size:11px;">▼</span>
+                </button>
+                <sc-if value="{{ exSpeedDropOpen }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ exSpeedDropToggle }}" style="position:fixed; inset:0; z-index:29;"></div>
+                  <div style="position:absolute; bottom:calc(100% + 6px); left:0; right:0; z-index:30; background:#fff; border:1px solid var(--gold); border-radius:10px; box-shadow:0 8px 24px rgba(60,30,12,0.18); max-height:300px; overflow:auto; min-width:210px;">
+                    <div style="display:flex; gap:7px; padding:9px 10px; border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff;">
+                      <button onClick="{{ exSpeedSelectAll }}" style="font-family:inherit; font-size:12.5px; padding:6px 10px; border-radius:7px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);">{{ exSelectAllLabel }}</button>
+                      <button onClick="{{ exSpeedClear }}" style="font-family:inherit; font-size:12.5px; padding:6px 10px; border-radius:7px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--muted);">{{ exClearSelLabel }}</button>
+                    </div>
+                  <sc-for list="{{ exSpeedChecks }}" as="c" hint-placeholder-count="4">
+                    <div onClick="{{ c.toggle }}" style="display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer; background:{{ c.rowBg }}; border-bottom:1px solid var(--line);">
+                      <span style="flex:none; width:20px; height:20px; border-radius:5px; border:1.5px solid {{ c.boxBorder }}; background:{{ c.boxBg }}; color:#f4ecdd; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">{{ c.mark }}</span>
+                      <span style="font-size:14.5px; color:var(--ink);">{{ c.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              </div>
             </div>
             <button onClick="{{ toggleExLoop }}" class="ex-tog" style="font-family:inherit; font-size:14px; white-space:nowrap; padding:10px 14px; border-radius:9px; cursor:pointer; border:1px solid {{ exLoopBorder }}; background:{{ exLoopBg }}; color:{{ exLoopColor }};">🔁 {{ lblRepeat }} {{ exLoopState }}</button>
             <button onClick="{{ toggleExShowAll }}" class="ex-tog" style="font-family:inherit; font-size:14px; white-space:nowrap; padding:10px 14px; border-radius:9px; cursor:pointer; border:1px solid {{ exShowAllBorder }}; background:{{ exShowAllBg }}; color:{{ exShowAllColor }};">{{ exShowAllLabel }}</button>
@@ -1004,6 +1166,7 @@
           <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
             <div style="font-size:18px; font-weight:600; color:var(--maroon);">{{ stairTitle }}</div>
             <div style="font-size:14px; color:var(--gold); font-weight:600;">{{ stairExName }}</div>
+            <div style="font-size:12px; font-weight:700; color:#fff; background:var(--maroon); border-radius:20px; padding:3px 12px;">{{ stairThalaName }}</div>
           </div>
           <div style="font-size:13px; color:var(--muted);">{{ stairCaption }}</div>
         </div>
@@ -1011,15 +1174,16 @@
           <sc-for list="{{ stairSteps }}" as="s" hint-placeholder-count="8">
             <div style="flex:1; min-width:0; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:4px;">
               <div class="stair-note" style="height:20px; display:flex; align-items:flex-end; justify-content:center;">
-                <sc-if value="{{ s.active }}" hint-placeholder-val="{{ false }}"><span style="font-size:18px; line-height:1; filter:drop-shadow(0 2px 3px rgba(92,26,26,0.35)); animation:stairBob 0.5s ease-in-out infinite alternate;">🎵</span></sc-if>
+                <sc-if value="{{ s.noteShow }}" hint-placeholder-val="{{ false }}"><span style="font-size:18px; line-height:1; filter:drop-shadow(0 2px 3px rgba(92,26,26,0.35)); animation:stairBob 0.5s ease-in-out infinite alternate;">🎵</span></sc-if>
               </div>
-              <span class="stair-label" style="position:relative; font-size:16px; font-weight:{{ s.weight }}; color:{{ s.labelColor }}; white-space:nowrap; transition:color 0.15s;">
-                <sc-if value="{{ s.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.5em; left:50%; transform:translateX(-50%); font-size:0.35em;">●</span></sc-if>
+              <span class="stair-label" style="position:relative; height:22px; display:flex; align-items:flex-end; justify-content:center; font-size:16px; font-weight:{{ s.weight }}; color:{{ s.labelColor }}; white-space:nowrap; transition:color 0.15s;">
+                <sc-if value="{{ s.up }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; top:-0.1em; left:50%; transform:translateX(-50%); font-size:0.35em;">●</span></sc-if>
                 {{ s.base }}<span style="font-size:0.6em; vertical-align:sub; color:var(--maroon); font-weight:600;">{{ s.sub }}</span>
-                <sc-if value="{{ s.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.42em; left:50%; transform:translateX(-50%); font-size:0.35em;">●</span></sc-if>
+                <sc-if value="{{ s.down }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; bottom:-0.05em; left:50%; transform:translateX(-50%); font-size:0.35em;">●</span></sc-if>
               </span>
               <div style="position:relative; width:66%; height:{{ s.h }}; border-radius:7px 7px 3px 3px; background:{{ s.barBg }}; background-size:100% 100%, 10px 100%, 100% 100%; box-shadow:{{ s.barShadow }}; transition:background 0.15s, box-shadow 0.15s;">
                 <div style="position:absolute; top:-4px; left:4%; right:4%; height:9px; border-radius:50%; background:radial-gradient(ellipse at 42% 32%, {{ s.capHi }}, {{ s.capLo }}); box-shadow:0 1px 2px rgba(40,25,10,0.32); pointer-events:none;"></div>
+                <span style="position:absolute; top:6px; left:50%; transform:translateX(-50%); min-width:1.5em; padding:1px 5px; border-radius:20px; text-align:center; font-size:13px; font-weight:700; color:{{ s.swaraColor }}; background:{{ s.angaPillBg }}; white-space:nowrap; box-shadow:0 1px 3px rgba(30,16,6,0.4); transition:background 0.15s; animation:{{ s.angaAnim }};">{{ s.angaBase }}<span style="font-size:0.62em; vertical-align:sub;">{{ s.angaSub }}</span></span>
                 <sc-if value="{{ s.holding }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; left:-2px; right:-2px; bottom:0; top:-20px; transform-origin:bottom center; border-radius:8px 8px 3px 3px; background:linear-gradient(180deg, rgba(232,180,90,0) 0%, rgba(232,180,90,0.30) 50%, rgba(210,150,66,0.5) 100%); box-shadow:0 0 20px rgba(232,180,90,0.6); animation:stairHold 0.7s ease-in-out infinite alternate; pointer-events:none;"></span></sc-if>
               </div>
             </div>
@@ -1045,6 +1209,24 @@
         </div>
         <div style="font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.55;">{{ exSelDesc }}</div>
         <div style="display:flex; flex-direction:column; gap:6px; container-type:inline-size;">
+          <sc-if value="{{ exThalaMarksShow }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="flex:none; width:26px; text-align:right; font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;">Anga</span>
+              <div style="flex:1; min-width:0; padding:0 10px; border:1px solid transparent;">
+                <div style="display:grid; grid-template-columns:{{ exGridCols }}; justify-content:start; align-items:end; column-gap:0.06em; font-size:clamp(14px, 2.2cqi, 28px);">
+                  <span style="visibility:hidden; padding:0 0.25em; font-size:1.1em; font-weight:700;">‖</span>
+                  <sc-for list="{{ exAngaCellsLeft }}" as="a" hint-placeholder-count="8">
+                    <span style="text-align:center; font-size:12px; font-weight:700; color:{{ a.color }}; border-right:{{ a.border }};">{{ a.sym }}<span style="font-size:0.72em; vertical-align:sub;">{{ a.sub }}</span></span>
+                  </sc-for>
+                  <sc-if value="{{ exTwoAv }}" hint-placeholder-val="{{ true }}"><span style="visibility:hidden; padding:0 0.25em; font-size:1.1em; font-weight:700;">|</span></sc-if>
+                  <sc-for list="{{ exAngaCellsRight }}" as="a" hint-placeholder-count="8">
+                    <span style="text-align:center; font-size:12px; font-weight:700; color:{{ a.color }}; border-right:{{ a.border }};">{{ a.sym }}<span style="font-size:0.72em; vertical-align:sub;">{{ a.sub }}</span></span>
+                  </sc-for>
+                  <span style="visibility:hidden; padding:0 0.25em; font-size:1.1em; font-weight:700;">‖</span>
+                </div>
+              </div>
+            </div>
+          </sc-if>
           <sc-for list="{{ exLines }}" as="ln" hint-placeholder-count="2">
             <div style="display:flex; align-items:center; gap:10px;">
               <sc-if value="{{ ln.showNum }}" hint-placeholder-val="{{ false }}">
@@ -1052,10 +1234,10 @@
               </sc-if>
               <sc-if value="{{ ln.classic }}" hint-placeholder-val="{{ true }}">
               <div style="flex:1; min-width:0; background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 10px;">
-                <div style="display:grid; grid-template-columns:auto repeat(8,minmax(0,1fr)) auto repeat(8,minmax(0,1fr)) auto; align-items:center; column-gap:0.18em; font-size:clamp(14px, 2.2cqi, 28px); line-height:1.5;">
+                <div style="display:grid; grid-template-columns:{{ exGridCols }}; justify-content:start; align-items:center; column-gap:0.06em; font-size:clamp(14px, 2.2cqi, 28px); line-height:1.5;">
                   <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
                   <sc-for list="{{ ln.left }}" as="t" hint-placeholder-count="8">
-                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:0 0.1em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:{{ t.cellPad }}; margin:{{ t.cellMargin }}; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;"><sc-if value="{{ t.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.3em; top:0; bottom:0; width:2px; background:{{ t.divColor }}; border-radius:1px; transition:background 0.15s;"></span></sc-if>
                       <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
                       <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
                         <span style="position:relative;">
@@ -1066,9 +1248,9 @@
                       </sc-if>
                     </span>
                   </sc-for>
-                  <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">|</span>
+                  <sc-if value="{{ ln.twoAv }}" hint-placeholder-val="{{ true }}"><span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">|</span></sc-if>
                   <sc-for list="{{ ln.right }}" as="t" hint-placeholder-count="8">
-                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:0 0.1em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:{{ t.cellPad }}; margin:{{ t.cellMargin }}; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;"><sc-if value="{{ t.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.3em; top:0; bottom:0; width:2px; background:{{ t.divColor }}; border-radius:1px; transition:background 0.15s;"></span></sc-if>
                       <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
                       <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
                         <span style="position:relative;">
@@ -1085,7 +1267,7 @@
               </sc-if>
               <sc-if value="{{ ln.variable }}" hint-placeholder-val="{{ false }}">
               <div style="flex:1; min-width:0; background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 12px;">
-                <div style="display:flex; flex-wrap:wrap; align-items:center; column-gap:0.3em; row-gap:0.2em; font-size:clamp(15px, 2.6cqi, 28px); line-height:1.5;">
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; column-gap:0.3em; row-gap:0.2em; font-size:clamp(15px, 2.6cqi, 28px); line-height:1.5;">
                   <span style="color:var(--gold); font-weight:700; font-size:1.1em;">‖</span>
                   <sc-for list="{{ ln.cells }}" as="t" hint-placeholder-count="6">
                     <span style="position:relative; display:flex; align-items:center; justify-content:center; min-width:1.1em; height:1.7em; padding:0 0.16em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }};">
@@ -1114,15 +1296,33 @@
       <sc-if value="{{ exShowAll }}" hint-placeholder-val="{{ false }}">
       <div style="background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; box-shadow:0 3px 14px rgba(92,26,26,0.05); container-type:inline-size;">
         <div style="display:flex; flex-direction:column; gap:6px;">
+          <sc-if value="{{ exThalaMarksShow }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="flex:none; width:20px; text-align:left; font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;">Anga</span>
+              <div style="flex:1; min-width:0; padding:0 10px; border:1px solid transparent;">
+                <div style="display:grid; grid-template-columns:{{ exGridCols }}; justify-content:start; align-items:end; column-gap:0.06em; font-size:clamp(13px, 2.1cqi, 26px);">
+                  <span style="visibility:hidden; padding:0 0.25em; font-size:1.1em; font-weight:700;">‖</span>
+                  <sc-for list="{{ exAngaCellsLeft }}" as="a" hint-placeholder-count="8">
+                    <span style="text-align:center; font-size:12px; font-weight:700; color:{{ a.color }}; border-right:{{ a.border }};">{{ a.sym }}<span style="font-size:0.72em; vertical-align:sub;">{{ a.sub }}</span></span>
+                  </sc-for>
+                  <sc-if value="{{ exTwoAv }}" hint-placeholder-val="{{ true }}"><span style="visibility:hidden; padding:0 0.25em; font-size:1.1em; font-weight:700;">|</span></sc-if>
+                  <sc-for list="{{ exAngaCellsRight }}" as="a" hint-placeholder-count="8">
+                    <span style="text-align:center; font-size:12px; font-weight:700; color:{{ a.color }}; border-right:{{ a.border }};">{{ a.sym }}<span style="font-size:0.72em; vertical-align:sub;">{{ a.sub }}</span></span>
+                  </sc-for>
+                  <span style="visibility:hidden; padding:0 0.25em; font-size:1.1em; font-weight:700;">‖</span>
+                </div>
+              </div>
+            </div>
+          </sc-if>
           <sc-for list="{{ exAllLines }}" as="ln" hint-placeholder-count="8">
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="flex:none; width:20px; text-align:left; font-family:'Cormorant Garamond',serif; font-size:20px; color:var(--maroon); font-weight:700;">{{ ln.vnum }}</span>
               <sc-if value="{{ ln.classic }}" hint-placeholder-val="{{ true }}">
               <div style="flex:1; min-width:0; background:{{ ln.rowBg }}; border:1px solid {{ ln.rowBorder }}; border-radius:10px; padding:8px 10px; opacity:{{ ln.rowOpacity }}; transition:opacity 0.2s;">
-                <div style="display:grid; grid-template-columns:auto repeat(8,minmax(0,1fr)) auto repeat(8,minmax(0,1fr)) auto; align-items:center; column-gap:0.18em; font-size:clamp(13px, 2.1cqi, 26px); line-height:1.5;">
+                <div style="display:grid; grid-template-columns:{{ exGridCols }}; justify-content:start; align-items:center; column-gap:0.06em; font-size:clamp(13px, 2.1cqi, 26px); line-height:1.5;">
                   <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">‖</span>
                   <sc-for list="{{ ln.left }}" as="t" hint-placeholder-count="8">
-                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:0 0.1em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:{{ t.cellPad }}; margin:{{ t.cellMargin }}; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;"><sc-if value="{{ t.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.3em; top:0; bottom:0; width:2px; background:{{ t.divColor }}; border-radius:1px; transition:background 0.15s;"></span></sc-if>
                       <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
                       <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
                         <span style="position:relative;">
@@ -1133,9 +1333,9 @@
                       </sc-if>
                     </span>
                   </sc-for>
-                  <span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">|</span>
+                  <sc-if value="{{ ln.twoAv }}" hint-placeholder-val="{{ true }}"><span style="color:var(--gold); font-weight:700; padding:0 0.25em; font-size:1.1em;">|</span></sc-if>
                   <sc-for list="{{ ln.right }}" as="t" hint-placeholder-count="8">
-                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:0 0.1em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;">
+                    <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:{{ t.cellPad }}; margin:{{ t.cellMargin }}; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;"><sc-if value="{{ t.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.3em; top:0; bottom:0; width:2px; background:{{ t.divColor }}; border-radius:1px; transition:background 0.15s;"></span></sc-if>
                       <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
                       <sc-if value="{{ t.show }}" hint-placeholder-val="{{ true }}">
                         <span style="position:relative;">
@@ -1152,7 +1352,7 @@
               </sc-if>
               <sc-if value="{{ ln.variable }}" hint-placeholder-val="{{ false }}">
               <div style="flex:1; min-width:0; background:{{ ln.rowBg }}; border:1px solid {{ ln.rowBorder }}; border-radius:10px; padding:8px 12px; opacity:{{ ln.rowOpacity }}; transition:opacity 0.2s;">
-                <div style="display:flex; flex-wrap:wrap; align-items:center; column-gap:0.3em; row-gap:0.2em; font-size:clamp(14px, 2.4cqi, 26px); line-height:1.5;">
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; column-gap:0.3em; row-gap:0.2em; font-size:clamp(14px, 2.4cqi, 26px); line-height:1.5;">
                   <span style="color:var(--gold); font-weight:700; font-size:1.1em;">‖</span>
                   <sc-for list="{{ ln.cells }}" as="t" hint-placeholder-count="6">
                     <span style="position:relative; display:flex; align-items:center; justify-content:center; min-width:1.1em; height:1.7em; padding:0 0.16em; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }};">
@@ -1463,17 +1663,31 @@ class Component extends DCLogic {
       ragaFilter: "", ragaPlaying: null, ragaVoice: "harmonium",
       // exercises
       exCat: prefs.exCat ?? "saptaswara", exId: prefs.exId ?? "sapasa", exCurrent: -1, exPlaying: false,
-      exShowAll: prefs.exShowAll ?? false, exAllIdx: -1, focusEx: prefs.focusEx ?? true, exSelIds: prefs.exSelIds ?? {}, exDropOpen: false, exCatSel: prefs.exCatSel ?? {}, exCatDropOpen: false,
-      exNpb: prefs.exNpb ?? 1, exBpm: prefs.exBpm ?? 40, exClick: prefs.exClick ?? true, exLoop: prefs.exLoop ?? false,
+      exShowAll: prefs.exShowAll ?? false, exAllIdx: -1, focusEx: prefs.focusEx ?? true, exSelIds: prefs.exSelIds ?? {}, exDropOpen: false, exCatSel: prefs.exCatSel ?? {}, exCatDropOpen: false, exSpeedDropOpen: false,
+      exNpb: prefs.exNpb ?? 1, exNpbSel: prefs.exNpbSel ?? {1:true}, exBpm: prefs.exBpm ?? 40, exClick: prefs.exClick ?? true, exLoop: prefs.exLoop ?? false,
       exRaga: prefs.exRaga ?? "mayamalavagowla", exInst: prefs.exInst ?? "violin",
       // editable exercises (authored in Mayamalavagowla degrees; transpose by selected raga on play)
       userEx, exOverrides, exDeleted,
-      ceOpen: false, ceName: "", ceNotes: [], ceText: "", ceOctave: 0, ceGroup: 8, ceEditId: null, ceBuiltin: false, cePlaying: false, ceCopied: false,
+      ceOpen: false, ceName: "", ceNotes: [], ceText: "", ceOctave: 0, ceGroup: 8, ceThalaKey: "triputa", ceJathi: 4, ceEditId: null, ceBuiltin: false, cePlaying: false, ceCopied: false,
     };
     this._lastPitchUpd = 0;
   }
 
   async componentDidMount() {
+    if (typeof window !== "undefined" && !this._installWired) {
+      this._installWired = true;
+      const existing = window.__swarasadhanaInstall;
+      if (existing) this.setState({ canInstall: true });
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        window.__swarasadhanaInstall = e;
+        this.setState({ canInstall: true });
+      });
+      window.addEventListener("appinstalled", () => {
+        window.__swarasadhanaInstall = null;
+        this.setState({ canInstall: false });
+      });
+    }
     // i18n (window.SwsI18N) loads as a classic <helmet> script. In the bundled
     // single-file build it can finish AFTER first paint, leaving UI text holes
     // ({{ L.k* }}) empty — so poll in the background and re-render once ready.
@@ -1490,7 +1704,7 @@ class Component extends DCLogic {
     if (!mod) {
       for (let i = 0; i < 40 && !window.SwsAudio; i++) await new Promise(r => setTimeout(r, 50));
       mod = window.SwsAudio;
-      if (!mod) { try { mod = await import("./audio-engine.js"); } catch (e) {} }
+      if (!mod) { try { mod = await import("./assets/audio-engine.js"); } catch (e) {} }
     }
     if (!mod) return;
     this.lib = mod;
@@ -1537,7 +1751,7 @@ class Component extends DCLogic {
       const KEYS = ["lang", "tonicHz", "masterVolPct", "bpm", "beats", "metVolPct",
         "tanVolPct", "tanTogether", "tanGap",
         "mriBpm", "mriThala", "mriInst", "mriAndSound", "mriVolPct",
-        "tab", "exCat", "exId", "exRaga", "exInst", "exBpm", "exNpb", "exClick", "exLoop", "exShowAll", "exSelIds", "exCatSel", "focusEx"];
+        "tab", "exCat", "exId", "exRaga", "exInst", "exBpm", "exNpb", "exNpbSel", "exClick", "exLoop", "exShowAll", "exSelIds", "exCatSel", "focusEx"];
       const out = {};
       KEYS.forEach(k => { out[k] = this.state[k]; });
       const json = JSON.stringify(out);
@@ -1949,6 +2163,9 @@ class Component extends DCLogic {
     });
   };
   exCatDropToggle = () => this.setState(s => ({ exCatDropOpen: !s.exCatDropOpen }));
+  exSpeedDropToggle = () => this.setState(s => ({ exSpeedDropOpen: !s.exSpeedDropOpen }));
+  exSpeedSelectAll = () => { const w = this.state.exPlaying; this.stopExercisePlay(); this.setState({ exNpbSel: {1:true,2:true,4:true,8:true} }, () => { if (w) this.startExercise(); }); };
+  exSpeedClear = () => { const w = this.state.exPlaying; this.stopExercisePlay(); this.setState({ exNpbSel: {1:true}, exNpb: 1 }, () => { if (w) this.startExercise(); }); };
   exCatSelectAll = () => { const m = {}; this.catDefs().forEach(c => { m[c.id] = true; }); this.stopExercisePlay(); this.setState({ exCatSel: m, exSelIds: {}, exDropOpen: false }); };
   exCatClear = () => { this.stopExercisePlay(); this.setState({ exCatSel: {}, exSelIds: {} }); };
   exSelected() { const items = this.exItems(); const sel = items.filter(x => this.state.exSelIds[x.id]); if (sel.length === 1) return sel[0]; return items.find(x => x.id === this.state.exId) || items[0]; }
@@ -1975,6 +2192,7 @@ class Component extends DCLogic {
   exTransposed(notes) { return this.lib ? this.lib.transposeExercise(notes, this.exScale()) : notes; }
   stopExercisePlay() {
     this._allRun = false;
+    this._exSeqRun = false;
     this._playSeqItems = null;
     clearTimeout(this._allTimer);
     if (this.engine) this.engine.stopExercise();
@@ -1998,7 +2216,13 @@ class Component extends DCLogic {
     this.setState({ exPlaying: true });
     this._playAllSeq(items, 0);
   }
-  _playAllSeq(items, _i) {
+  // sequence of selected note-per-beat speeds (1x/2x/3x/4x), ascending
+  exNpbSeq() {
+    const sel = this.state.exNpbSel || {};
+    const seq = [1, 2, 4, 8].filter(v => sel[v]);
+    return seq.length ? seq : [1];
+  }
+  _playAllSeq(items, npbIdx, startAt) {
     if (!this._allRun) return;
     this._playSeqItems = items;
     // Concatenate every varisai into one notes array so playback is gap-free.
@@ -2011,9 +2235,12 @@ class Component extends DCLogic {
       notes.forEach((n, j) => { flat.push(n); itemOf.push(idx); localOf.push(j); });
     });
     if (!flat.length) { this._allRun = false; this.setState({ exPlaying: false, exCurrent: -1, exAllIdx: -1 }); return; }
-    this.setState({ exAllIdx: 0, exCurrent: -1 });
+    const seq = this.exNpbSeq();
+    const si = npbIdx || 0;
+    const npb = seq[Math.min(si, seq.length - 1)];
+    this.setState({ exAllIdx: 0, exCurrent: -1, exNpb: npb });
     this.engine.playExercise(flat, {
-      bpm: this.state.exBpm, npb: this.state.exNpb,
+      bpm: this.state.exBpm, npb,
       click: this.state.exClick, loop: false, instrument: this.state.exInst,
       onNote: (g) => {
         if (g < 0) return;
@@ -2023,10 +2250,12 @@ class Component extends DCLogic {
       },
       onDone: () => {
         if (!this._allRun) return;
-        if (this._playLoop || this.state.exLoop) { this._playAllSeq(items, 0); return; }
+        const nextSi = si + 1;
+        if (nextSi < seq.length) { this._playAllSeq(items, nextSi, this.engine.ex.endT); return; }
+        if (this._playLoop || this.state.exLoop) { this._playAllSeq(items, 0, this.engine.ex.endT); return; }
         this._allRun = false; this.setState({ exPlaying: false, exCurrent: -1, exAllIdx: -1 });
       },
-    });
+    }, startAt);
   }
   selectExCat(cat) {
     this.stopExercisePlay();
@@ -2090,6 +2319,8 @@ class Component extends DCLogic {
   ceSetName = (e) => this.setState({ ceName: e.target.value });
   ceSelectOctave(o) { this.setState({ ceOctave: o }); }
   ceSelectGroup(g) { this.setState({ ceGroup: g }); }
+  ceSetThalaKey = (e) => this.setState({ ceThalaKey: e.target.value });
+  ceSetJathi = (e) => this.setState({ ceJathi: +e.target.value });
   ceAddNote(semi) { this._ceSet([...this.state.ceNotes, semi + this.state.ceOctave * 12]); }
   ceAddHold = () => { if (this.state.ceNotes.length) this._ceSet([...this.state.ceNotes, "h"]); };
   ceAddBar = () => this._ceSet([...this.state.ceNotes, "|"]);
@@ -2098,12 +2329,12 @@ class Component extends DCLogic {
   ceBackspace = () => this._ceSet(this.state.ceNotes.slice(0, -1));
   ceClear = () => this._ceSet([]);
   ceStop() { if (this.engine) this.engine.stopExercise(); this.setState({ cePlaying: false }); }
-  exNewExercise = () => { this.stopExercisePlay(); this.ceStop(); this.setState({ ceOpen: true, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], ceText: "", ceOctave: 0, ceGroup: 8 }); };
+  exNewExercise = () => { this.stopExercisePlay(); this.ceStop(); this.setState({ ceOpen: true, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], ceText: "", ceOctave: 0, ceGroup: 8, ceThalaKey: "triputa", ceJathi: 4 }); };
   exEditSelected = () => { const ex = this.exSelected(); if (ex) this.exEditExercise(ex); };
   exEditExercise(ex) {
     this.stopExercisePlay(); this.ceStop();
     const builtin = !this.exIsUserItem(this.state.exCat, ex.id);
-    this.setState({ ceOpen: true, ceEditId: ex.id, ceBuiltin: builtin, ceName: ex.name, ceNotes: (ex.notes || []).slice(), ceText: this.ceSerialize(ex.notes || []), ceGroup: ex.group || 8, ceOctave: 0 });
+    this.setState({ ceOpen: true, ceEditId: ex.id, ceBuiltin: builtin, ceName: ex.name, ceNotes: (ex.notes || []).slice(), ceText: this.ceSerialize(ex.notes || []), ceGroup: ex.group || 8, ceOctave: 0, ceThalaKey: (ex.thala && ex.thala.key) || "triputa", ceJathi: (ex.thala && ex.thala.jathi) || 4 });
   }
   ceCancel = () => { this.ceStop(); this.setState({ ceOpen: false, ceEditId: null, ceBuiltin: false, ceName: "", ceNotes: [], ceText: "" }); };
   cePreview = () => {
@@ -2122,11 +2353,12 @@ class Component extends DCLogic {
     const cat = this.state.exCat;
     const name = this.state.ceName.trim() || (this.tr("അഭ്യാസം ") + (this.exItemsFor(cat).length + 1));
     const group = this.state.ceGroup;
+    const thala = { key: this.state.ceThalaKey, jathi: this.state.ceJathi };
     let savedId;
     if (this.state.ceEditId && this.state.ceBuiltin) {
       // editing a built-in exercise → store an override keyed by its id
       savedId = this.state.ceEditId;
-      const exOverrides = { ...this.state.exOverrides, [savedId]: { name, notes, group } };
+      const exOverrides = { ...this.state.exOverrides, [savedId]: { name, notes, group, thala } };
       try { localStorage.setItem("sws_ex_overrides", JSON.stringify(exOverrides)); } catch (e) {}
       this.setState({ exOverrides });
     } else {
@@ -2135,10 +2367,10 @@ class Component extends DCLogic {
       if (this.state.ceEditId) {
         savedId = this.state.ceEditId;
         const i = list.findIndex(x => x.id === savedId);
-        if (i >= 0) list[i] = { ...list[i], name, notes, group };
+        if (i >= 0) list[i] = { ...list[i], name, notes, group, thala };
       } else {
         savedId = "ce" + Date.now();
-        list.push({ id: savedId, name, latin: "", group, desc: "", notes });
+        list.push({ id: savedId, name, latin: "", group, desc: "", notes, thala });
       }
       const userEx = { ...this.state.userEx, [cat]: list };
       try { localStorage.setItem("sws_user_exercises", JSON.stringify(userEx)); } catch (e) {}
@@ -2182,7 +2414,9 @@ class Component extends DCLogic {
   linesFor(ex, activeIdx) {
     if (!ex || !this.lib) return [];
     const tokens = this.tokensFor(ex, activeIdx);
-    const PER = 16;
+    const AV = this.angaUnitsFor(this.exThalaOf(ex)).length || 8;
+    const single = this.exSingleAv(ex);
+    const PER = single ? AV : 2 * AV;
     const lines = [];
     // make a padding token (invisible filler so 8/8 grid keeps shape)
     const pad = (k) => ({ key: "pad" + k, hold: false, show: false, empty: true, base: "", sub: "", up: false, down: false,
@@ -2204,19 +2438,91 @@ class Component extends DCLogic {
       while (slice.length < PER) slice.push(pad(i + slice.length));
       lines.push({
         key: lines.length, num: lines.length + 1, variable: false, classic: true, cells: [],
-        left: slice.slice(0, 8),
-        right: slice.slice(8, 16),
+        left: slice.slice(0, AV),
+        right: single ? [] : slice.slice(AV, 2 * AV),
+        twoAv: !single,
       });
     }
     const multi = lines.length > 1;
-    lines.forEach(l => { l.showNum = multi; });
+    const mUnits = this.angaUnitsFor(this.exThalaOf(ex));
+    const mL = mUnits.length || 1;
+    lines.forEach(l => {
+      l.showNum = multi;
+      l.thalaMarks = l.classic && this.state.exCat !== "special";
+      if (l.classic) {
+        [l.left, l.right].forEach(g => {
+          g.forEach((c, li) => {
+            if (!c) return;
+            const u = mUnits[li % mL];
+            const isEnd = !!u.end && li !== mL - 1;
+            const prevEnd = li > 0 && !!mUnits[(li - 1) % mL].end;
+            c.divAfter = isEnd;
+            c.cellPad = "0 0.13em";
+            c.cellMargin = isEnd ? "0 0.3em 0 0" : (prevEnd ? "0 0 0 0.3em" : "0");
+            c.divColor = c.active ? "#5c1a1a" : "var(--gold)";
+          });
+        });
+      }
+    });
     return lines;
   }
   exThalaNameStr() {
     const th = this.lib && this.lib.AudioEngine.THALAS[this.state.mriThala];
     return th ? this.tr(th.name) : "";
   }
-  setExNpb(n) { const w = this.state.exPlaying; this.stopExercisePlay(); this.setState({ exNpb: n }, () => { if (w) this.startExercise(); }); }
+  THALA_SEQ = { dhruva:["L","D","L","L"], matya:["L","D","L"], rupaka:["D","L"], jhampa:["L","A","D"], triputa:["L","D","D"], ata:["L","L","D","D"], eka:["L"] };
+  THALA_NAMES = { dhruva:["Dhruva","ധ്രുവം"], matya:["Matya","മത്യ"], rupaka:["Rupaka","രൂപകം"], jhampa:["Jhampa","ജംപ"], triputa:["Triputa","ത്രിപുട"], ata:["Ata","അട"], eka:["Eka","ഏക"] };
+  JATHI_NAMES = { 3:["Tisra","തിശ്ര"], 4:["Chatusra","ചതുശ്ര"], 5:["Khanda","ഖണ്ഡ"], 7:["Misra","മിശ്ര"], 9:["Sankeerna","സങ്കീർണ"] };
+  exThalaOf(ex) {
+    if (ex && ex.thala) return ex.thala;
+    const cat = (ex && ex.cat) || this.state.exCat;
+    if (["keerthanangal","jatiswaram","swarajati"].includes(cat)) return { key: "triputa", jathi: 4 };
+    return { key: "triputa", jathi: 4 };
+  }
+  ANGA_COLORS = { L: "#1f7a3d", D: "#b0431e", A: "#7a3fb5" };
+  angaUnitsFor(thala) {
+    const seq = this.THALA_SEQ[thala.key] || ["L","D","D"];
+    const jathi = thala.jathi || 4;
+    const units = [];
+    seq.forEach(a => {
+      if (a === "L") { for (let k = 1; k <= jathi; k++) units.push({ sym: "I", sub: String(k), end: k === jathi, kind: "L", color: this.ANGA_COLORS.L }); }
+      else if (a === "D") { units.push({ sym: "X", sub: "", end: false, kind: "D", color: this.ANGA_COLORS.D }); units.push({ sym: "V", sub: "", end: true, kind: "D", color: this.ANGA_COLORS.D }); }
+      else { units.push({ sym: "U", sub: "", end: true, kind: "A", color: this.ANGA_COLORS.A }); }
+    });
+    return units;
+  }
+  exAngaCells() {
+    const units = this.angaUnitsFor(this.exThalaOf(this.exSelected()));
+    const L = units.length || 1;
+    const reps = this.exSingleAv(this.exSelected()) ? 1 : 2;
+    const cells = [];
+    for (let i = 0; i < reps * L; i++) {
+      const pos = i % L;
+      const u = units[pos];
+      cells.push({ key: i, sym: u.sym, sub: u.sub, color: u.color, divAfter: !!u.end && pos !== L - 1 });
+    }
+    return cells;
+  }
+  exAvartanaLen() { return this.angaUnitsFor(this.exThalaOf(this.exSelected())).length || 1; }
+  exSingleAv(ex) { const cat = (ex && ex.cat) || this.state.exCat; return cat === "alankaram"; }
+  exThalaLabelOf(ex) {
+    const t = this.exThalaOf(ex);
+    const jn = this.JATHI_NAMES[t.jathi] || ["",""];
+    const tn = this.THALA_NAMES[t.key] || ["",""];
+    const nm = this.isEn ? (jn[0] + " Jathi " + tn[0]) : (jn[1] + " ജാതി " + tn[1]);
+    if (t.key === "triputa" && t.jathi === 4) return nm + (this.isEn ? " (Adi)" : " (ആദി)");
+    return nm;
+  }
+  toggleExNpb = (n) => {
+    const w = this.state.exPlaying;
+    this.stopExercisePlay();
+    this.setState(s => {
+      const cur = Object.assign({}, s.exNpbSel || { 1: true });
+      if (cur[n]) { if (Object.keys(cur).length > 1) delete cur[n]; }
+      else cur[n] = true;
+      return { exNpbSel: cur, exNpb: n };
+    }, () => { if (w) this.startExercise(); });
+  };
   setExBpm = (e) => { const v = +e.target.value; const w = this.state.exPlaying; this.setState({ exBpm: v }, () => { if (w) { this.stopExercisePlay(); this.startExercise(); } }); };
   setExRaga = (e) => { const v = e.target.value; const w = this.state.exPlaying; this.stopExercisePlay(); this.setState({ exRaga: v }, () => { if (w) this.startExercise(); }); };
   setExInst(v) { const w = this.state.exPlaying; this.stopExercisePlay(); this.setState({ exInst: v }, () => { if (w) this.startExercise(); }); }
@@ -2224,17 +2530,28 @@ class Component extends DCLogic {
   toggleExClick = () => this.setState({ exClick: !this.state.exClick });
   toggleExLoop = () => this.setState({ exLoop: !this.state.exLoop });
   toggleExDrone = () => { this.toggleTan(); };
-  startExercise() {
+  startExercise(seqIdx, startAt) {
     if (!this.engine) return;
     const ex = this.exSelected();
     if (!ex) return;
+    const seq = this.exNpbSeq();
+    const si = seqIdx || 0;
+    const npb = seq[Math.min(si, seq.length - 1)];
+    this._exSeqRun = true;
+    this.setState({ exNpb: npb, exPlaying: true });
     this.engine.playExercise(this.exTransposed(ex.notes), {
-      bpm: this.state.exBpm, npb: this.state.exNpb,
-      click: this.state.exClick, loop: this.state.exLoop, instrument: this.state.exInst,
+      bpm: this.state.exBpm, npb,
+      click: this.state.exClick, loop: false, instrument: this.state.exInst,
       onNote: (i) => this.setState({ exCurrent: i }),
-      onDone: () => this.setState({ exPlaying: false, exCurrent: -1 }),
-    });
-    this.setState({ exPlaying: true });
+      onDone: () => {
+        if (!this._exSeqRun) return;
+        const nextSi = si + 1;
+        if (nextSi < seq.length) { this.startExercise(nextSi, this.engine.ex.endT); return; }
+        if (this.state.exLoop) { this.startExercise(0, this.engine.ex.endT); return; }
+        this._exSeqRun = false;
+        this.setState({ exPlaying: false, exCurrent: -1 });
+      },
+    }, startAt);
   }
   toggleExPlay = () => {
     if (this.state.exPlaying) { this.stopExercisePlay(); return; }
@@ -2311,7 +2628,7 @@ class Component extends DCLogic {
       if (activeIdx >= 0) { const f = bounds.findIndex(([a, b]) => activeIdx >= a && activeIdx < b); if (f >= 0) li = f; }
       lineStart = bounds[li][0]; lineEnd = bounds[li][1];
     } else {
-      const PER = 16;
+      const PER = (this.exSingleAv(ex) ? 1 : 2) * (this.angaUnitsFor(this.exThalaOf(ex)).length || 8);
       const curLine = activeIdx >= 0 ? Math.floor(activeIdx / PER) : 0;
       lineStart = curLine * PER; lineEnd = lineStart + PER;
     }
@@ -2324,7 +2641,7 @@ class Component extends DCLogic {
       const s = this.lib.SWARAS[pos];
       const p = playableIdxOf[i];
       const active = activePlayable >= 0 && p === activePlayable;
-      raw.push({ semi, base: this._swb(s), sub: s.sub, up: oct > 0, down: oct < 0, active });
+      raw.push({ semi, base: this._swb(s), sub: s.sub, up: oct > 0, down: oct < 0, active, p });
     });
     if (!raw.length) return empty;
     const semis = raw.map(r => r.semi);
@@ -2332,8 +2649,11 @@ class Component extends DCLogic {
     const span = Math.max(1, hi - lo);
     const n = raw.length;
     let activeI = -1;
+    const sUnits = this.angaUnitsFor(this.exThalaOf(ex));
+    const sL = sUnits.length || 1;
     const steps = raw.map((r, i) => {
       if (r.active) activeI = i;
+      const ai = r.p >= 0 ? (Math.floor(r.p / hl) % sL) : -1;
       const hPct = 14 + 68 * ((r.semi - lo) / span);
       const holding = r.active && activeIsHold;
       // teak-wood cylinder: horizontal shading = round barrel, vertical grain streaks, teak base
@@ -2353,6 +2673,13 @@ class Component extends DCLogic {
           : "0 4px 8px rgba(50,30,12,0.30), inset 0 -7px 11px rgba(35,20,8,0.24)",
         labelColor: r.active ? "var(--maroon)" : "#6b6152",
         weight: r.active ? "700" : "600",
+        angaBase: ai >= 0 ? sUnits[ai].sym : "",
+        angaSub: ai >= 0 ? sUnits[ai].sub : "",
+        angaColor: r.active ? "var(--maroon)" : "#c3a86f",
+        angaAnim: r.active ? "stairBob 0.5s ease-in-out infinite alternate" : "none",
+        angaPillBg: ai >= 0 ? (r.active ? "#3a1208" : sUnits[ai].color) : "transparent",
+        swaraColor: "#fff",
+        noteShow: r.active,
       };
     });
     const walkerShow = activeI >= 0;
@@ -2590,6 +2917,19 @@ class Component extends DCLogic {
       // language
       L: window.SwsI18N ? (this.isEn ? window.SwsI18N.UI.en : window.SwsI18N.UI.ml) : {},
       isEn: this.isEn,
+      lang: st.lang, setLangSel: (e) => this.setLang(e.target.value),
+      canInstall: !!st.canInstall,
+      installLabel: this.isEn ? "Install app" : "ആപ്പ് ഇൻസ്റ്റാൾ",
+      installApp: async () => {
+        const e = window.__swarasadhanaInstall;
+        if (!e) return;
+        e.prompt();
+        try { await e.userChoice; } catch (err) {}
+        window.__swarasadhanaInstall = null;
+        this.setState({ canInstall: false });
+      },
+      isThalaGuide: tab === "thalaguide", navThalaGuide: this.setTab("thalaguide"),
+      lblThalaGuide: this.isEn ? "Thala Guide" : "താള ഗൈഡ്",
       setLangEn: () => this.setLang("en"), setLangMl: () => this.setLang("ml"),
       toggleLang: () => this.setLang(this.isEn ? "ml" : "en"),
       langLabel: this.isEn ? "English" : "മലയാളം",
@@ -2796,15 +3136,25 @@ class Component extends DCLogic {
       }),
       exSelName: this.exSelected() ? this.tr(this.exSelected().name) : "",
       exSelDesc: this.exSelected() ? this.tr(this.exSelected().desc) : "",
+      vowelNote: this.isEn
+        ? "Practice each exercise with the vowels — Aa-kaaram, I-kaaram, E-kaaram, U-kaaram, O-kaaram, M-kaaram and L-kaaram — one at a time to build voice control."
+        : "ഓരോ അഭ്യാസവും സ്വരാക്ഷരങ്ങളിൽ പരിശീലിക്കുക — ആ-കാരം, ഇ-കാരം, ഏ-കാരം, ഉ-കാരം, ഓ-കാരം, മ-കാരം, ല-കാരം — ഓരോന്നായി അഭ്യസിച്ച് ശബ്ദനിയന്ത്രണം നേടുക.",
       exHasSel: !!this.exSelected(),
       exEditSel: this.exEditSelected, exDeleteSel: this.exDeleteSelected,
       exTokens: this.exTokenList(),
+      exThalaMarksShow: st.exCat !== "special",
+      exTwoAv: !this.exSingleAv(this.exSelected()),
+      exGridCols: (() => { const L = this.exAvartanaLen(); return this.exSingleAv(this.exSelected()) ? ("auto repeat(" + L + ",minmax(1.5em,1.9em)) auto") : ("auto repeat(" + L + ",minmax(0,1fr)) auto repeat(" + L + ",minmax(0,1fr)) auto"); })(),
+      exAngaCellsLeft: (() => { const c = this.exAngaCells(); const single = this.exSingleAv(this.exSelected()); const half = single ? c.length : c.length / 2; return c.slice(0, half).map(x => ({ key: x.key, sym: x.sym, sub: x.sub, color: x.color, border: (x.divAfter && x.key !== half - 1) ? "2px solid var(--gold)" : "none" })); })(),
+      exAngaCellsRight: (() => { const c = this.exAngaCells(); if (this.exSingleAv(this.exSelected())) return []; const half = c.length / 2; return c.slice(half).map(x => ({ key: x.key, sym: x.sym, sub: x.sub, color: x.color, border: (x.divAfter && x.key !== c.length - 1) ? "2px solid var(--gold)" : "none" })); })(),
+      exThalaLabel: this.exThalaLabelOf(this.exSelected()),
       exLines: this.exTokenLines(),
       stairShow: stair.show, stairSteps: stair.steps,
       stairWalkerShow: stair.walkerShow, stairWalkerLeft: stair.walkerLeft, stairWalkerBottom: stair.walkerBottom,
       stairTitle: this.tr("സ്വരപ്പടവ്"), stairCaption: this.tr("സ്വരങ്ങൾ കയറുകയും ഇറങ്ങുകയും ചെയ്യുന്നത് കാണൂ"),
       stairExName: stair.show && stairEx ? this.tr(stairEx.name) : "",
-      exThalaName: this.exThalaNameStr(),
+      stairThalaName: this.exThalaLabelOf(stairEx || this.exSelected()),
+      exThalaName: this.exThalaLabelOf(this.exSelected()),
       setExId: this.setExId, exId: st.exId,
       // ----- exercise editor (composer) -----
       ceTitle: st.ceEditId ? this.tr("അഭ്യാസം എഡിറ്റ് ചെയ്യുക") : this.tr("പുതിയ അഭ്യാസം"),
@@ -2819,6 +3169,16 @@ class Component extends DCLogic {
         return { key: g, label, select: () => this.ceSelectGroup(g),
           bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
       }),
+      ceThalaLbl: this.isEn ? "Thala (for anga markings)" : "താളം (അംഗ അടയാളങ്ങൾക്ക്)",
+      ceThalaKey: st.ceThalaKey, ceSetThalaKey: this.ceSetThalaKey,
+      ceJathi: st.ceJathi, ceSetJathi: this.ceSetJathi,
+      ceThalaOptions: ["dhruva","matya","rupaka","jhampa","triputa","ata","eka"].map(k => {
+        const tn = this.THALA_NAMES[k]; return { key: k, label: this.isEn ? tn[0] : tn[1] };
+      }),
+      ceJathiOptions: [3,4,5,7,9].map(j => {
+        const jn = this.JATHI_NAMES[j]; return { val: j, label: (this.isEn ? jn[0] : jn[1]) + " (" + j + ")" };
+      }),
+      ceThalaPreview: this.exThalaLabelOf({ thala: { key: st.ceThalaKey, jathi: st.ceJathi } }),
       cePalette: this.lib ? this.MAYA_PALETTE.map(semi => {
         const s = this.lib.SWARAS[semi];
         const o = st.ceOctave;
@@ -2836,7 +3196,9 @@ class Component extends DCLogic {
         { key: "h3", icon: "🎙️", title: this.tr("റെക്കോർഡ് & വിലയിരുത്തൽ"), body: this.tr("ലക്ഷ്യ രാഗം തിരഞ്ഞെടുത്ത് റെക്കോർഡ് ചെയ്യുക. തത്സമയ ട്യൂണർ നിങ്ങളുടെ സ്വരവും ശ്രുതിവ്യതിയാനവും കാണിക്കും. നിർത്തിയാൽ ശ്രുതി, രാഗം, താളം എന്നിവയ്ക്ക് സ്കോറും മെച്ചപ്പെടാനുള്ള നിർദേശങ്ങളും ലഭിക്കും. (മൈക്ക് അനുമതി വേണം — ഹെഡ്ഫോൺ ഉപയോഗിക്കുക.)") },
         { key: "h4", icon: "🎵", title: this.tr("പാട്ട് & ശ്രുതി (MP3)"), body: this.tr("MP3 അപ്‌ലോഡ് ചെയ്ത് വേഗതയും ശ്രുതിയും വെവ്വേറെ മാറ്റാം — പഠിക്കാൻ പാട്ട് പതുക്കെയാക്കാം, ശ്രുതി മാറില്ല. ക്രമീകരണം സേവ് ചെയ്യാം.") },
         { key: "h5", icon: "🥁", title: this.tr("ക്രമീകരണം — താളവാദ്യങ്ങൾ"), body: this.tr("ക്രമീകരണ പേജിൽ മാസ്റ്റർ വോള്യം, സ്ഥിര രാഗം, കാലപ്രമാണം എന്നിവ സജ്ജമാക്കാം. തംപുര (സ–പ–സ–സ̣), മെട്രോണോം, മൃദംഗം/തബല/ഡ്രം/ചെണ്ട താള ജനറേറ്റർ എന്നിവ ഇവിടെയുണ്ട്.") },
+        { key: "h7", icon: "🖐️", title: this.tr("താള ഗൈഡ്"), body: this.isEn ? "Learn the three angas (Laghu, Drutam, Anudrutam) and how they build the seven Suladi thalas. Switch to '35 Thalas' for the full table with every jathi, and play any thala to hear it with the beat markings (I₁ I₂ I₃ I₄ X V). The tempo follows your Settings tempo." : "മൂന്ന് അംഗങ്ങളും (ലഘു, ദ്രുതം, അനുദ്രുതം) അവ ഏഴ് സൂളാദി താളങ്ങളാകുന്നതും പഠിക്കുക. '35 താളങ്ങൾ' പട്ടികയിൽ എല്ലാ ജാതികളും കാണാം; ഏതു താളവും പ്ലേ ചെയ്ത് അടയാളങ്ങളോടെ (I₁ I₂ I₃ I₄ X V) കേൾക്കാം. കാലപ്രമാണം സെറ്റിംഗിൽ നിന്ന്." },
       ],
+      homeThalaDesc: this.isEn ? "The three angas and the seven Suladi thalas, with a right-hand counting guide." : "മൂന്ന് അംഗങ്ങളും ഏഴ് സൂളാദി താളങ്ങളും, കൈകൊണ്ടുള്ള കണക്കോടെ.",
       exRaga: st.exRaga, setExRaga: this.setExRaga,
       // song book
       sbTitle: st.sbTitle, setSbTitle: this.setSbTitle,
@@ -2882,9 +3244,24 @@ class Component extends DCLogic {
           bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
       }),
       exSpeeds: [{label:"1×",val:1},{label:"2×",val:2},{label:"3×",val:4},{label:"4×",val:8}].map(({label,val}) => {
-        const on = st.exNpb === val;
-        return { key: val, label, select: () => this.setExNpb(val),
+        const on = !!(st.exNpbSel && st.exNpbSel[val]);
+        return { key: val, label, select: () => this.toggleExNpb(val),
           bg: on ? "#5c1a1a" : "#fff", border: on ? "#5c1a1a" : "var(--line)", color: on ? "#f4ecdd" : "var(--ink)" };
+      }),
+      exSpeedDropOpen: st.exSpeedDropOpen, exSpeedDropToggle: this.exSpeedDropToggle,
+      exSpeedSelectAll: this.exSpeedSelectAll, exSpeedClear: this.exSpeedClear,
+      exSpeedDropSummary: (() => {
+        const defs = [{label:this.isEn?"First Speed":"ഒന്നാം കാലം",val:1},{label:this.isEn?"Second Speed":"രണ്ടാം കാലം",val:2},{label:this.isEn?"3rd Speed":"മൂന്നാം കാലം",val:4},{label:this.isEn?"4th Speed":"നാലാം കാലം",val:8}];
+        const picked = defs.filter(d => st.exNpbSel && st.exNpbSel[d.val]);
+        if (picked.length === 0) return defs[0].label;
+        if (picked.length === 1) return picked[0].label;
+        return picked.length + (this.isEn ? " selected" : " തിരഞ്ഞെടുത്തു");
+      })(),
+      exSpeedChecks: [{label:"1 – "+(this.isEn?"First Speed":"ഒന്നാം കാലം"),val:1},{label:"2 – "+(this.isEn?"Second Speed":"രണ്ടാം കാലം"),val:2},{label:"3 – "+(this.isEn?"3rd Speed":"മൂന്നാം കാലം"),val:4},{label:"4 – "+(this.isEn?"4th Speed":"നാലാം കാലം"),val:8}].map(({label,val}) => {
+        const on = !!(st.exNpbSel && st.exNpbSel[val]);
+        return { key: val, label, toggle: () => this.toggleExNpb(val), mark: on ? "✓" : "",
+          rowBg: on ? "#fbf5e8" : "#fff",
+          boxBg: on ? "#5c1a1a" : "#fff", boxBorder: on ? "#5c1a1a" : "var(--line)" };
       }),
       exBpm: st.exBpm, setExBpm: this.setExBpm,
       exClick: st.exClick, exClickState: st.exClick ? this.tr("ഓൺ") : this.tr("ഓഫ്"),
@@ -2895,7 +3272,8 @@ class Component extends DCLogic {
       toggleExDrone: this.toggleExDrone,
       exLoopState: st.exLoop ? this.tr("ഓൺ") : this.tr("ഓഫ്"),
       lblRepeat: this.isEn ? "Repeat" : "വീണ്ടും",
-      exLoopBg: st.exLoop ? "#fbf5e8" : "#fff", exLoopBorder: st.exLoop ? "var(--gold)" : "var(--line)", exLoopColor: st.exLoop ? "var(--maroon)" : "var(--muted)",
+      lblSpeed: this.isEn ? "Speed" : "വേഗത",
+      exLoopBg: st.exLoop ? "#5c1a1a" : "#fff", exLoopBorder: st.exLoop ? "#5c1a1a" : "var(--line)", exLoopColor: st.exLoop ? "#f4ecdd" : "var(--ink)",
       toggleExLoop: this.toggleExLoop,
       exPlaying: st.exPlaying,
       exPlayLabel: st.exPlaying ? this.tr("⏹ നിർത്തുക") : this.tr("▶ പാടിക്കേൾക്കുക"),

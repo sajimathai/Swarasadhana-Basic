@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="icon" type="image/png" href="./assets/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    ::selection{background:#d8b863;color:#3a2418;}
+    a{color:#5c1a1a;}
+    a:hover{color:#b58a2e;}
+    table{border-collapse:collapse; width:100%;}
+    th,td{text-align:left;}
+    tbody tr:nth-child(even){background:rgba(181,138,46,0.05);}
+    @media (max-width: 700px){
+      main{ padding:20px 12px 60px !important; }
+      .tg-filters{ flex-direction:column !important; align-items:stretch !important; }
+      table{ font-size:12.5px !important; }
+      th, td{ padding:8px 6px !important; }
+    }
+  </style>
+</helmet>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#5c1a1a"/>
+    <rect x="20" y="30" width="60" height="6" fill="#d8b863"/>
+    <rect x="20" y="46" width="60" height="6" fill="#d8b863"/>
+    <rect x="20" y="62" width="60" height="6" fill="#d8b863"/>
+  </svg>
+</template>
+
+<div style="--cream:#f4ecdd; --warm:#fffaf3; --maroon:#5c1a1a; --gold:#b58a2e; --gold2:#d8b863; --ink:#3a2418; --muted:#8c7659; --line:#e7d8ba; font-family:'Noto Serif Malayalam',serif; color:var(--ink); background:var(--cream); min-height:100vh; background-image:radial-gradient(circle at 50% -10%, rgba(181,138,46,0.10), transparent 55%);">
+
+  <sc-if value="{{ showHeader }}" hint-placeholder-val="{{ true }}">
+  <header style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:20px 32px; background:linear-gradient(180deg,#5c1a1a,#4a1414); color:#f4ecdd; border-bottom:3px solid var(--gold);">
+    <div style="width:48px;height:48px;border-radius:50%;border:2px solid var(--gold2);background:radial-gradient(circle at 50% 32%, #6e2121, #3c1010);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+      <img src="./logo-white.png" alt="logo" style="width:34px;height:34px;object-fit:contain;display:block;">
+    </div>
+    <div>
+      <div style="font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:3px; color:var(--gold2); text-transform:uppercase;">Carnatic Practice</div>
+      <div style="font-size:27px; font-weight:600; line-height:1.1;">All 35 Thalas</div>
+    </div>
+    <div style="margin-left:auto;">
+      <a href="./Thala Guide.dc.html" style="color:var(--gold2); font-size:14px;">← Back to Thala Guide</a>
+    </div>
+  </header>
+  </sc-if>
+
+  <main style="max-width:1080px; margin:0 auto; padding:30px 24px 70px;">
+    <p style="font-size:14px; color:var(--muted); line-height:1.6; max-width:760px; margin:0 0 22px;">{{ subtitle }}</p>
+
+    <div class="tg-filters" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+      <label style="display:flex; align-items:center; gap:8px; font-size:14px;">
+        <span style="color:var(--muted);">{{ wThala }}</span>
+        <select onChange="{{ setNameFilter }}" value="{{ nameFilter }}" style="font-family:inherit; font-size:14px; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink);">
+          <sc-for list="{{ nameOptions }}" as="o" hint-placeholder-count="8">
+            <option value="{{ o.val }}">{{ o.label }}</option>
+          </sc-for>
+        </select>
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; font-size:14px;">
+        <span style="color:var(--muted);">{{ wJathi }}</span>
+        <select onChange="{{ setJathiFilter }}" value="{{ jathiFilter }}" style="font-family:inherit; font-size:14px; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink);">
+          <sc-for list="{{ jathiOptions }}" as="o" hint-placeholder-count="6">
+            <option value="{{ o.val }}">{{ o.label }}</option>
+          </sc-for>
+        </select>
+      </label>
+      <div style="font-size:13px; color:var(--muted); margin-left:auto;">{{ resultCount }}{{ shownWord }}</div>
+    </div>
+
+    <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:0 3px 14px rgba(92,26,26,0.05);">
+      <table>
+        <thead>
+          <tr style="background:var(--maroon); color:#f4ecdd;">
+            <th style="padding:12px 14px; font-size:13px; font-weight:600;">{{ hThala }}</th>
+            <th style="padding:12px 14px; font-size:13px; font-weight:600;">{{ hJathi }}</th>
+            <th style="padding:12px 14px; font-size:13px; font-weight:600;">{{ hSeq }}</th>
+            <th style="padding:12px 14px; font-size:13px; font-weight:600;">{{ hTotal }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+            <tr style="border-top:1px solid var(--line);">
+              <td style="padding:11px 14px; font-size:14px; font-weight:600; color:var(--maroon);">{{ r.title }}</td>
+              <td style="padding:11px 14px; font-size:13.5px; color:var(--ink);">{{ r.jathiLabel }}</td>
+              <td style="padding:11px 14px; font-size:16px; color:var(--gold); font-weight:700; letter-spacing:2px;">{{ r.seqStr }}</td>
+              <td style="padding:11px 14px; font-size:13.5px; color:var(--ink);">{{ r.total }}</td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:26px; text-align:center; font-size:14px; color:var(--muted); font-style:italic;">{{ noResultsMsg }}</div>
+      </sc-if>
+    </div>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900},&quot;lang&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;},&quot;embedded&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { nameFilter: "all", jathiFilter: "all" };
+  }
+
+  get isEn() { return (this.props.lang || "en") !== "ml"; }
+  t(en, ml) { return this.isEn ? en : ml; }
+  ML_NAMES = { dhruva: "ധ്രുവം", matya: "മത്യ", rupaka: "രൂപകം", jhampa: "ജംപ", triputa: "ത്രിപുട", ata: "അട", eka: "ഏക" };
+  ML_JATHI = { 3: "തിശ്ര", 4: "ചതുശ്ര", 5: "ഖണ്ഡ", 7: "മിശ്ര", 9: "സങ്കീർണ" };
+
+  NAMES = {
+    dhruva: "Dhruva", matya: "Matya", rupaka: "Rupaka", jhampa: "Jhampa",
+    triputa: "Triputa", ata: "Ata", eka: "Eka"
+  };
+  THALA_SEQ = {
+    dhruva: ["L", "D", "L", "L"],
+    matya: ["L", "D", "L"],
+    rupaka: ["D", "L"],
+    jhampa: ["L", "A", "D"],
+    triputa: ["L", "D", "D"],
+    ata: ["L", "L", "D", "D"],
+    eka: ["L"]
+  };
+  JATHI_NAMES = { 3: "Tisra", 4: "Chatusra", 5: "Khanda", 7: "Misra", 9: "Sankeerna" };
+
+  setNameFilter = (e) => this.setState({ nameFilter: e.target.value });
+  setJathiFilter = (e) => this.setState({ jathiFilter: e.target.value === "all" ? "all" : +e.target.value });
+
+  renderVals() {
+    const st = this.state;
+    const NM = this.isEn ? this.NAMES : this.ML_NAMES;
+    const JN = this.isEn ? this.JATHI_NAMES : this.ML_JATHI;
+    const jathiWord = this.t(" Jathi ", " ജാതി ");
+    const adiSuffix = this.t(" (Adi Thalam)", " (ആദിതാളം)");
+    const countsWord = this.t(" counts", " എണ്ണം");
+    const symMap = { L: "I", D: "O", A: "U" };
+    const countOf = (a, jathi) => a === "L" ? jathi : (a === "D" ? 2 : 1);
+    const thalaKeys = ["dhruva", "matya", "rupaka", "jhampa", "triputa", "ata", "eka"];
+    const jathis = [3, 4, 5, 7, 9];
+
+    const nameOptions = [{ val: "all", label: this.t("All thalas", "എല്ലാ താളങ്ങളും") }].concat(
+      thalaKeys.map(k => ({ val: k, label: NM[k] }))
+    );
+    const jathiOptions = [{ val: "all", label: this.t("All jathis", "എല്ലാ ജാതികളും") }].concat(
+      jathis.map(j => ({ val: String(j), label: JN[j] + " (" + j + ")" }))
+    );
+
+    const allRows = [];
+    thalaKeys.forEach(key => {
+      jathis.forEach(jathi => {
+        const seq = this.THALA_SEQ[key];
+        const seqStr = seq.map(a => symMap[a] + (a === "L" ? String(jathi) : "")).join(" ");
+        const total = seq.reduce((s, a) => s + countOf(a, jathi), 0);
+        let title = JN[jathi] + jathiWord + NM[key];
+        if (key === "triputa" && jathi === 4) title += adiSuffix;
+        allRows.push({ key, jathi, title, jathiLabel: JN[jathi] + " (" + jathi + ")", seqStr, total: total + countsWord });
+      });
+    });
+
+    const rows = allRows.filter(r =>
+      (st.nameFilter === "all" || r.key === st.nameFilter) &&
+      (st.jathiFilter === "all" || r.jathi === st.jathiFilter)
+    );
+
+    return {
+      showHeader: !(this.props.embedded === true || this.props.embedded === "true"),
+      hThala: this.t("Thala", "താളം"), hJathi: this.t("Jathi", "ജാതി"), hSeq: this.t("Anga Sequence", "അംഗ ക്രമം"), hTotal: this.t("Total Counts", "ആകെ എണ്ണം"),
+      subtitle: this.t("The 7 Suladi thalas, each in its 5 possible jathis — 35 variations in all. Filter by thala name or jathi below.", "7 സൂളാദി താളങ്ങൾ, ഓരൊന്നിനും 5 ജാതികളിൽ — ആകെ 35 ഭേദങ്ങൾ. താളം അല്ലെങ്കിൽ ജാതി അനുസരിച്ച് അരിക്കുക."),
+      wThala: this.t("Thala", "താളം"), wJathi: this.t("Jathi", "ജാതി"),
+      nameOptions, jathiOptions,
+      nameFilter: st.nameFilter, setNameFilter: this.setNameFilter,
+      jathiFilter: st.jathiFilter === "all" ? "all" : String(st.jathiFilter), setJathiFilter: this.setJathiFilter,
+      rows, resultCount: rows.length, shownWord: this.t(" shown", " കാണിക്കുന്നു"), noResults: rows.length === 0,
+      noResultsMsg: this.t("No thalas match this filter.", "ഈ ഫിൽടറിനോട് താളങ്ങളൊന്നും ചേരുന്നില്ല.")
+    };
+  }
+}
+</script>
+</body>
+</html>

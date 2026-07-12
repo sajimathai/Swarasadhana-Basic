@@ -1,5 +1,5 @@
 /* Swara Sadhana Basic — service worker (offline-capable PWA) */
-const VERSION = 'swarasadhana-basic-v6';
+const VERSION = 'swarasadhana-basic-v9';
 const CORE_CACHE = VERSION + '-core';
 const RUNTIME_CACHE = VERSION + '-runtime';
 
@@ -9,10 +9,13 @@ const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './Thala Guide.dc.html',
+  './Thala Table.dc.html',
   './assets/support.js',
-  './assets/audio-engine.js',
-  './assets/styles.css',
   './assets/app.js',
+  './assets/audio-engine.js',
+  './assets/i18n.js',
+  './assets/styles.css',
   './assets/images/favicon.png',
   './assets/images/apple-touch-icon.png',
   './assets/images/icon-192.png',

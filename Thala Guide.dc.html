@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="icon" type="image/png" href="./assets/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./assets/audio-engine.js"></script>
+  <style>
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    ::selection{background:#d8b863;color:#3a2418;}
+    a{color:#5c1a1a;}
+    a:hover{color:#b58a2e;}
+    @keyframes tg-pop { 0%{ transform:scale(1); } 40%{ transform:scale(1.4); } 100%{ transform:scale(1.28); } }
+    input[type=range]{-webkit-appearance:none;appearance:none;height:22px;cursor:pointer;background:transparent;width:100%;}
+    input[type=range][data-scale="tempo"]{background:
+      linear-gradient(#a07a35,#a07a35) right 10px top 2px / 1px 14px no-repeat,
+      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 12.5%) 10px 2px / calc(100% - 20px) 14px no-repeat,
+      linear-gradient(to bottom,transparent 0,transparent 7px,#e3d4b6 7px,#e3d4b6 11px,transparent 11px) 10px 0 / calc(100% - 20px) 100% no-repeat;
+      background-color:transparent;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
+    input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
+    @media (max-width: 860px){
+      .tg-anga-row{ grid-template-columns:1fr !important; }
+      .tg-thala-grid{ grid-template-columns:1fr !important; }
+      .tg-header{ padding:18px 18px !important; }
+      main{ padding:22px 14px 60px !important; }
+    }
+  </style>
+</helmet>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#5c1a1a"/>
+    <circle cx="50" cy="50" r="30" fill="none" stroke="#d8b863" stroke-width="4"/>
+    <text x="50" y="60" font-size="34" text-anchor="middle" fill="#d8b863" font-family="serif">I</text>
+  </svg>
+</template>
+
+<div style="--cream:#f4ecdd; --warm:#fffaf3; --maroon:#5c1a1a; --maroon2:#7a2424; --gold:#b58a2e; --gold2:#d8b863; --ink:#3a2418; --muted:#8c7659; --line:#e7d8ba; --good:#3f7a4a; font-family:'Noto Serif Malayalam',serif; color:var(--ink); background:var(--cream); min-height:100vh; background-image:radial-gradient(circle at 50% -10%, rgba(181,138,46,0.10), transparent 55%);">
+
+  <!-- ============ HEADER ============ -->
+  <sc-if value="{{ showHeader }}" hint-placeholder-val="{{ true }}">
+  <header class="tg-header" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:20px 32px; background:linear-gradient(180deg,#5c1a1a,#4a1414); color:#f4ecdd; border-bottom:3px solid var(--gold);">
+    <div style="width:48px;height:48px;border-radius:50%;border:2px solid var(--gold2);background:radial-gradient(circle at 50% 32%, #6e2121, #3c1010);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+      <img src="./logo-white.png" alt="logo" style="width:34px;height:34px;object-fit:contain;display:block;">
+    </div>
+    <div>
+      <div style="font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:3px; color:var(--gold2); text-transform:uppercase;">Carnatic Practice</div>
+      <div style="font-size:27px; font-weight:600; line-height:1.1;">Thala Guide</div>
+    </div>
+    <div style="margin-left:auto; font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--gold2); font-style:italic;">താളം · the rhythm framework</div>
+  </header>
+  </sc-if>
+
+  <main style="max-width:1080px; margin:0 auto; padding:{{ mainPad }};">
+
+    <!-- ============ INTRO ============ -->
+    <section style="margin-bottom:34px;">
+      <h1 style="font-size:26px; font-weight:600; color:var(--maroon); margin:0 0 10px;">{{ ui.whatTitle }}</h1>
+      <p style="font-size:16px; line-height:1.7; color:var(--ink); max-width:760px; margin:0;">{{ ui.whatBody }}</p>
+    </section>
+
+    <!-- ============ THREE ANGAS ============ -->
+    <!-- ============ VIEW TOGGLE ============ -->
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px;">
+      <button onClick="{{ showDef }}" style="font-family:inherit; font-size:14px; padding:9px 22px; border-radius:30px; cursor:pointer; border:1px solid var(--gold2); background:{{ defBtnBg }}; color:{{ defBtnColor }}; font-weight:600;">{{ tabDef }}</button>
+      <button onClick="{{ showTable }}" style="font-family:inherit; font-size:14px; padding:9px 22px; border-radius:30px; cursor:pointer; border:1px solid var(--gold2); background:{{ tableBtnBg }}; color:{{ tableBtnColor }}; font-weight:600;">{{ tab35 }}</button>
+    </div>
+
+    <sc-if value="{{ isDefView }}" hint-placeholder-val="{{ true }}">
+    <h2 style="font-size:20px; font-weight:600; color:var(--maroon); margin:0 0 12px;">{{ ui.angasTitle }}</h2>
+    <section class="tg-anga-row" style="display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:36px;">
+      <sc-for list="{{ angaCards }}" as="card" hint-placeholder-count="3">
+        <div style="background:var(--warm); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:0 3px 14px rgba(92,26,26,0.05); display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
+            <div>
+              <div style="font-size:20px; font-weight:600; color:var(--maroon);">{{ card.title }}</div>
+              <div style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--muted); font-style:italic;">{{ card.subtitle }}</div>
+            </div>
+            <div style="font-size:30px; font-weight:700; color:var(--gold); line-height:1;">{{ card.mark }}<span style="font-size:0.5em; vertical-align:sub;">{{ card.markSub }}</span></div>
+          </div>
+
+          <!-- tap demo -->
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin:16px 0 6px;">
+            <sc-for list="{{ card.dots }}" as="dot" hint-placeholder-count="4">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+                <div style="width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; background:{{ dot.bg }}; color:{{ dot.color }}; border:2px solid {{ dot.border }};">{{ dot.n }}</div>
+                <div style="font-size:10px; color:var(--muted); text-align:center; max-width:44px; line-height:1.2;">{{ dot.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <p style="font-size:14px; line-height:1.6; color:var(--ink); margin:10px 0 0; flex:1;">{{ card.desc }}</p>
+        </div>
+      </sc-for>
+    </section>
+
+    <!-- ============ JATHI SELECTOR ============ -->
+    <section style="margin-bottom:34px;">
+      <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+        <h2 style="font-size:20px; font-weight:600; color:var(--maroon); margin:0;">{{ ui.jathiTitle }}</h2>
+        <p style="font-size:13px; color:var(--muted); margin:0;">{{ ui.jathiHint }}</p>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <sc-for list="{{ jathiChips }}" as="j" hint-placeholder-count="5">
+          <button onClick="{{ j.select }}" style="font-family:inherit; font-size:14px; padding:9px 16px; border-radius:20px; cursor:pointer; border:1.5px solid {{ j.border }}; background:{{ j.bg }}; color:{{ j.color }}; font-weight:{{ j.weight }};">{{ j.label }}</button>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- ============ SEVEN THALAS ============ -->
+    <section>
+      <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
+        <h2 style="font-size:22px; font-weight:600; color:var(--maroon); margin:0;">{{ ui.sevenTitle }}</h2>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin:0 0 10px; line-height:1.6;">{{ ui.sevenBody }}</p>
+
+
+      <!-- ============ SINGLE LIVE HAND DEMO ============ -->
+      <div style="background:var(--warm); border:1px solid var(--gold2); border-radius:14px; padding:20px 22px; margin-bottom:26px; box-shadow:0 3px 14px rgba(92,26,26,0.06); display:flex; gap:22px; flex-wrap:wrap; align-items:center;">
+
+        <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <div style="font-size:19px; font-weight:600; color:var(--maroon);">{{ liveTitle }}</div>
+            <div style="font-size:13px; color:var(--muted);">{{ liveStepLabel }}</div>
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+            <button onClick="{{ livePlayToggle }}" style="font-family:inherit; font-size:14px; padding:10px 22px; border-radius:9px; cursor:pointer; border:none; background:{{ livePlayBg }}; color:#fff; font-weight:600;">{{ livePlayLabel }}</button>
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted);">
+              <span>{{ lblInstrument }}</span>
+              <select onChange="{{ setInstrument }}" value="{{ instrument }}" style="font-family:inherit; font-size:13px; padding:7px 9px; border-radius:7px; border:1px solid var(--line); background:#fff; color:var(--ink);">
+                <sc-for list="{{ instrumentOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o.val }}">{{ o.label }}</option></sc-for>
+              </select>
+            </label>
+            <div style="flex:1; min-width:220px;">
+              <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:8px; color:var(--ink);"><span>{{ lblTempo }}</span><span style="color:var(--maroon);">{{ tempo }} BPM</span></div>
+              <input type="range" min="0" max="160" step="1" value="{{ tempo }}" onInput="{{ setTempo }}" data-scale="tempo" style="width:100%;">
+              <div style="position:relative; height:14px; margin-top:4px; font-size:11px; color:var(--muted);">
+                <span style="position:absolute; left:10px; transform:translateX(-50%);">0</span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.125); transform:translateX(-50%);">20</span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.25); transform:translateX(-50%);">40</span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.375); transform:translateX(-50%);">60</span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.5); transform:translateX(-50%);">80</span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.625); transform:translateX(-50%);">100</span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.75); transform:translateX(-50%);">120</span>
+                <span style="position:absolute; left:calc(10px + (100% - 20px) * 0.875); transform:translateX(-50%);">140</span>
+                <span style="position:absolute; left:calc(100% - 10px); transform:translateX(-50%);">160</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:14px;">
+            <sc-for list="{{ gestureStrip }}" as="g" hint-placeholder-count="8">
+              <div style="width:84px; flex:none; display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 8px; border-radius:11px; border:2px solid {{ g.border }}; background:{{ g.bg }}; transform:scale({{ g.scale }}); transition:all 0.15s ease;">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:1px;">
+                  <span style="font-size:13px; font-weight:700; color:var(--maroon); line-height:1;">{{ g.num }}</span>
+                  <span style="font-size:16px; font-weight:700; color:var(--gold); line-height:1;">{{ g.angaSym }}<span style="font-size:0.6em; vertical-align:sub;">{{ g.angaSub }}</span></span>
+                </div>
+                <div style="font-size:10px; font-weight:600; color:{{ g.labelColor }}; text-align:center; line-height:1.15; min-height:24px; display:flex; align-items:center; justify-content:center;">{{ g.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div class="tg-thala-grid" style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
+        <sc-for list="{{ thalaCards }}" as="t" hint-placeholder-count="7">
+          <div style="background:var(--warm); border:2px solid {{ t.cardBorder }}; border-radius:14px; padding:20px;">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px;">
+              <div>
+                <span style="font-size:18px; font-weight:600; color:var(--maroon);">{{ t.title }}</span>
+                <span style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--muted); font-style:italic; margin-left:8px;">{{ t.subtitle }}</span>
+              </div>
+              <div style="font-size:13px; color:var(--muted);">{{ t.totalLabel }}</div>
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:center; margin:14px 0; flex-wrap:wrap;">
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; flex:1;">
+                <div style="display:flex; flex-direction:column; gap:3px; margin-right:4px;">
+                  <div style="font-size:11px; font-weight:600; color:var(--muted); height:22px; display:flex; align-items:center;">Anga</div>
+                  <div style="font-size:11px; font-weight:600; color:var(--muted);">Count</div>
+                </div>
+                <sc-for list="{{ t.angas }}" as="a" hint-placeholder-count="4">
+                  <div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
+                    <div style="font-size:22px; font-weight:700; color:var(--gold); height:22px; display:flex; align-items:center;">{{ a.symbol }}<span style="font-size:0.5em; vertical-align:sub;">{{ a.sub }}</span></div>
+                    <div style="font-size:11px; color:var(--muted);">{{ a.count }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <button onClick="{{ t.playToggle }}" style="font-family:inherit; font-size:13px; padding:8px 16px; border-radius:8px; cursor:pointer; border:none; background:{{ t.playBg }}; color:#fff; font-weight:600; flex:none;">{{ t.playLabel }}</button>
+            </div>
+
+            <p style="font-size:13.5px; line-height:1.55; color:var(--ink); margin:0 0 10px;">{{ t.desc }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <sc-if value="{{ isTableView }}" hint-placeholder-val="{{ false }}">
+      <dc-import name="Thala Table" embedded="{{ true }}" lang="{{ lang }}" hint-size="100%,900px"></dc-import>
+    </sc-if>
+
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900},&quot;defaultJathi&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:4,&quot;options&quot;:[3,4,5,7,9],&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Behavior&quot;},&quot;embedded&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;boolean&quot;},&quot;lang&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let overrides = {};
+    try { overrides = JSON.parse(localStorage.getItem("thala_guide_defs_v1") || "{}"); } catch (e) {}
+    const jathiOpt = [3, 4, 5, 7, 9];
+    let defaultJathi = this.props.defaultJathi ?? 4;
+    if (jathiOpt.indexOf(defaultJathi) === -1) defaultJathi = 4;
+    this.state = {
+      jathi: defaultJathi,
+      view: "def",
+      overrides,
+      editKey: null,
+      draftTitle: "",
+      draftDesc: "",
+      tempo: this.props.tempo != null ? +this.props.tempo : 60,
+      instrument: "mridangam",
+      selectedThala: "triputa",
+      playingKey: null,
+      playStep: -1
+    };
+  }
+
+  FINGER_ORDER = ["little", "ring", "middle", "index", "thumb"];
+
+  buildSeq(key, jathi) {
+    const seqAngas = this.THALA_SEQ[key];
+    const steps = [];
+    seqAngas.forEach((a, angaIdx) => {
+      if (a === "A") {
+        steps.push({ type: "tap", angaIdx });
+      } else if (a === "D") {
+        steps.push({ type: "tap", angaIdx });
+        steps.push({ type: "open", angaIdx });
+      } else if (a === "L") {
+        steps.push({ type: "tap", angaIdx });
+        for (let k = 1; k < jathi; k++) {
+          steps.push({ type: "finger", finger: this.FINGER_ORDER[(k - 1) % 5], angaIdx });
+        }
+      }
+    });
+    return steps;
+  }
+
+  ensureEngine() {
+    if (!this.engine && window.SwsAudio) this.engine = new window.SwsAudio.AudioEngine();
+    return this.engine;
+  }
+
+  playSound(step) {
+    const eng = this.engine;
+    if (!eng || !eng.ac) return;
+    const t = eng.ac.currentTime + 0.02;
+    const inst = this.state.instrument;
+    if (step.type === "tap") eng._perc(t, "B", 0.85, inst);
+    else if (step.type === "finger") eng._perc(t, "K", 0.35, inst);
+    else if (step.type === "open") eng._perc(t, "T", 0.7, inst);
+  }
+
+  runTimer(key) {
+    const seq = this.buildSeq(key, this.state.jathi);
+    const stepMs = 60000 / this.state.tempo;
+    if (this._playTimer) clearInterval(this._playTimer);
+    this._playTimer = setInterval(() => {
+      this.setState(s => {
+        const next = (s.playStep + 1) % seq.length;
+        this.playSound(seq[next]);
+        return { playStep: next };
+      });
+    }, stepMs);
+  }
+
+  stopPlay = () => {
+    if (this._playTimer) { clearInterval(this._playTimer); this._playTimer = null; }
+    this.setState({ playingKey: null, playStep: -1 });
+  };
+
+  togglePlay = (key) => () => {
+    if (this.state.playingKey === key) { this.stopPlay(); return; }
+    this.stopPlay();
+    const eng = this.ensureEngine();
+    if (!eng) return;
+    eng.ensure();
+    const seq = this.buildSeq(key, this.state.jathi);
+    this.setState({ playingKey: key, playStep: 0, selectedThala: key });
+    this.playSound(seq[0]);
+    this.runTimer(key);
+  };
+
+  setTempo = (e) => {
+    const v = +e.target.value;
+    this.setState({ tempo: v });
+    if (this.state.playingKey) this.runTimer(this.state.playingKey);
+  };
+
+  setInstrument = (e) => this.setState({ instrument: e.target.value });
+
+  componentWillUnmount() {
+    this.stopPlay();
+  }
+
+  DEFAULTS = {
+    anudrutam: { title: "Anudrutam", subtitle: "അനുദ്രുതം", desc: "One tap counts as one beat — the smallest unit in the thala system. Marked with the letter U." },
+    drutam: { title: "Drutam", subtitle: "ദ്രുതം", desc: "One tap, then one wave (veechu) of the open hand. The tap is beat one, the wave is beat two — two counts in all. Marked with the letter O." },
+    laghu: { title: "Laghu", subtitle: "ലഘു", desc: "One tap, then the rest of the beats are counted on the fingers. The tap is beat one; each finger after it adds one more count. How many fingers you count is the jathi — 3, 4, 5, 7 or 9. Marked with the letter I, with the jathi written as a subscript." },
+    dhruva: { title: "Dhruva", subtitle: "ധ്രുവം", desc: "Laghu, Drutam, Laghu, Laghu — four angas." },
+    matya: { title: "Matya", subtitle: "മത്യ", desc: "Laghu, Drutam, Laghu — three angas." },
+    rupaka: { title: "Rupaka", subtitle: "രൂപകം", desc: "Drutam, Laghu — two angas. After Adi, the most commonly heard thala." },
+    jhampa: { title: "Jhampa", subtitle: "ജംപ", desc: "Laghu, Anudrutam, Drutam — three angas." },
+    triputa: { title: "Triputa", subtitle: "ത്രിപുട", desc: "Laghu, Drutam, Drutam — three angas. In chatusra jathi this is Adi thalam." },
+    ata: { title: "Ata", subtitle: "അട", desc: "Laghu, Laghu, Drutam, Drutam — four angas." },
+    eka: { title: "Eka", subtitle: "ഏക", desc: "Laghu alone — one anga." }
+  };
+
+  THALA_SEQ = {
+    dhruva: ["L", "D", "L", "L"],
+    matya: ["L", "D", "L"],
+    rupaka: ["D", "L"],
+    jhampa: ["L", "A", "D"],
+    triputa: ["L", "D", "D"],
+    ata: ["L", "L", "D", "D"],
+    eka: ["L"]
+  };
+
+  get isEn() { return (this.props.lang || "en") !== "ml"; }
+  t(en, ml) { return this.isEn ? en : ml; }
+
+  DESC_ML = {
+    anudrutam: "ഒരു അടി ഒരു എണ്ണമായി കണക്കാക്കുന്നു — താളവ്യവസ്ഥയിലെ ഏറ്റവും ചെറിയ ഘടകം. 'U' എന്ന ചിഹ്നത്താൽ അടയാളപ്പെടുത്തുന്നു.",
+    drutam: "ഒരു അടി, പിന്നെ തുറന്ന കൈയുടെ ഒരു വീച്ച്. അടി ഒന്നാം എണ്ണം, വീച്ച് രണ്ടാം എണ്ണം — ആകെ രണ്ട് എണ്ണം. 'O' എന്ന ചിഹ്നത്താൽ അടയാളപ്പെടുത്തുന്നു.",
+    laghu: "ഒരു അടി, പിന്നെ ബാക്കി എണ്ണങ്ങൾ വിരലുകളിൽ എണ്ണുന്നു. അടി ഒന്നാം എണ്ണം; ഓരോ വിരലും ഓരോ എണ്ണം ചേർക്കുന്നു. എത്ര വിരൽ എണ്ണുന്നു എന്നതാണ് ജാതി — 3, 4, 5, 7 അല്ലെങ്കിൽ 9. 'I' എന്ന ചിഹ്നത്തോടൊപ്പം ജാതി സബ്‌സ്ക്രിപ്റ്റായി എഴുതുന്നു.",
+    dhruva: "ലഘു, ദ്രുതം, ലഘു, ലഘു — നാല് അംഗങ്ങൾ.",
+    matya: "ലഘു, ദ്രുതം, ലഘു — മൂന്ന് അംഗങ്ങൾ.",
+    rupaka: "ദ്രുതം, ലഘു — രണ്ട് അംഗങ്ങൾ. ആദിക്ക് ശേഷം ഏറ്റവും കൂടുതൽ കേൾക്കുന്ന താളം.",
+    jhampa: "ലഘു, അനുദ്രുതം, ദ്രുതം — മൂന്ന് അംഗങ്ങൾ.",
+    triputa: "ലഘു, ദ്രുതം, ദ്രുതം — മൂന്ന് അംഗങ്ങൾ. ചതുശ്ര ജാതിയിൽ ഇത് ആദിതാളമാണ്.",
+    ata: "ലഘു, ലഘു, ദ്രുതം, ദ്രുതം — നാല് അംഗങ്ങൾ.",
+    eka: "ലഘു മാത്രം — ഒരു അംഗം."
+  };
+
+  def(key) {
+    const base = { ...this.DEFAULTS[key], ...(this.state.overrides[key] || {}) };
+    if (this.isEn) return base;
+    const ov = this.state.overrides[key] || {};
+    return { ...base, title: base.subtitle, desc: ov.desc != null ? base.desc : (this.DESC_ML[key] || base.desc) };
+  }
+
+  selectJathi = (j) => () => { this.stopPlay(); this.setState({ jathi: j }); };
+
+  startEdit = (key) => () => {
+    const d = this.def(key);
+    this.setState({ editKey: key, draftTitle: d.title, draftDesc: d.desc });
+  };
+  setDraftTitle = (e) => this.setState({ draftTitle: e.target.value });
+  setDraftDesc = (e) => this.setState({ draftDesc: e.target.value });
+  cancelEdit = () => this.setState({ editKey: null });
+  saveEdit = () => {
+    const key = this.state.editKey;
+    if (!key) return;
+    const overrides = { ...this.state.overrides, [key]: { title: this.state.draftTitle, desc: this.state.draftDesc } };
+    try { localStorage.setItem("thala_guide_defs_v1", JSON.stringify(overrides)); } catch (e) {}
+    this.setState({ overrides, editKey: null });
+  };
+  resetDef = (key) => () => {
+    const overrides = { ...this.state.overrides };
+    delete overrides[key];
+    try { localStorage.setItem("thala_guide_defs_v1", JSON.stringify(overrides)); } catch (e) {}
+    this.setState({ overrides });
+  };
+
+  dotStyle() {
+    return { bg: "#fff", color: "var(--maroon)", border: "var(--gold2)" };
+  }
+
+  renderVals() {
+    const st = this.state;
+    const jathi = st.jathi;
+
+    // ---- anga reference dots (static, no animation) ----
+    const tapW = this.t("tap", "അടി");
+    const anudrutamDots = [{ n: 1, label: tapW, ...this.dotStyle() }];
+    const drutamDots = [
+      { n: 1, label: tapW, ...this.dotStyle() },
+      { n: 2, label: this.t("wave", "വീച്ച്"), ...this.dotStyle() }
+    ];
+    const laghuDots = [];
+    for (let i = 0; i < jathi; i++) {
+      laghuDots.push({ n: i + 1, label: i === 0 ? tapW : this.t("finger " + i, "വിരൽ " + i), ...this.dotStyle() });
+    }
+
+    const angaCards = [
+      { key: "anudrutam", mark: "U", markSub: "", dots: anudrutamDots, ...this.def("anudrutam") },
+      { key: "drutam", mark: "O", markSub: "", dots: drutamDots, ...this.def("drutam") },
+      { key: "laghu", mark: "I", markSub: String(jathi), dots: laghuDots, ...this.def("laghu") }
+    ].map(c => ({
+      ...c,
+      isEditing: st.editKey === c.key,
+      showEdit: st.editKey !== c.key,
+      hasOverride: !!st.overrides[c.key],
+      edit: this.startEdit(c.key),
+      reset: this.resetDef(c.key)
+    }));
+
+    // ---- jathi chips ----
+    const jathiNames = this.isEn ? { 3: "Tisra", 4: "Chatusra", 5: "Khanda", 7: "Misra", 9: "Sankeerna" } : { 3: "തിശ്ര", 4: "ചതുശ്ര", 5: "ഖണ്ഡ", 7: "മിശ്ര", 9: "സങ്കീർണ" };
+    const jathiChips = [3, 4, 5, 7, 9].map(j => ({
+      key: j,
+      label: jathiNames[j] + " (" + j + ")",
+      select: this.selectJathi(j),
+      border: j === jathi ? "var(--gold)" : "var(--line)",
+      bg: j === jathi ? "var(--gold)" : "#fff",
+      color: j === jathi ? "#3a2418" : "var(--ink)",
+      weight: j === jathi ? "700" : "400"
+    }));
+
+    // ---- seven thalas ----
+    const symMap = { L: "I", D: "O", A: "U" };
+    const countOf = (a) => a === "L" ? jathi : (a === "D" ? 2 : 1);
+    const jathiNamesFull = jathiNames;
+    const jathiWord = this.t(" Jathi ", " ജാതി ");
+    const adiSuffix = this.t(" (Adi Thalam)", " (ആദിതാളം)");
+    const countsWord = this.t(" counts", " എണ്ണം");
+    const playLbl = this.t("\u25B6 Play", "\u25B6 വായിക്കുക");
+    const stopLbl = this.t("\u25A0 Stop", "\u25A0 നിർത്തുക");
+    const thalaKeys = ["dhruva", "matya", "rupaka", "jhampa", "triputa", "ata", "eka"];
+    const thalaCards = thalaKeys.map(key => {
+      const seq = this.THALA_SEQ[key];
+      const angas = seq.map(a => ({ symbol: symMap[a], sub: a === "L" ? String(jathi) : "", count: countOf(a) }));
+      const total = angas.reduce((s, a) => s + a.count, 0);
+      const d = this.def(key);
+      let title = jathiNamesFull[jathi] + jathiWord + d.title;
+      if (key === "triputa" && jathi === 4) title += adiSuffix;
+
+      const isPlaying = st.playingKey === key;
+
+      return {
+        key, title, subtitle: d.subtitle, desc: d.desc,
+        angas, totalLabel: total + countsWord,
+        isEditing: st.editKey === key,
+        showEdit: st.editKey !== key,
+        hasOverride: !!st.overrides[key],
+        edit: this.startEdit(key),
+        reset: this.resetDef(key),
+        cardBorder: (st.selectedThala === key) ? "var(--gold)" : "var(--line)",
+        playToggle: this.togglePlay(key),
+        playLabel: isPlaying ? stopLbl : playLbl,
+        playBg: isPlaying ? "var(--maroon)" : "var(--gold)"
+      };
+    });
+
+    // ---- single shared live hand demo ----
+    const liveKey = st.selectedThala;
+    const liveDef = this.def(liveKey);
+    const liveSeq = this.buildSeq(liveKey, jathi);
+    const liveIsPlaying = !!st.playingKey;
+    const liveStep = liveIsPlaying && st.playStep >= 0 ? liveSeq[st.playStep] : null;
+    let liveGesture = "rest", liveFinger = "";
+    if (liveStep) {
+      liveGesture = liveStep.type === "finger" ? "finger" : (liveStep.type === "open" ? "open" : "tap");
+      liveFinger = liveStep.finger || "";
+    }
+    const liveBeat = st.playStep;
+
+    // ---- per-anga gesture strip ----
+    const lp = liveIsPlaying;
+    const fingerLabels = this.isEn ? { little: "Little finger", ring: "Ring finger", middle: "Middle finger", index: "Index finger", thumb: "Thumb" } : { little: "ചെറുവിരൽ", ring: "മോതിരവിരൽ", middle: "നടുവിരൽ", index: "ചൂണ്ടുവിരൽ", thumb: "തള്ളവിരൽ" };
+    const seqArr = this.THALA_SEQ[liveKey];
+    const angaData = [];
+    seqArr.forEach(a => {
+      if (a === "L") { for (let k = 1; k <= jathi; k++) angaData.push({ sym: "I", sub: String(k) }); }
+      else if (a === "D") { angaData.push({ sym: "O", sub: "" }); angaData.push({ sym: "O", sub: "" }); }
+      else { angaData.push({ sym: "U", sub: "" }); }
+    });
+    const gestureStrip = liveSeq.map((step, i) => {
+      const active = lp && i === st.playStep;
+      let label = this.t("Tap", "അടി"), gesture = "tap", finger = "";
+      if (step.type === "open") { label = this.t("Veechu", "വീച്ച്"); gesture = "open"; }
+      else if (step.type === "finger") { label = fingerLabels[step.finger] || this.t("Count", "എണ്ണം"); gesture = "finger"; finger = step.finger; }
+      const ad = angaData[i] || { sym: "", sub: "" };
+      return {
+        key: i, num: i + 1, gesture, finger, label,
+        angaSym: ad.sym, angaSub: ad.sub,
+        border: active ? "var(--gold)" : "var(--line)",
+        bg: active ? "#fbf3df" : "#fff",
+        scale: active ? "1.12" : "1",
+        labelColor: active ? "var(--maroon)" : "var(--muted)"
+      };
+    });
+    const liveTitleFull = jathiNamesFull[jathi] + jathiWord + liveDef.title + (liveKey === "triputa" && jathi === 4 ? adiSuffix : "");
+    const instrumentOptions = this.isEn ? [
+      { val: "mridangam", label: "Mridangam" },
+      { val: "tabla", label: "Tabla" },
+      { val: "drum", label: "Drum kit" },
+      { val: "chenda", label: "Chenda" }
+    ] : [
+      { val: "mridangam", label: "മൃദംഗം" },
+      { val: "tabla", label: "തബല" },
+      { val: "drum", label: "ഡ്രം കിറ്റ്" },
+      { val: "chenda", label: "ചെണ്ട" }
+    ];
+
+    return {
+      showHeader: !(this.props.embedded === true || this.props.embedded === "true"),
+      lang: this.props.lang || "en",
+      mainPad: (this.props.embedded === true || this.props.embedded === "true") ? "6px 24px 60px" : "34px 24px 80px",
+      isDefView: st.view !== "table",
+      isTableView: st.view === "table",
+      showDef: () => this.setState({ view: "def" }),
+      showTable: () => this.setState({ view: "table" }),
+      defBtnBg: st.view !== "table" ? "var(--maroon)" : "#fff",
+      defBtnColor: st.view !== "table" ? "#fff" : "var(--maroon)",
+      tableBtnBg: st.view === "table" ? "var(--maroon)" : "#fff",
+      tableBtnColor: st.view === "table" ? "#fff" : "var(--maroon)",
+      tabDef: this.t("Thala Definition", "താള നിർവചനം"),
+      tab35: this.t("35 Thalas", "35 താളങ്ങൾ"),
+      angaCards,
+      jathiChips,
+      thalaCards,
+      tempo: st.tempo,
+      tempoLabel: st.tempo + " bpm",
+      setTempo: this.setTempo,
+      liveGesture, liveFinger, liveBeat,
+      gestureStrip,
+      liveTitle: liveTitleFull,
+      liveStepLabel: liveIsPlaying ? this.t("Count ", "എണ്ണം ") + (st.playStep + 1) + " / " + liveSeq.length : liveSeq.length + this.t(" counts — press Play", " എണ്ണം — വായിക്കുക"),
+      livePlayToggle: this.togglePlay(liveKey),
+      livePlayLabel: liveIsPlaying ? stopLbl : playLbl,
+      lblInstrument: this.t("Instrument", "ഉപകരണം"),
+      lblTempo: this.t("Tempo", "കാലം"),
+      ui: {
+        whatTitle: this.t("What is a Thala?", "എന്താണ് താളം?"),
+        whatBody: this.t("A thala is a cycle of beats built from just three building blocks, called angas. Every thala — however long — is just a fixed sequence of these three counted with the hand. Learn the three marks below, then see how they combine into the seven classical (Suladi) thalas.", "താളം എന്നത് അംഗങ്ങൾ എന്ന മൂന്ന് ഘടകങ്ങളിൽ നിന്ന് ഉണ്ടാകുന്ന എണ്ണങ്ങളുടെ ഒരു ചക്രമാണ്. ഏതൊരു താളവും — എത്ര നീളമായാലും — ഈ മൂന്നിന്റെ ഒരു നിശ്ചിത ക്രമം മാത്രമാണ്, കൈ കൊണ്ട് എണ്ണുന്നത്. താഴെയുള്ള മൂന്ന് അടയാളങ്ങൾ പഠിക്കൂ, അവ ഏഴ് ക്ലാസിക്കൽ (സൂളാദി) താളങ്ങളായി എങ്ങനെ ചേരുന്നു എന്ന് കാണുക."),
+        angasTitle: this.t("The Three Angas", "മൂന്ന് അംഗങ്ങൾ"),
+        jathiTitle: this.t("Choose a Jathi", "ഒരു ജാതി തിരഞ്ഞെടുക്കുക"),
+        jathiHint: this.t("the finger-count that sets a Laghu's length — this drives the chart below too", "ലഘുവിന്റെ നീളം നിശ്ചയിക്കുന്ന വിരൽඎണ്ണം — താഴെയുള്ള പട്ടികയും ഇത് നിയന്ത്രിക്കുന്നു"),
+        sevenTitle: this.t("The Seven Suladi Thalas", "ഏഴ് സൂളാദി താളങ്ങൾ"),
+        sevenBody: this.t("Each thala is a fixed sequence of angas. With 5 possible jathis for every Laghu, the 7 thalas produce 35 thala variations in all — the current jathi is applied below. Pick a thala and press Play to hear it and watch the hand count it out.", "ഓരോ താളവും അംഗങ്ങളുടെ ഒരു നിശ്ചിത ക്രമമാണ്. ഓരോ ലഘുവിനും 5 ജാതികൾ സാധ്യമായതിനാൽ, 7 താളങ്ങൾ ആകെ 35 താളഭേദങ്ങൾ ഉണ്ടാക്കുന്നു — തിരഞ്ഞെടുത്ത ജാതി താഴെ ചേർത്തിരിക്കുന്നു. ഒരു താളം തിരഞ്ഞെടുത്ത് Play അമർത്തി കേൾക്കുക."),
+        link35: this.t("See all 35 thalas →", "എല്ലാ 35 താളങ്ങളും →"),
+        linkEx: this.t("Open Thala Exercise player →", "താള അഭ്യാസ പ്ലേയർ →")
+      },
+      livePlayBg: liveIsPlaying ? "var(--maroon)" : "var(--gold)",
+      instrument: st.instrument,
+      setInstrument: this.setInstrument,
+      instrumentOptions,
+      draftTitle: st.draftTitle,
+      setDraftTitle: this.setDraftTitle,
+      draftDesc: st.draftDesc,
+      setDraftDesc: this.setDraftDesc,
+      cancelEdit: this.cancelEdit,
+      saveEdit: this.saveEdit
+    };
+  }
+}
+</script>
+</body>
+</html>
