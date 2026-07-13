@@ -85,28 +85,43 @@ function ragaPositionSet(raga) {
   return s;
 }
 
-// Identify best-matching raga from a histogram of swara positions
+// Identify best-matching raga from a histogram of swara positions.
+// Searches the curated list + all 72 melakartha + common janya ragas.
 function identifyRaga(posCounts) {
   const used = new Set();
   let total = 0;
   posCounts.forEach((c, p) => { if (c > 0) { used.add(p); total += c; } });
   if (total === 0) return null;
-  // weighted: prominent positions matter more
+  // Build candidate pool (deduped by scale signature so a janya isn't hidden by its parent).
+  const pool = [];
+  const seen = new Set();
+  const add = (r) => {
+    if (!r || !r.aro) return;
+    const sig = Array.from(ragaPositionSet(r)).sort((a, b) => a - b).join(",");
+    pool.push(Object.assign({ _sig: sig }, r));
+  };
+  RAGAS.forEach(add);
+  if (typeof JANYA_RAGAS !== "undefined") JANYA_RAGAS.forEach(add);
+  if (typeof MELAKARTHA !== "undefined") MELAKARTHA.forEach(add);
   let best = null, bestScore = -1;
-  for (const raga of RAGAS) {
+  for (const raga of pool) {
     const set = ragaPositionSet(raga);
     let inside = 0, outside = 0;
     posCounts.forEach((c, p) => {
       if (c <= 0) return;
       if (set.has(p)) inside += c; else outside += c;
     });
-    // coverage of raga's notes that the singer actually used
     let covered = 0;
     set.forEach(p => { if (posCounts[p] > 0) covered++; });
-    const coverage = covered / set.size;
-    const purity = inside / (inside + outside);
-    const score = purity * 0.7 + coverage * 0.3;
-    if (score > bestScore) { bestScore = score; best = raga; }
+    const coverage = covered / set.size;          // how much of the raga was sung
+    const purity = inside / (inside + outside);    // how little foreign material
+    // exactness: reward when the sung note-set matches the raga's note-set size
+    const exact = 1 - Math.abs(used.size - set.size) / 12;
+    // purity dominates (wrong notes are disqualifying); coverage guards against
+    // a big scale trivially "containing" a small phrase; exactness breaks ties
+    // toward the tightest raga (janya) rather than its 7-note parent.
+    const score = purity * 0.6 + coverage * 0.28 + exact * 0.12;
+    if (score > bestScore + 1e-9) { bestScore = score; best = raga; }
   }
   return { raga: best, confidence: Math.round(bestScore * 100) };
 }
@@ -119,7 +134,7 @@ function autoCorrelate(buf, sampleRate) {
   let rms = 0;
   for (let i = 0; i < SIZE; i++) { const v = buf[i]; rms += v * v; }
   rms = Math.sqrt(rms / SIZE);
-  if (rms < 0.006) return { freq: -1, rms }; // low gate so soft humming / vowels still register
+  if (rms < 0.004) return { freq: -1, rms }; // lower gate so quiet/low-volume mics still register
 
   let r1 = 0, r2 = SIZE - 1;
   const thres = 0.2;
@@ -136,11 +151,15 @@ function autoCorrelate(buf, sampleRate) {
   for (let i = d; i < SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
   let T0 = maxpos;
   if (T0 <= 0) return { freq: -1, rms };
+  // clarity gate: reject weakly-periodic (unvoiced/noisy) frames so stray
+  // consonants and room noise don't register as spurious swaras.
+  const clarity = c[0] > 0 ? maxval / c[0] : 0;
+  if (clarity < 0.4) return { freq: -1, rms, clarity };
   const x1 = c[T0 - 1] || 0, x2 = c[T0], x3 = c[T0 + 1] || 0;
   const a = (x1 + x3 - 2 * x2) / 2;
   const bb = (x3 - x1) / 2;
   if (a) T0 = T0 - bb / (2 * a);
-  return { freq: sampleRate / T0, rms };
+  return { freq: sampleRate / T0, rms, clarity };
 }
 
 // ---------------------------------------------------------------------------
@@ -894,7 +913,7 @@ class AudioEngine {
   // =========================================================================
   //  EXERCISE VOCAL PLAYER  (akaaram "aa" formant voice + scheduler)
   // =========================================================================
-  _voice(time, freq, dur, gain, gender) {
+  _voice(time, freq, dur, gain, gender, vowel) {
     const ac = this.ac;
     const total = Math.max(0.16, dur);
     const dest = this._exDest || this.master;
@@ -995,10 +1014,22 @@ class AudioEngine {
     chest.frequency.value = male ? 280 : 360; chest.Q.value = 1.4; chest.gain.value = 4;
     srcBus.connect(chest);
 
-    // ---- 'aa' vowel: 5 resonant formants [freq, gain, bandwidth] (Peterson–Barney averages)
-    const formants = male
-      ? [[730, 1.0, 90], [1090, 0.55, 100], [2440, 0.28, 130], [3500, 0.14, 180], [4500, 0.06, 240]]
-      : [[850, 1.0, 95], [1220, 0.58, 105], [2810, 0.30, 140], [3900, 0.16, 200], [4950, 0.07, 260]];
+    // ---- vowel formants: [F1,F2,F3] per kaaram (female avgs); males scale ~0.86.
+    //  Peterson–Barney / Carnatic solkattu vowels. m = closed nasal hum, l = lateral.
+    const VF = {
+      aa: [850, 1220, 2810], i: [320, 2300, 3000], e: [480, 2000, 2750],
+      u: [350, 800, 2500], o: [450, 900, 2450], m: [260, 1100, 2350], l: [360, 1250, 2700]
+    };
+    const vw = VF[vowel] || VF.aa;
+    const fscale = male ? 0.86 : 1.0;
+    const F1 = vw[0] * fscale, F2 = vw[1] * fscale, F3 = vw[2] * fscale;
+    // relative formant gains — closed vowels (u/o/m) roll off F2/F3 for a darker tone
+    const closed = (vowel === "u" || vowel === "o" || vowel === "m");
+    const g2 = closed ? 0.34 : 0.55, g3 = closed ? 0.14 : 0.28;
+    const formants = [
+      [F1, 1.0, 90], [F2, g2, 105], [F3, g3, 140],
+      [F3 * 1.35, 0.13, 200], [F3 * 1.7, 0.05, 260]
+    ];
     formants.forEach(([f, g, bw]) => {
       const bp = ac.createBiquadFilter(); bp.type = "bandpass";
       bp.frequency.value = f; bp.Q.value = f / bw;
@@ -1023,7 +1054,14 @@ class AudioEngine {
   }
   // Instrument dispatcher for exercise playback
   _tone(time, freq, dur, gain, inst) {
-    if (inst === "harmonium" || inst === "voice" || inst === "voice_f" || inst === "voice_m") return this._harmonium(time, freq, dur, gain);
+    // human voice: "voice:<vowel>" or "voice_m:<vowel>" (male). Default female "aa".
+    if (typeof inst === "string" && inst.indexOf("voice") === 0) {
+      const parts = inst.split(":");
+      const gender = parts[0] === "voice_m" ? "male" : "female";
+      const vowel = parts[1] || "aa";
+      return this._voice(time, freq, dur, gain * 1.4, gender, vowel);
+    }
+    if (inst === "harmonium") return this._harmonium(time, freq, dur, gain);
     if (inst === "veena") return this._exPluck(time, freq, dur, gain);
     const ac = this.ac;
     const total = Math.max(0.16, dur);
@@ -1365,11 +1403,24 @@ class AudioEngine {
   // =========================================================================
   //  RECORDING + LIVE PITCH
   // =========================================================================
-  async startRecording(onPitch) {
+  async startRecording(onPitch, opts) {
     this.ensure();
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
-    });
+    // Mobile: the AudioContext often starts suspended until a gesture-driven
+    // resume actually completes — await it so the analyser receives samples.
+    if (this.ac && this.ac.state === "suspended") { try { await this.ac.resume(); } catch (e) {} }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      const err = new Error("mic-unsupported"); err.code = "unsupported"; throw err;
+    }
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 }
+      });
+    } catch (e1) {
+      // Some mobile browsers reject the constraint object — retry permissively.
+      try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+      catch (e2) { const err = new Error(e2 && e2.name || "mic-denied"); err.code = (e2 && e2.name) || "denied"; throw err; }
+    }
     const r = this.rec;
     r.stream = stream;
     r.chunks = []; r.track = []; r.t0 = performance.now();
@@ -1378,15 +1429,41 @@ class AudioEngine {
     analyser.fftSize = 2048;
     src.connect(analyser);
     r.analyser = analyser;
+    // Recording stream. Pitch analysis always uses the mic only (above), but the
+    // SAVED audio can optionally mix in the app's own tanpura / thala / instrument
+    // output so a practice or live take is captured with its accompaniment.
+    let recStream = stream;
+    r.mixNodes = null;
+    if (opts && opts.withBacking && typeof this.ac.createMediaStreamDestination === "function") {
+      try {
+        const dest = this.ac.createMediaStreamDestination();
+        const micGain = this.ac.createGain(); micGain.gain.value = (opts.micGain != null ? opts.micGain : 1);
+        src.connect(micGain); micGain.connect(dest);
+        // app output (master bus) → recording, without echoing back to the mic path
+        if (this.master) this.master.connect(dest);
+        recStream = dest.stream;
+        r.mixNodes = { dest, micGain };
+      } catch (e) { recStream = stream; }
+    }
     try {
-      r.recorder = new MediaRecorder(stream);
+      r.recorder = new MediaRecorder(recStream);
       r.recorder.ondataavailable = e => { if (e.data.size) r.chunks.push(e.data); };
       r.recorder.start();
     } catch (e) { r.recorder = null; }
-    const buf = new Float32Array(analyser.fftSize);
+    const N = analyser.fftSize;
+    const fbuf = new Float32Array(N);
+    const bbuf = new Uint8Array(N);
+    const hasFloat = typeof analyser.getFloatTimeDomainData === "function";
     const loop = () => {
       if (!r.stream) return;
-      analyser.getFloatTimeDomainData(buf);
+      let buf;
+      if (hasFloat) { analyser.getFloatTimeDomainData(fbuf); buf = fbuf; }
+      else {
+        // Fallback for older mobile Safari/Android WebViews without the float API.
+        analyser.getByteTimeDomainData(bbuf);
+        for (let i = 0; i < N; i++) fbuf[i] = (bbuf[i] - 128) / 128;
+        buf = fbuf;
+      }
       const { freq, rms } = autoCorrelate(buf, this.ac.sampleRate);
       const t = (performance.now() - r.t0) / 1000;
       if (freq > 50 && freq < 1200) {
@@ -1412,6 +1489,7 @@ class AudioEngine {
         r.recorder.stop();
       } else resolve({ blob: null, url: null });
     });
+    if (r.mixNodes) { try { if (this.master) this.master.disconnect(r.mixNodes.dest); } catch (e) {} r.mixNodes = null; }
     if (r.stream) { r.stream.getTracks().forEach(t => t.stop()); r.stream = null; }
     const out = await blobPromise;
     return { track: r.track.slice(), ...out };
@@ -1428,9 +1506,21 @@ class AudioEngine {
     if (!track || track.length < 5) {
       return { empty: true };
     }
+    // ---- median-smooth the pitch track to kill single-frame glitches and
+    // octave-halving errors before any classification (major accuracy win) ----
+    const vf = track.filter(f => f.freq > 0).map(f => f.freq);
+    const medFreq = (i) => {
+      const w = []; for (let k = -2; k <= 2; k++) { const j = i + k; if (j >= 0 && j < vf.length) w.push(vf[j]); }
+      w.sort((a, b) => a - b); return w[Math.floor(w.length / 2)];
+    };
     // ---- cents of every voiced frame relative to the app's Sa ----
+    // Also keep a per-frame weight (loudness) so quiet/noisy frames count less
+    // than firmly-sung notes — this makes low-volume laptop/phone recordings and
+    // background noise far less likely to skew swara classification.
     const cents = [];
-    for (const f of track) { if (f.freq > 0) cents.push(1200 * Math.log2(f.freq / appTonic)); }
+    const centW = [];
+    { let vi = 0;
+      for (const f of track) { if (f.freq > 0) { cents.push(1200 * Math.log2(medFreq(vi) / appTonic)); centW.push(Math.max(0.02, typeof f.rms === "number" ? f.rms : 0.1)); vi++; } } }
     if (cents.length < 5) return { empty: true };
 
     // Signal strength (soft humming / quiet vowels vs full voice). Used to
@@ -1450,9 +1540,9 @@ class AudioEngine {
     // Histogram of swara positions for a candidate Sa shift (in semitones).
     const countsFor = (saShift) => {
       const pc = new Array(12).fill(0);
-      for (const c of cents) {
-        const nearest = Math.round((c - tuneOffset) / 100) - saShift;
-        pc[((nearest % 12) + 12) % 12]++;
+      for (let i = 0; i < cents.length; i++) {
+        const nearest = Math.round((cents[i] - tuneOffset) / 100) - saShift;
+        pc[((nearest % 12) + 12) % 12] += centW[i]; // loudness-weighted histogram
       }
       return pc;
     };
@@ -1462,14 +1552,28 @@ class AudioEngine {
     // real tonic, never bending the key to flatter the selected raga).
     let saShift = 0, detected = null;
     let bestScore = -1;
+    // Sa-anchoring: when the student has CHOSEN a raga, a teacher listens for
+    // how well the singing sits in THAT raga — so we pick the tonic that best
+    // fits the selected raga's swaras (not a free raga search). Only in
+    // auto-detect mode do we scan all ragas to guess the raga.
+    const selSet = selRaga && selRaga.aro ? ragaPositionSet(selRaga) : null;
     for (let sh = 0; sh < 12; sh++) {
       const pc = countsFor(sh);
-      const id = identifyRaga(pc);
       const tot = pc.reduce((a, b) => a + b, 0) || 1;
       const saWeight = pc[0] / tot; // Sa is usually among the most-sung notes
-      const score = (id ? id.confidence : 0) + saWeight * 25;
+      let score, id = null;
+      if (selSet) {
+        let inside = 0; pc.forEach((c, p) => { if (selSet.has(p)) inside += c; });
+        score = (inside / tot) * 100 + saWeight * 25;
+      } else {
+        id = identifyRaga(pc);
+        score = (id ? id.confidence : 0) + saWeight * 25;
+      }
       if (score > bestScore) { bestScore = score; saShift = sh; detected = id; }
     }
+    // In selected-raga mode, still report what the free detector would have
+    // guessed (useful feedback) but never let it override the chosen target.
+    if (selRaga) detected = identifyRaga(countsFor(saShift));
     const keyShift = ((saShift + 6) % 12) - 6; // signed semitones from the app's Sa
     const tonic = appTonic * Math.pow(2, saShift / 12);
 
@@ -1748,14 +1852,29 @@ const EXERCISES = {
     label: "ജണ്ട വരിശ", latin: "Janta Varisai",
     intro: "ഓരോ സ്വരവും ഇരട്ടിച്ച് പാടുന്ന വരിശ. രണ്ടാമത്തെ സ്വരത്തിന് അൽപം ഊന്നൽ (സ്ഫുരിതം) നൽകുക.",
     items: [
-      { id: "j1", name: "ജണ്ട വരിശ 1", latin: "Double notes", group: 8,
+      { id: "j1", name: "ജണ്ട വരിശ 1", latin: "Double notes", group: 8, thala: { key: "triputa", jathi: 4 },
         notes: [0,0,1,1,4,4,5,5,7,7,8,8,11,11,12,12, 12,12,11,11,8,8,7,7,5,5,4,4,1,1,0,0],
         desc: "സ്വരങ്ങൾ ഇരട്ടിച്ച്. ശബ്ദത്തിന് ഉറപ്പും ഗാംഭീര്യവും നൽകുന്നു." },
-      { id: "ce1783123292883", name: "ജണ്ട വരിശ 2", latin: "", group: 8,
+      { id: "ce1783123292883", name: "ജണ്ട വരിശ 2", latin: "", group: 8, thala: { key: "triputa", jathi: 4 },
         notes: [0,0,1,1,4,4,5,5,1,1,4,4,5,5,7,7,4,4,5,5,7,7,8,8,5,5,7,7,8,8,11,11,7,7,8,8,11,11,12,12,12,12,11,11,8,8,7,7,11,11,8,8,7,7,5,5,8,8,7,7,5,5,4,4,7,7,5,5,4,4,1,1,5,5,4,4,1,1,0,0],
         desc: "" },
-      { id: "ce1783166495092", name: "Janta Varisai 3", latin: "", group: 8,
+      { id: "ce1783166495092", name: "ജണ്ട വരിശ 3", latin: "", group: 8, thala: { key: "triputa", jathi: 4 },
         notes: [0,0,1,1,4,4,1,1,0,0,1,1,4,4,5,5,1,1,4,4,5,5,4,4,1,1,4,4,5,5,7,7,4,4,5,5,7,7,5,5,4,4,5,5,7,7,8,8,5,5,7,7,8,8,7,7,5,5,7,7,8,8,11,11,7,7,8,8,11,11,8,8,7,7,8,8,11,11,12,12,12,12,11,11,8,8,11,11,12,12,11,11,8,8,7,7,11,11,8,8,7,7,8,8,11,11,8,8,7,7,5,5,8,8,7,7,5,5,7,7,8,8,7,7,5,5,4,4,7,7,5,5,4,4,5,5,7,7,5,5,4,4,1,1,5,5,4,4,1,1,4,4,5,5,4,4,1,1,0,0],
+        desc: "" },
+      { id: "j_adi", name: "ജണ്ട വരിശ 4", latin: "Janta 4", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,0,1,1,4,0,1,4,0,0,1,1,4,4,5,5,"/",1,1,4,4,5,1,4,5,1,1,4,4,5,5,7,7,"/",4,4,5,5,7,4,5,7,4,4,5,5,7,7,8,8,"/",5,5,7,7,8,5,7,8,5,5,7,7,8,8,11,11,"/",7,7,8,8,11,7,8,11,7,7,8,8,11,11,12,12,"/",12,12,11,11,8,12,11,8,12,12,11,11,8,8,7,7,"/",11,11,8,8,7,11,8,7,11,11,8,8,7,7,5,5,"/",8,8,7,7,5,8,7,5,8,8,7,7,5,5,4,4,"/",7,7,5,5,4,7,5,4,7,7,5,5,4,4,1,1,"/",5,5,4,4,1,5,4,1,5,5,4,4,1,1,0,0],
+        desc: "" },
+      { id: "j_dhatu", name: "ജണ്ട വരിശ 5", latin: "Janta 5", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,0,1,0,0,1,0,1,0,0,1,1,4,4,5,5,"/",1,1,4,1,1,4,1,4,1,1,4,4,5,5,7,7,"/",4,4,5,4,4,5,4,5,4,4,5,5,7,7,8,8,"/",5,5,7,5,5,7,5,7,5,5,7,7,8,8,11,11,"/",7,7,8,7,7,8,7,8,7,7,8,8,11,11,12,12,"/",12,12,11,12,12,11,12,11,12,12,11,11,8,8,7,7,"/",11,11,8,11,11,8,11,8,11,11,8,8,7,7,5,5,"/",8,8,7,8,8,7,8,7,8,8,7,7,5,5,4,4,"/",7,7,5,7,7,5,7,5,7,7,5,5,4,4,1,1,"/",5,5,4,5,5,4,5,4,5,5,4,4,1,1,0,0],
+        desc: "" },
+      { id: "j6", name: "ജണ്ട വരിശ 6", latin: "Janta 6", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,0,0,1,1,1,4,4,0,0,1,1,4,4,5,5,"/",1,1,1,4,4,4,5,5,1,1,4,4,5,5,7,7,"/",4,4,4,5,5,5,7,7,4,4,5,5,7,7,8,8,"/",5,5,5,7,7,7,8,8,5,5,7,7,8,8,11,11,"/",7,7,7,8,8,8,11,11,7,7,8,8,11,11,12,12,"/",12,12,12,11,11,11,8,8,12,12,11,11,8,8,7,7,"/",11,11,11,8,8,8,7,7,11,11,8,8,7,7,5,5,"/",8,8,8,7,7,7,5,5,8,8,7,7,5,5,4,4,"/",7,7,7,5,5,5,4,4,7,7,5,5,4,4,1,1,"/",5,5,5,4,4,4,1,1,5,5,4,4,1,1,0,0],
+        desc: "" },
+      { id: "j7", name: "ജണ്ട വരിശ 7", latin: "Janta 7", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,"h",0,1,"h",1,4,4,0,0,1,1,4,4,5,5,"/",1,"h",1,4,"h",4,5,5,1,1,4,4,5,5,7,7,"/",4,"h",4,5,"h",5,7,7,4,4,5,5,7,7,8,8,"/",5,"h",5,7,"h",7,8,8,5,5,7,7,8,8,11,11,"/",7,"h",7,8,"h",8,11,11,7,7,8,8,11,11,12,12,"/",12,"h",12,11,"h",11,8,8,12,12,11,11,8,8,7,7,"/",11,"h",11,8,"h",8,7,7,11,11,8,8,7,7,5,5,"/",8,"h",8,7,"h",7,5,5,8,8,7,7,5,5,4,4,"/",7,"h",7,5,"h",5,4,4,7,7,5,5,4,4,1,1,"/",5,"h",5,4,"h",4,1,1,5,5,4,4,1,1,0,0],
+        desc: "" },
+      { id: "j8", name: "ജണ്ട വരിശ 8", latin: "Janta 8", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,0,"h",1,1,"h",4,4,0,0,1,1,4,4,5,5,"/",1,1,"h",4,4,"h",5,5,1,1,4,4,5,5,7,7,"/",4,4,"h",5,5,"h",7,7,4,4,5,5,7,7,8,8,"/",5,5,"h",7,7,"h",8,8,5,5,7,7,8,8,11,11,"/",7,7,"h",8,8,"h",11,11,7,7,8,8,11,11,12,12,"/",12,12,"h",11,11,"h",8,8,12,12,11,11,8,8,7,7,"/",11,11,"h",8,8,"h",7,7,11,11,8,8,7,7,5,5,"/",8,8,"h",7,7,"h",5,5,8,8,7,7,5,5,4,4,"/",7,7,"h",5,5,"h",4,4,7,7,5,5,4,4,1,1,"/",5,5,"h",4,4,"h",1,1,5,5,4,4,1,1,0,0],
         desc: "" },
     ],
   },
@@ -1769,6 +1888,21 @@ const EXERCISES = {
       { id: "a_eka", name: "ഏക താള അലങ്കാരം", latin: "Eka — 4-note groups", group: 4, thala: { key: "eka", jathi: 4 },
         notes: [0,1,4,5, 1,4,5,7, 4,5,7,8, 5,7,8,11, 7,8,11,12, 12,11,8,7, 11,8,7,5, 8,7,5,4, 7,5,4,1, 5,4,1,0],
         desc: "നാല് സ്വരങ്ങളുടെ കൂട്ടം, ഏക താളത്തിൽ." },
+      { id: "a_dhruva", name: "ധ്രുവ താള അലങ്കാരം", latin: "Dhruva Alankaram", group: 4, thala: { key: "dhruva", jathi: 4 },
+        notes: [0,1,4,5,7,8,11,12,0,1,4,5,7,8,12,11,8,7,5,4,1,0,12,11,8,7,5,4],
+        desc: "ധ്രുവ താളം — ചതുശ്ര ജാതി (14 അക്ഷരം)." },
+      { id: "a_matya", name: "മത്യ താള അലങ്കാരം", latin: "Matya Alankaram", group: 4, thala: { key: "matya", jathi: 4 },
+        notes: [0,1,4,5,7,8,11,12,0,1,12,11,8,7,5,4,1,0,12,11],
+        desc: "മത്യ താളം — ചതുശ്ര ജാതി (10 അക്ഷരം)." },
+      { id: "a_rupaka", name: "രൂപക താള അലങ്കാരം", latin: "Rupaka Alankaram", group: 3, thala: { key: "rupaka", jathi: 4 },
+        notes: [0,1,4,5,7,8,12,11,8,7,5,4],
+        desc: "രൂപക താളം — ചതുശ്ര ജാതി (6 അക്ഷരം)." },
+      { id: "a_jhampa", name: "ഝംപ താള അലങ്കാരം", latin: "Jhampa Alankaram", group: 4, thala: { key: "jhampa", jathi: 7 },
+        notes: [0,1,4,5,7,8,11,12,0,1,12,11,8,7,5,4,1,0,12,11],
+        desc: "ഝംപ താളം — മിശ്ര ജാതി (10 അക്ഷരം)." },
+      { id: "a_ata", name: "അട താള അലങ്കാരം", latin: "Ata Alankaram", group: 4, thala: { key: "ata", jathi: 5 },
+        notes: [0,1,4,5,7,8,11,12,0,1,4,5,7,8,12,11,8,7,5,4,1,0,12,11,8,7,5,4],
+        desc: "അട താളം — ഖണ്ഡ ജാതി (14 അക്ഷരം)." },
     ],
   },
   vakrajanta: {
@@ -1835,6 +1969,27 @@ const EXERCISES = {
       { id: "ce1783302457361", name: "Single Step Lower Mix", latin: "", group: 8,
         notes: [0,"/",0,1,0,-1,-12,"/",0,1,4,1,0,-1,-4,-1,0,"/",0,1,4,5,4,1,0,-1,-4,-5,-4,-1,0,"/",0,1,4,5,7,5,4,1,0,-1,-4,-5,-7,-5,-4,-1,0],
         desc: "" },
+    ],
+  },
+  pancharatna: {
+    label: "പഞ്ചരത്ന കീർത്തനങ്ങൾ", latin: "Pancharatna Keerthanangal",
+    intro: "ത്യാഗരാജ സ്വാമികളുടെ അഞ്ച് പഞ്ചരത്ന കൃതികൾ — എല്ലാം ആദി താളത്തിൽ. ഓരോന്നിന്റെയും പല്ലവിയുടെ ആരംഭ സഞ്ചാരം. (Tyagaraja's five gems, all in Adi thala.)",
+    items: [
+      { id: "pr_jagadananda", name: "ജഗദാനന്ദകാരക", latin: "Jagadananda Karaka (Nattai)", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,4,7,4, 7,8,7,4, 0,4,7,8, 11,8,7,4, 7,7,8,11, 12,11,8,7, 8,7,4,0, 4,7,4,0],
+        desc: "രാഗം: നാട്ട. പഞ്ചരത്നത്തിലെ ആദ്യ കൃതി." },
+      { id: "pr_dudukugala", name: "ദുഡുകുഗല", latin: "Dudukugala (Gaula)", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,1,0,1, 4,1,0,1, 0,1,4,5, 7,5,4,1, 4,5,7,5, 4,1,0,1, 4,1,0,1, 0,1,4,0],
+        desc: "രാഗം: ഗൗള. 'എന്ത വേഡുകൊണ്ടു' എന്ന കൃതി." },
+      { id: "pr_sadhinchane", name: "സാധിഞ്ചെനെ", latin: "Sadhinchane (Arabhi)", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,2,4,5, 7,5,4,2, 4,5,7,9, 12,9,7,5, 7,9,12,9, 7,5,4,2, 0,2,4,5, 4,2,0,0],
+        desc: "രാഗം: ആരഭി." },
+      { id: "pr_kanakana", name: "കനകന രുചിര", latin: "Kana Kana Ruchira (Varali)", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,1,3,5, 6,5,3,1, 3,5,6,8, 11,8,6,5, 6,8,11,8, 6,5,3,1, 0,1,3,5, 3,1,0,0],
+        desc: "രാഗം: വരാളി." },
+      { id: "pr_endaro", name: "എന്തരോ മഹാനുഭാവുലു", latin: "Endaro Mahanubhavulu (Sri)", group: 8, thala: { key: "triputa", jathi: 4 },
+        notes: [0,2,5,7, 10,7,5,2, 5,7,10,12, 10,7,5,2, 7,10,12,10, 7,5,2,0, 2,5,7,5, 2,0,0,0],
+        desc: "രാഗം: ശ്രീ. പഞ്ചരത്നത്തിലെ അവസാന കൃതി." },
     ],
   },
 };
@@ -1941,5 +2096,55 @@ const MELAKARTHA = (function(){
   return list;
 })();
 
-window.SwsAudio = { SWARAS, swaraLabel, freqToSwara, RAGAS, ragaPositionSet, identifyRaga, autoCorrelate, AudioEngine, EXERCISES, EXERCISE_INFO, EXERCISE_RAGAS, transposeExercise, MELAKARTHA };
+// ---------------------------------------------------------------------------
+//  COMMON JANYA RAGAS  (derived scales; each references a parent melakartha).
+//  Notes are semitone offsets from Sa (0..12). Upanga ragas — every swara is
+//  drawn from the parent mela, so naming reuses the parent's role-aware tokens.
+// ---------------------------------------------------------------------------
+const _JANYA_DEF = [
+  { id:"mohanam", latin:"Mohanam", name:"മോഹനം", parent:28, aro:[0,2,4,7,9,12], ava:[12,9,7,4,2,0] },
+  { id:"hamsadhwani", latin:"Hamsadhwani", name:"ഹംസധ്വനി", parent:29, aro:[0,2,4,7,11,12], ava:[12,11,7,4,2,0] },
+  { id:"hindolam", latin:"Hindolam", name:"ഹിന്ദോളം", parent:20, aro:[0,3,5,8,10,12], ava:[12,10,8,5,3,0] },
+  { id:"madhyamavati", latin:"Madhyamavati", name:"മധ്യമാവതി", parent:22, aro:[0,2,5,7,10,12], ava:[12,10,7,5,2,0] },
+  { id:"abhogi", latin:"Abhogi", name:"ആഭോഗി", parent:22, aro:[0,2,3,5,9,12], ava:[12,9,5,3,2,0] },
+  { id:"sriranjani", latin:"Sriranjani", name:"ശ്രീരഞ്ജനി", parent:22, aro:[0,2,3,5,9,10,12], ava:[12,10,9,5,3,2,0] },
+  { id:"suddhasaveri", latin:"Suddha Saveri", name:"ശുദ്ധ സാവേരി", parent:29, aro:[0,2,5,7,9,12], ava:[12,9,7,5,2,0] },
+  { id:"suddhadhanyasi", latin:"Suddha Dhanyasi", name:"ശുദ്ധ ധന്യാസി", parent:22, aro:[0,3,5,7,10,12], ava:[12,10,7,5,3,0] },
+  { id:"arabhi", latin:"Arabhi", name:"ആരഭി", parent:29, aro:[0,2,4,5,7,12], ava:[12,10,9,7,5,4,2,0] },
+  { id:"bilahari", latin:"Bilahari", name:"ബിലഹരി", parent:29, aro:[0,2,4,7,9,12], ava:[12,11,9,7,5,4,2,0] },
+  { id:"kambhoji", latin:"Kambhoji", name:"കാംബോജി", parent:28, aro:[0,2,4,5,7,9,12], ava:[12,10,9,7,5,4,2,0] },
+  { id:"kedaragowla", latin:"Kedaragowla", name:"കേദാരഗൗള", parent:28, aro:[0,2,5,7,9,12], ava:[12,10,9,7,5,4,2,0] },
+  { id:"mohanakalyani", latin:"Mohana Kalyani", name:"മോഹനകല്യാണി", parent:65, aro:[0,2,4,7,9,12], ava:[12,11,9,7,6,4,2,0] },
+  { id:"valaji", latin:"Valaji", name:"വലജി", parent:28, aro:[0,4,7,9,10,12], ava:[12,10,9,7,4,0] },
+  { id:"malahari", latin:"Malahari", name:"മലഹരി", parent:15, aro:[0,1,5,7,8,12], ava:[12,8,7,5,4,1,0] },
+  { id:"revagupti", latin:"Revagupti", name:"രേവഗുപ്തി", parent:15, aro:[0,1,4,7,8,12], ava:[12,8,7,4,1,0] },
+  { id:"bhupalam", latin:"Bhupalam", name:"ഭൂപാളം", parent:8, aro:[0,1,3,7,8,12], ava:[12,8,7,3,1,0] },
+  { id:"saramati", latin:"Saramati", name:"സാരമതി", parent:20, aro:[0,2,3,5,7,8,10,12], ava:[12,10,8,5,3,0] },
+  { id:"amritavarshini", latin:"Amritavarshini", name:"അമൃതവർഷിണി", parent:66, aro:[0,4,6,7,11,12], ava:[12,11,7,6,4,0] },
+  { id:"nagaswaravali", latin:"Nagaswaravali", name:"നാഗസ്വരാവളി", parent:28, aro:[0,4,5,7,9,10,12], ava:[12,10,9,7,5,4,0] },
+  { id:"kuntalavarali", latin:"Kuntalavarali", name:"കുന്തളവരാളി", parent:28, aro:[0,5,7,8,10,12], ava:[12,10,8,7,5,0] },
+  { id:"sivaranjani", latin:"Sivaranjani", name:"ശിവരഞ്ജനി", parent:22, aro:[0,2,3,7,9,12], ava:[12,9,7,3,2,0] },
+  { id:"jonpuri", latin:"Jonpuri", name:"ജോൻപുരി", parent:20, aro:[0,2,5,7,8,10,12], ava:[12,10,8,7,5,3,2,0] },
+  { id:"nattai", latin:"Nattai", name:"നാട്ട", parent:36, aro:[0,4,5,7,11,12], ava:[12,11,7,5,4,0] },
+];
+const JANYA_RAGAS = (function(){
+  return _JANYA_DEF.map(d => {
+    const p = MELAKARTHA[d.parent - 1];
+    const map = {};
+    if (p) p.aroToks.forEach((t, k) => { const pos = ((p.aro[k] % 12) + 12) % 12; if (map[pos] === undefined) map[pos] = t; });
+    const tok = (off, k) => {
+      const pos = ((off % 12) + 12) % 12, up = off >= 12;
+      const base = map[pos] || { base: swaraLabel(pos).replace(/[₀-₉]/g, ""), sub: "" };
+      return { base: base.base, sub: base.sub, up, down: false, key: k };
+    };
+    const aroToks = d.aro.map(tok);
+    const avaToks = d.ava.map(tok);
+    const scale = Array.from(new Set(d.aro.concat(d.ava).map(n => ((n % 12) + 12) % 12))).sort((a, b) => a - b);
+    return { id: d.id, latin: d.latin, name: d.name, parent: d.parent,
+      parentLatin: p ? p.latin : "", parentName: p ? p.name : "",
+      aro: d.aro, ava: d.ava, aroToks, avaToks, scale };
+  });
+})();
+
+window.SwsAudio = { SWARAS, swaraLabel, freqToSwara, RAGAS, ragaPositionSet, identifyRaga, autoCorrelate, AudioEngine, EXERCISES, EXERCISE_INFO, EXERCISE_RAGAS, transposeExercise, MELAKARTHA, JANYA_RAGAS };
 })();
