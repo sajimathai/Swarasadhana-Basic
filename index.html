@@ -94,20 +94,21 @@
       main{ padding:20px 12px 64px !important; }
       /* section headings shrink so they don't dwarf small screens */
       main section > h2{ font-size:24px !important; }
-      /* control rows stay tappable: full-width primary actions */
-      .ex-controls > button{ flex:1 1 calc(50% - 8px) !important; }
-      .ex-focus-bar > button{ flex:1 1 calc(50% - 4px) !important; }
-      .ex-focus-bar .ex-speed{ flex:1 1 0 !important; padding-left:0 !important; padding-right:0 !important; }
-      .ex-speed-group{ flex:1 1 100% !important; }
-      .ex-focus-bar .ex-play{ flex:1 1 100% !important; margin-left:0 !important; }
-      .ex-focus-top > label, .ex-focus-top > div{ flex:1 1 calc(50% - 6px) !important; min-width:0 !important; }
-      .header-controls > button{ flex:1 1 auto !important; justify-content:space-between !important; }
-      .header-controls > .hdr-lang{ flex:0 0 auto !important; width:auto !important; justify-content:center !important; }
-      /* header controls: keep each item at its natural width — the shruti
-         dropdown holds short labels (C, D…) so it must not stretch */
+      /* controls size to their content and wrap; never stretch full-width or
+         collapse (collapsing clipped native <select> values on mobile) */
+      .ex-controls > button{ flex:0 1 auto !important; }
+      .ex-focus-bar > button{ flex:0 1 auto !important; }
+      .ex-focus-bar .ex-speed{ flex:0 1 auto !important; }
+      .ex-speed-group{ flex:0 1 auto !important; min-width:150px !important; }
+      .ex-focus-bar .ex-play{ flex:0 1 auto !important; margin-left:0 !important; }
+      .ex-focus-top > label, .ex-focus-top > div{ flex:0 1 auto !important; min-width:140px !important; }
+      .ex-focus-top select, .ex-focus-bar select{ width:100% !important; }
       .header-controls{ gap:8px 10px !important; }
+      .header-controls > button{ flex:0 1 auto !important; }
+      .header-controls > .hdr-lang{ flex:0 0 auto !important; width:auto !important; justify-content:center !important; }
       .header-controls > label{ flex:0 0 auto !important; font-size:14px !important; }
       .header-controls > label select{ flex:0 0 auto !important; width:auto !important; }
+      .hdr-install{ display:none !important; }
       .header-brand{ gap:10px !important; }
     }
     /* ---- compact mobile header ---- */
@@ -1228,16 +1229,16 @@
             <div style="display:flex; align-items:center; gap:5px;">
               <span style="flex:none; width:16px;"></span>
               <div style="flex:1; min-width:0; padding:0 10px; border:1px solid transparent;">
-                <div style="display:grid; grid-template-columns:{{ exGridCols }}; justify-content:start; align-items:end; column-gap:0.12em; font-size:clamp(17px, 4cqi, 28px);">
-                  <span style="visibility:hidden; padding:0 0.06em; font-size:1.05em; font-weight:700;">‖</span>
+                <div style="display:grid; grid-template-columns:{{ exGridCols }}; justify-content:start; align-items:end; column-gap:0.12em; font-size:clamp(20px, 4.6cqi, 32px);">
+                  <span style="color:var(--gold); padding:0 0.06em; font-size:1.15em; font-weight:700;">‖</span>
                   <sc-for list="{{ exAngaCellsLeft }}" as="a" hint-placeholder-count="8">
                     <span style="position:relative; text-align:center; font-weight:700; color:{{ a.color }};"><sc-if value="{{ a.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.19em; top:0; bottom:0; width:2px; background:var(--gold); border-radius:1px;"></span></sc-if><span style="font-size:clamp(9px,2.6cqi,12px);">{{ a.sym }}<span style="font-size:0.72em; vertical-align:sub;">{{ a.sub }}</span></span></span>
                   </sc-for>
-                  <sc-if value="{{ exTwoAv }}" hint-placeholder-val="{{ true }}"><span style="visibility:hidden; padding:0; font-size:1.05em; font-weight:700;">|</span></sc-if>
+                  <sc-if value="{{ exTwoAv }}" hint-placeholder-val="{{ true }}"><span style="color:var(--gold); padding:0; font-size:1.15em; font-weight:700;">|</span></sc-if>
                   <sc-for list="{{ exAngaCellsRight }}" as="a" hint-placeholder-count="8">
                     <span style="position:relative; text-align:center; font-weight:700; color:{{ a.color }};"><sc-if value="{{ a.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.19em; top:0; bottom:0; width:2px; background:var(--gold); border-radius:1px;"></span></sc-if><span style="font-size:clamp(9px,2.6cqi,12px);">{{ a.sym }}<span style="font-size:0.72em; vertical-align:sub;">{{ a.sub }}</span></span></span>
                   </sc-for>
-                  <span style="visibility:hidden; padding:0 0.06em; font-size:1.05em; font-weight:700;">‖</span>
+                  <span style="color:var(--gold); padding:0 0.06em; font-size:1.15em; font-weight:700;">‖</span>
                 </div>
               </div>
             </div>
@@ -1261,7 +1262,7 @@
                       </sc-if>
                     </span>
                   </sc-for>
-                  <sc-if value="{{ ln.twoAv }}" hint-placeholder-val="{{ true }}"><span style="color:var(--gold); font-weight:700; padding:0; font-size:1.05em;">|</span></sc-if>
+                  <span style="color:var(--gold); padding:0; font-size:1.15em; font-weight:700;">|</span>
                   <sc-for list="{{ ln.right }}" as="t" hint-placeholder-count="8">
                     <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:{{ t.cellPad }}; margin:{{ t.cellMargin }}; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;"><sc-if value="{{ t.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.19em; top:0; bottom:0; width:2px; background:{{ t.divColor }}; border-radius:1px; transition:background 0.15s;"></span></sc-if>
                       <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
@@ -1313,16 +1314,16 @@
             <div style="display:flex; align-items:center; gap:5px;">
               <span style="flex:none; width:16px;"></span>
               <div style="flex:1; min-width:0; padding:0 10px; border:1px solid transparent;">
-                <div style="display:grid; grid-template-columns:{{ exGridCols }}; justify-content:start; align-items:end; column-gap:0.12em; font-size:clamp(16px, 3.6cqi, 26px);">
-                  <span style="visibility:hidden; padding:0 0.06em; font-size:1.05em; font-weight:700;">‖</span>
+                <div style="display:grid; grid-template-columns:{{ exGridCols }}; justify-content:start; align-items:end; column-gap:0.12em; font-size:clamp(19px, 4.2cqi, 30px);">
+                  <span style="color:var(--gold); padding:0 0.06em; font-size:1.15em; font-weight:700;">‖</span>
                   <sc-for list="{{ exAngaCellsLeft }}" as="a" hint-placeholder-count="8">
                     <span style="position:relative; text-align:center; font-weight:700; color:{{ a.color }};"><sc-if value="{{ a.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.19em; top:0; bottom:0; width:2px; background:var(--gold); border-radius:1px;"></span></sc-if><span style="font-size:clamp(9px,2.6cqi,12px);">{{ a.sym }}<span style="font-size:0.72em; vertical-align:sub;">{{ a.sub }}</span></span></span>
                   </sc-for>
-                  <sc-if value="{{ exTwoAv }}" hint-placeholder-val="{{ true }}"><span style="visibility:hidden; padding:0; font-size:1.05em; font-weight:700;">|</span></sc-if>
+                  <sc-if value="{{ exTwoAv }}" hint-placeholder-val="{{ true }}"><span style="color:var(--gold); padding:0; font-size:1.15em; font-weight:700;">|</span></sc-if>
                   <sc-for list="{{ exAngaCellsRight }}" as="a" hint-placeholder-count="8">
                     <span style="position:relative; text-align:center; font-weight:700; color:{{ a.color }};"><sc-if value="{{ a.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.19em; top:0; bottom:0; width:2px; background:var(--gold); border-radius:1px;"></span></sc-if><span style="font-size:clamp(9px,2.6cqi,12px);">{{ a.sym }}<span style="font-size:0.72em; vertical-align:sub;">{{ a.sub }}</span></span></span>
                   </sc-for>
-                  <span style="visibility:hidden; padding:0 0.06em; font-size:1.05em; font-weight:700;">‖</span>
+                  <span style="color:var(--gold); padding:0 0.06em; font-size:1.15em; font-weight:700;">‖</span>
                 </div>
               </div>
             </div>
@@ -1346,7 +1347,7 @@
                       </sc-if>
                     </span>
                   </sc-for>
-                  <sc-if value="{{ ln.twoAv }}" hint-placeholder-val="{{ true }}"><span style="color:var(--gold); font-weight:700; padding:0; font-size:1.05em;">|</span></sc-if>
+                  <span style="color:var(--gold); padding:0; font-size:1.15em; font-weight:700;">|</span>
                   <sc-for list="{{ ln.right }}" as="t" hint-placeholder-count="8">
                     <span style="position:relative; display:flex; align-items:center; justify-content:center; height:1.7em; padding:{{ t.cellPad }}; margin:{{ t.cellMargin }}; border-radius:0.28em; background:{{ t.cellBg }}; color:{{ t.cellColor }}; min-width:0;"><sc-if value="{{ t.divAfter }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:-0.19em; top:0; bottom:0; width:2px; background:{{ t.divColor }}; border-radius:1px; transition:background 0.15s;"></span></sc-if>
                       <sc-if value="{{ t.hold }}" hint-placeholder-val="{{ false }}"><span>–</span></sc-if>
@@ -2473,13 +2474,18 @@ class Component extends DCLogic {
       l.showNum = multi;
       l.thalaMarks = l.classic && this.state.exCat !== "special";
       if (l.classic) {
-        [l.left, l.right].forEach(g => {
+        const groups = [l.left, l.right];
+        const lastGi = l.right && l.right.length ? 1 : 0;
+        groups.forEach((g, gi) => {
           g.forEach((c, li) => {
             if (!c) return;
             const beat = Math.floor(li / hlN);
             const u = mUnits[beat % mL];
             const lastOfBeat = Math.floor((li + 1) / hlN) !== beat;
-            const isEnd = hlN === 1 && lastOfBeat && !!u.end && (beat % mL) !== mL - 1;
+            // Draw a divider at EVERY anga end to match the anga heading row 1:1,
+            // suppressing only the final line end (covered by the trailing ‖).
+            const isLineEnd = gi === lastGi && li === g.length - 1;
+            const isEnd = hlN === 1 && lastOfBeat && !!u.end && !isLineEnd;
             c.divAfter = isEnd;
             c.cellPad = "0 0.13em";
             c.cellMargin = "0";
