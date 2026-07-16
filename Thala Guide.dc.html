@@ -23,14 +23,14 @@
     @keyframes tg-pop { 0%{ transform:scale(1); } 40%{ transform:scale(1.4); } 100%{ transform:scale(1.28); } }
     input[type=range]{-webkit-appearance:none;appearance:none;height:22px;cursor:pointer;background:transparent;width:100%;}
     input[type=range][data-scale="tempo"]{background:
-      linear-gradient(#a07a35,#a07a35) right 10px top 2px / 1px 14px no-repeat,
-      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 12.5%) 10px 2px / calc(100% - 20px) 14px no-repeat,
-      linear-gradient(to bottom,transparent 0,transparent 7px,#e3d4b6 7px,#e3d4b6 11px,transparent 11px) 10px 0 / calc(100% - 20px) 100% no-repeat;
+      linear-gradient(#a07a35,#a07a35) right 10px top 0px / 1px 22px no-repeat,
+      repeating-linear-gradient(to right,#a07a35 0,#a07a35 1px,transparent 1px,transparent 12.5%) 10px 0px / calc(100% - 20px) 22px no-repeat,
+      linear-gradient(to bottom,transparent 0,transparent 6px,#e3d4b6 6px,#e3d4b6 12px,transparent 12px) 10px 0 / calc(100% - 20px) 100% no-repeat;
       background-color:transparent;}
     input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
     input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#5c1a1a;border:3px solid #d8b863;cursor:pointer;}
     @media (max-width: 860px){
-      .tg-anga-row{ grid-template-columns:1fr !important; }
+      .tg-anga-row{ grid-template-columns:repeat(auto-fit,minmax(140px,200px)) !important; justify-content:center !important; }
       .tg-thala-grid{ grid-template-columns:1fr !important; }
       .tg-header{ padding:18px 18px !important; }
       main{ padding:22px 14px 60px !important; }
@@ -160,12 +160,12 @@
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:14px;">
             <sc-for list="{{ gestureStrip }}" as="g" hint-placeholder-count="8">
-              <div style="width:84px; flex:none; display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 8px; border-radius:11px; border:2px solid {{ g.border }}; background:{{ g.bg }}; transform:scale({{ g.scale }}); transition:all 0.15s ease;">
-                <div style="display:flex; flex-direction:column; align-items:center; gap:1px;">
-                  <span style="font-size:13px; font-weight:700; color:var(--maroon); line-height:1;">{{ g.num }}</span>
-                  <span style="font-size:16px; font-weight:700; color:var(--gold); line-height:1;">{{ g.angaSym }}<span style="font-size:0.6em; vertical-align:sub;">{{ g.angaSub }}</span></span>
+              <div style="width:72px; flex:none; display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 7px; border-radius:11px; border:2px solid {{ g.border }}; background:{{ g.bg }}; transform:scale({{ g.scale }}); transition:all 0.15s ease; box-shadow:0 1px 3px rgba(92,26,26,0.06);">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                  <span style="font-size:12px; font-weight:700; color:{{ g.numColor }}; line-height:1;">{{ g.num }}</span>
+                  <span style="font-size:15px; font-weight:700; color:{{ g.angaColor }}; line-height:1;">{{ g.angaSym }}<span style="font-size:0.6em; vertical-align:sub;">{{ g.angaSub }}</span></span>
                 </div>
-                <div style="font-size:10px; font-weight:600; color:{{ g.labelColor }}; text-align:center; line-height:1.15; min-height:24px; display:flex; align-items:center; justify-content:center;">{{ g.label }}</div>
+                <div style="font-size:9.5px; font-weight:600; color:{{ g.labelColor }}; text-align:center; line-height:1.15; min-height:22px; display:flex; align-items:center; justify-content:center;">{{ g.label }}</div>
               </div>
             </sc-for>
           </div>
@@ -494,13 +494,17 @@ class Component extends DCLogic {
       if (step.type === "open") { label = this.t("Veechu", "വീച്ച്"); gesture = "open"; }
       else if (step.type === "finger") { label = fingerLabels[step.finger] || this.t("Count", "എണ്ണം"); gesture = "finger"; finger = step.finger; }
       const ad = angaData[i] || { sym: "", sub: "" };
+      const kind = step.type === "finger" ? "L" : (step.type === "open" ? "V" : "T");
+      const base = kind === "V" ? "#2f6db0" : (kind === "T" ? "#b0431e" : "#1f7a3d");
       return {
         key: i, num: i + 1, gesture, finger, label,
         angaSym: ad.sym, angaSub: ad.sub,
-        border: active ? "var(--gold)" : "var(--line)",
-        bg: active ? "#fbf3df" : "#fff",
-        scale: active ? "1.12" : "1",
-        labelColor: active ? "var(--maroon)" : "var(--muted)"
+        border: active ? base : "var(--line)",
+        bg: active ? base : "#fff",
+        scale: active ? "1.16" : "1",
+        numColor: active ? "#fff" : "var(--muted)",
+        angaColor: active ? "#fff" : base,
+        labelColor: active ? "#fff" : "var(--muted)"
       };
     });
     const liveTitleFull = jathiNamesFull[jathi] + jathiWord + liveDef.title + (liveKey === "triputa" && jathi === 4 ? adiSuffix : "");
@@ -508,12 +512,12 @@ class Component extends DCLogic {
       { val: "mridangam", label: "Mridangam" },
       { val: "tabla", label: "Tabla" },
       { val: "drum", label: "Drum kit" },
-      { val: "chenda", label: "Chenda" }
+      { val: "chenda", label: "Bell" }
     ] : [
       { val: "mridangam", label: "മൃദംഗം" },
       { val: "tabla", label: "തബല" },
       { val: "drum", label: "ഡ്രം കിറ്റ്" },
-      { val: "chenda", label: "ചെണ്ട" }
+      { val: "chenda", label: "മണി" }
     ];
 
     return {

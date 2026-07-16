@@ -151,10 +151,19 @@ function autoCorrelate(buf, sampleRate) {
   for (let i = d; i < SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
   let T0 = maxpos;
   if (T0 <= 0) return { freq: -1, rms };
+  // octave-halving guard: autocorrelation often locks onto a sub-harmonic
+  // (a period 2× or 3× too long → pitch an octave/twelfth too low). If a
+  // near-integer sub-division of T0 still has strong correlation, that shorter
+  // period is the true fundamental. This is the single biggest source of the
+  // "detected swara is an octave off" error on voice.
+  for (const div of [2, 3]) {
+    const cand = Math.round(maxpos / div);
+    if (cand > 1 && c[cand] > maxval * 0.86) { T0 = cand; break; }
+  }
   // clarity gate: reject weakly-periodic (unvoiced/noisy) frames so stray
   // consonants and room noise don't register as spurious swaras.
   const clarity = c[0] > 0 ? maxval / c[0] : 0;
-  if (clarity < 0.4) return { freq: -1, rms, clarity };
+  if (clarity < 0.45) return { freq: -1, rms, clarity };
   const x1 = c[T0 - 1] || 0, x2 = c[T0], x3 = c[T0 + 1] || 0;
   const a = (x1 + x3 - 2 * x2) / 2;
   const bb = (x3 - x1) / 2;
@@ -290,7 +299,62 @@ class AudioEngine {
       this.master.connect(this.ac.destination);
     }
     if (this.ac.state === "suspended") this.ac.resume();
+    this._loadSamples();
     return this.ac;
+  }
+
+  // ---- instrument samples (user-provided mp3s; synth fallback if absent) ----
+  _loadSamples() {
+    if (this._samplesStarted) return;
+    this._samplesStarted = true;
+    this.samples = this.samples || {};
+    // base = natural pitch of the recording (Hz) for pitched instruments;
+    // null = percussion one-shot (played at natural rate per stroke).
+    const defs = {
+      harmonium: { url: "harmonium_E3", base: 164.81 },
+    };
+    const map = {
+      harmonium_E3: "03_harmonium_E3.mp3",
+    };
+    const base = (this._sampleBase || "./assets/audio/");
+    Object.keys(defs).forEach(inst => {
+      const d = defs[inst];
+      this.samples[inst] = { base: d.base, buffer: null };
+      fetch(base + map[d.url]).then(r => r.ok ? r.arrayBuffer() : Promise.reject())
+        .then(ab => this.ac.decodeAudioData(ab))
+        .then(buf => { this.samples[inst].buffer = buf; })
+        .catch(() => {});
+    });
+  }
+  // Play a pitched sample at the rate needed to reach `freq`; returns false if
+  // no sample is loaded (caller falls back to synthesis).
+  _playSample(inst, time, freq, dur, gain) {
+    const s = this.samples && this.samples[inst];
+    if (!s || !s.buffer) return false;
+    const ac = this.ac;
+    const dest = this._exDest || this.master;
+    const src = ac.createBufferSource(); src.buffer = s.buffer;
+    if (s.base && freq) src.playbackRate.value = freq / s.base;
+    const g = ac.createGain();
+    const total = Math.max(0.12, dur);
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(gain * 1.1, time + 0.012);
+    g.gain.setValueAtTime(gain * 1.1, time + total * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0007, time + total + 0.08);
+    src.connect(g).connect(dest);
+    src.start(time); src.stop(time + total + 0.12);
+    return true;
+  }
+  // Play a percussion one-shot sample at natural rate; false if none loaded.
+  _playPercSample(inst, time, gain) {
+    const s = this.samples && this.samples[inst];
+    if (!s || !s.buffer) return false;
+    const ac = this.ac;
+    const src = ac.createBufferSource(); src.buffer = s.buffer;
+    const g = ac.createGain(); g.gain.value = gain * 1.15;
+    src.connect(g).connect(this.master);
+    src.start(time);
+    return true;
   }
 
   // ---- iOS audio unlock ------------------------------------------------
@@ -695,6 +759,10 @@ class AudioEngine {
   }
   // percussion dispatcher: slot B(bass) / T(mid) / K(high) per instrument
   _perc(time, slot, gain, inst) {
+    // "bell"/mani instrument (chenda option) → exercise bell "ting" per stroke
+    if (inst === "bell" || inst === "chenda") return this._bellClick(time, slot === "B", gain, this.master);
+    // real recorded one-shot when available (all slots use the sample)
+    if (inst && this._playPercSample(inst, time, gain * (slot === "B" ? 1 : slot === "T" ? 0.9 : 0.8))) return;
     if (!inst || inst === "mridangam") {
       if (slot === "B") this._bass(time, gain); else this._tap(time, gain, slot === "K");
       return;
@@ -1061,24 +1129,37 @@ class AudioEngine {
       const vowel = parts[1] || "aa";
       return this._voice(time, freq, dur, gain * 1.4, gender, vowel);
     }
-    if (inst === "harmonium") return this._harmonium(time, freq, dur, gain);
-    if (inst === "veena") return this._exPluck(time, freq, dur, gain);
+    if (inst === "harmonium") { if (this._playSample("harmonium", time, freq, dur, gain)) return; return this._harmonium(time, freq, dur, gain); }
+    if (inst === "veena") { if (this._playSample("veena", time, freq, dur, gain)) return; return this._exPluck(time, freq, dur, gain); }
+    if ((inst === "violin" || inst === "flute" || inst === "piano") && this._playSample(inst, time, freq, dur, gain)) return;
     const ac = this.ac;
     const total = Math.max(0.16, dur);
     const dest = this._exDest || this.master;
-    let oscType = "sine", filterFreq = 4000, attack = 0.02, vibrato = 0, decay = false, p2g = 0.12, lvl = 1.3;
-    if (inst === "violin") { oscType = "sawtooth"; filterFreq = 3000; attack = 0.09; vibrato = 0.006; p2g = 0.1; lvl = 1.0; }
-    else if (inst === "piano") { oscType = "triangle"; filterFreq = 4800; attack = 0.004; decay = true; p2g = 0.2; lvl = 1.7; }
-    else if (inst === "flute") { oscType = "sine"; filterFreq = 3200; attack = 0.07; vibrato = 0.004; p2g = 0.1; lvl = 1.9; }
+    // Richer partial stack per instrument for a less "beepy", more acoustic
+    // timbre — a small harmonic series with instrument-specific rolloff plus a
+    // gently moving lowpass (a subtle "breath"/bow bloom) instead of a static
+    // two-oscillator tone.
+    let partials, filterFreq = 4000, attack = 0.02, vibrato = 0, vibRate = 5.2, decay = false, lvl = 1.3, fBloom = 1.0, oscType = "sine";
+    if (inst === "violin") { partials = [[1,1],[2,0.5],[3,0.34],[4,0.22],[5,0.14],[6,0.08]]; oscType = "sawtooth"; filterFreq = 2600; attack = 0.11; vibrato = 0.007; vibRate = 5.6; lvl = 0.95; fBloom = 1.7; }
+    else if (inst === "piano") { partials = [[1,1],[2,0.42],[3,0.2],[4,0.12],[5,0.06]]; oscType = "triangle"; filterFreq = 5200; attack = 0.003; decay = true; lvl = 1.7; fBloom = 0.6; }
+    else if (inst === "flute") { partials = [[1,1],[2,0.16],[3,0.06]]; oscType = "sine"; filterFreq = 3400; attack = 0.08; vibrato = 0.005; vibRate = 4.9; lvl = 1.9; fBloom = 1.3; }
+    else { partials = [[1,1],[2,0.3],[3,0.12]]; oscType = "sine"; filterFreq = 4200; attack = 0.02; lvl = 1.3; }
     gain = gain * lvl;
-    const osc = ac.createOscillator(); osc.type = oscType; osc.frequency.value = freq;
-    const osc2 = ac.createOscillator(); osc2.type = oscType; osc2.frequency.value = freq * 2;
-    const o2g = ac.createGain(); o2g.gain.value = p2g;
-    const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = filterFreq;
+    const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.setValueAtTime(filterFreq * 0.7, time);
+    lp.frequency.linearRampToValueAtTime(filterFreq * fBloom, time + Math.min(0.4, total * 0.5));
+    lp.Q.value = inst === "violin" ? 1.1 : 0.6;
+    const oscs = [];
+    for (const [r, amp] of partials) {
+      const o = ac.createOscillator(); o.type = oscType; o.frequency.value = freq * r;
+      const og = ac.createGain(); og.gain.value = amp;
+      o.connect(og).connect(lp); oscs.push(o);
+    }
     if (vibrato) {
-      const lfo = ac.createOscillator(); lfo.type = "sine"; lfo.frequency.value = 5.2;
+      const lfo = ac.createOscillator(); lfo.type = "sine"; lfo.frequency.value = vibRate + (Math.random()*0.4-0.2);
       const lg = ac.createGain(); lg.gain.value = freq * vibrato;
-      lfo.connect(lg); lg.connect(osc.frequency);
+      const vibOn = time + Math.min(0.16, total * 0.35); // delayed, natural onset
+      lg.gain.setValueAtTime(0, time); lg.gain.setValueAtTime(0, vibOn); lg.gain.linearRampToValueAtTime(freq * vibrato, vibOn + 0.12);
+      lfo.connect(lg); oscs.forEach(o => lg.connect(o.frequency));
       lfo.start(time); lfo.stop(time + total + 0.1);
     }
     const g = ac.createGain();
@@ -1087,9 +1168,9 @@ class AudioEngine {
     g.gain.linearRampToValueAtTime(gain, time + attack);
     if (decay) { g.gain.exponentialRampToValueAtTime(0.0008, time + decayEnd); }
     else { g.gain.setValueAtTime(gain, time + total * 0.78); g.gain.exponentialRampToValueAtTime(0.0008, time + total); }
-    osc.connect(lp); osc2.connect(o2g).connect(lp); lp.connect(g); g.connect(dest);
+    lp.connect(g); g.connect(dest);
     const end = (decay ? time + decayEnd : time + total) + 0.06;
-    osc.start(time); osc2.start(time); osc.stop(end); osc2.stop(end);
+    oscs.forEach(o => { o.start(time); o.stop(end); });
   }
   // Harmonium (free-reed organ): detuned saw banks + reed body + tremolo
   _harmonium(time, freq, dur, gain) {
@@ -1561,10 +1642,16 @@ class AudioEngine {
       const pc = countsFor(sh);
       const tot = pc.reduce((a, b) => a + b, 0) || 1;
       const saWeight = pc[0] / tot; // Sa is usually among the most-sung notes
+      // When a shruti is CHOSEN, a teacher expects Sa at (or very near) that
+      // selected pitch. Bias the tonic search toward the selected Sa so a
+      // slightly-off take is judged against the chosen shruti rather than
+      // silently re-anchored to a wrong key. Falls away fast with distance.
+      const dist = Math.min(sh, 12 - sh); // semitones from selected Sa
+      const selBias = selSet ? Math.max(0, 22 - dist * 9) : 0;
       let score, id = null;
       if (selSet) {
         let inside = 0; pc.forEach((c, p) => { if (selSet.has(p)) inside += c; });
-        score = (inside / tot) * 100 + saWeight * 25;
+        score = (inside / tot) * 100 + saWeight * 25 + selBias;
       } else {
         id = identifyRaga(pc);
         score = (id ? id.confidence : 0) + saWeight * 25;

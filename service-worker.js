@@ -1,5 +1,5 @@
 /* Swara Sadhana Basic — service worker (offline-capable PWA) */
-const VERSION = 'swarasadhana-basic-v41';
+const VERSION = 'swarasadhana-basic-v62';
 const CORE_CACHE = VERSION + '-core';
 const RUNTIME_CACHE = VERSION + '-runtime';
 
@@ -12,6 +12,7 @@ const CORE_ASSETS = [
   './assets/support.js',
   './assets/app.js',
   './assets/audio-engine.js',
+  './assets/audio/03_harmonium_E3.mp3',
   './assets/i18n.js',
   './assets/styles.css',
   './assets/images/favicon.png',
