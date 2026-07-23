@@ -2852,7 +2852,7 @@ class Component extends DCLogic {
     const exSelItems = this.exItems().filter(e => st.exSelIds[e.id]);
     const exMulti = exSelItems.length >= 2;
     const effShowAll = st.exShowAll || exMulti;
-    const stairEx = (st.exShowAll && st.exPlaying && st.exAllIdx >= 0)
+    const stairEx = (effShowAll && st.exPlaying && st.exAllIdx >= 0)
       ? ((this._playSeqItems || this.exItems())[st.exAllIdx] || this.exSelected())
       : this.exSelected();
     const stair = this.stairFor(stairEx, st.exCurrent);

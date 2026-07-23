@@ -471,6 +471,7 @@ class AudioEngine {
     const tick = () => {
       if (!m.running) return;
       const spb = 60 / m.bpm;
+      if (m.next < this._now() - spb) m.next = this._now() + 0.02;
       while (m.next < this._now() + lookahead) {
         const accent = m.beat % m.beats === 0;
         this._click(m.next, accent, m.gain);
@@ -603,6 +604,10 @@ class AudioEngine {
     const tick = () => {
       if (!t.running) return;
       const strum = t.gap || 1.3; // seconds between swara strikes (user-set)
+      // If the scheduler was frozen (tab throttled / screen slept) and fell far
+      // behind real time, resync forward instead of dumping a burst of past-due
+      // plucks all at once (which clump and sound like the drone "changed").
+      if (t.next < this._now() - strum) t.next = this._now() + 0.05;
       while (t.next < this._now() + 0.3) {
         const f = this.tonicHz;
         // Tanpura strings: Sa – Pa – upper Sa
@@ -957,6 +962,7 @@ class AudioEngine {
       const pat = th.pat;
       const subPerBeat = pat.length / th.beats; // = 2
       const subDur = (60 / m.bpm) / subPerBeat;
+      if (m.next < this._now() - subDur) m.next = this._now() + 0.05;
       while (m.next < this._now() + 0.25) {
         const slot = pat[m.idx % pat.length];
         const accent = m.idx % pat.length === 0;
